@@ -18,8 +18,9 @@ Giải pháp của chúng tôi đóng vai trò là **'Cầu Nối Khẩn Cấp'*
 
 ## 🏗️ Kiến trúc Hệ thống
 
-Sơ đồ dưới đây mô tả luồng dữ liệu kết hợp giữa ý tưởng của đội và yêu cầu của đề bài:
+Đây là sơ đồ mô tả luồng dữ liệu chính, từ người dùng đến lớp dữ liệu lõi và ngược lại.
 
+```mermaid
 graph TD
     %% 1. USER & DATA INPUT LAYER
     subgraph "1. Lớp Đầu Vào Dữ liệu (User/Frontend)"
@@ -59,6 +60,7 @@ graph TD
     
     %% Luồng Phản hồi
     D -->|Thông báo (Notification Service)| K(Người Dân/Quản lý);
+```
 ## 🛠️ Công nghệ & Phụ thuộc (Tech Stack)
 
 Nền tảng này sử dụng và tích hợp các PMMN sau:
