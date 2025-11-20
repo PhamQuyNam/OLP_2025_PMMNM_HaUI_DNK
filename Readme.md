@@ -24,7 +24,7 @@ Giải pháp của chúng tôi đóng vai trò là **'Cầu Nối Khẩn Cấp'*
 graph TD
     %% 1. USER & DATA INPUT LAYER
     subgraph "1. Lớp Đầu Vào Dữ liệu (User/Frontend)"
-        A1[Người Dân/Mobile App] -->|1.1 Gửi Phản ánh (Ảnh, GPS, Mô tả)| B;
+        A1[Người Dân/Mobile App] -->|1.1 Gửi Phản ánh | B;
         A2[Nhà Quản lý/Web Dashboard] -->|1.2 Cập nhật Trạng thái| B;
     end
 
