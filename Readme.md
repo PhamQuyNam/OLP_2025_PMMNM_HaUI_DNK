@@ -22,44 +22,49 @@ Giải pháp của chúng tôi đóng vai trò là **'Cầu Nối Khẩn Cấp'*
 
 ```mermaid
 graph TD
+
     %% 1. USER & DATA INPUT LAYER
-    subgraph "1. Lớp Đầu Vào Dữ liệu (User/Frontend)"
-        A1[Người Dân/Mobile App] -->|1.1 Gửi Phản ánh | B;
-        A2[Nhà Quản lý/Web Dashboard] -->|1.2 Cập nhật Trạng thái| B;
+    subgraph L1["1. Lớp Đầu Vào Dữ liệu (User/Frontend)"]
+        A1["Người Dân / Mobile App"] -->|1.1 Gui phan anh| B
+        A2["Nhà Quản lý / Web Dashboard"] -->|1.2 Cap nhat trang thai| B
     end
 
     %% 2. APPLICATION LOGIC & ADAPTER LAYER
-    subgraph "2. Lớp Logic Ứng dụng (Smart Agent - FastAPI/Django)"
-        B(API Gateway/Context Broker Adapter);
-        B -->|2.1 Chuẩn hóa & Validate dữ liệu| C;
-        C[Lớp Chuyển đổi Dữ liệu (NGSI-LD Mapper)];
+    subgraph L2["2. Lớp Logic Ứng dụng - Smart Agent (FastAPI/Django)"]
+        B["API Gateway / Context Broker Adapter"]
+        B -->|2.1 Chuan hoa & Validate du lieu| C
+        C["Lop Chuyen doi Du lieu - NGSI-LD Mapper"]
     end
 
     %% 3. CONTEXT & DATA CORE LAYER
-    subgraph "3. Lớp Dữ liệu Lõi (FIWARE Core)"
-        C -->|3.1 Tạo/Cập nhật Entity Context (NGSI-LD)| D;
-        D[Orion-LD Context Broker];
-        D -->|3.2 Relationship: IssueReport liên kết PublicAsset| E{Mô hình Dữ liệu Liên kết (LOD)};
-        E -->|3.3 Persistent Storage| F(PostgreSQL + PostGIS);
-        D -- "3.4 Subscribe (NGSI-LD)" --> G;
-        G[QuantumLeap (Lưu trữ Lịch sử)];
+    subgraph L3["3. Lớp Dữ liệu Lõi (FIWARE Core)"]
+        C -->|3.1 Tao hoac Cap nhat Entity Context - NGSI-LD| D
+        D["Orion-LD Context Broker"]
+        D -->|3.2 Relationship: IssueReport lien ket PublicAsset| E
+        E{"Mo hinh Du lieu Lien ket - LOD"}
+        E -->|3.3 Persistent Storage| F
+        F["PostgreSQL + PostGIS"]
+        D -- "3.4 Subscribe NGSI-LD" --> G
+        G["QuantumLeap - Luu tru lich su"]
     end
-    
+
     %% 4. STORAGE & HISTORICAL DATA
-    subgraph "4. Lớp Lưu Trữ Lịch Sử & Media"
-        G --> H[TimescaleDB/Historian];
-        B -->|4.1 Lưu trữ Ảnh/Video (Media)| I[MinIO Object Storage (S3)];
+    subgraph L4["4. Lớp Lưu Trữ Lịch Sử & Media"]
+        G --> H["TimescaleDB / Historian"]
+        B -->|4.1 Luu tru Anh/Video - Media| I
+        I["MinIO Object Storage - S3"]
     end
 
     %% 5. DATA OUTPUT & INTERACTION
-    subgraph "5. Lớp Ứng dụng Đầu Ra"
-        J1[Web Dashboard] -->|5.1 Query Real-time (NGSI-LD)| D;
-        J1 -->|5.2 Query Lịch sử| H;
-        J2[Mobile App] -->|5.3 Query Trạng thái| D;
+    subgraph L5["5. Lớp Ứng dụng Đầu Ra"]
+        J1["Web Dashboard"] -->|5.1 Query Real-time NGSI-LD| D
+        J1 -->|5.2 Query Lich su| H
+        J2["Mobile App"] -->|5.3 Query Trang thai| D
     end
-    
-    %% Luồng Phản hồi
-    D -->|Thông báo (Notification Service)| K(Người Dân/Quản lý);
+
+    %% RESPONSE FLOW
+    D -->|Thong bao - Notification Service| K["Nguoi Dan / Quan ly"]
+
 ```
 ## 🛠️ Công nghệ & Phụ thuộc (Tech Stack)
 
