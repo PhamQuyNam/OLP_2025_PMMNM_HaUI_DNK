@@ -1,0 +1,83 @@
+
+services:
+  # 1. MongoDB - Cơ sở dữ liệu cho Orion Context Broker
+  mongo:
+    image: mongo:4.4
+    hostname: mongo
+    container_name: db-mongo
+    ports:
+      - "27017:27017"
+    networks:
+      - main-network
+    command: --nojournal
+
+  # 2. Fiware Orion Context Broker - Cốt lõi quản lý ngữ cảnh NGSI-LD
+  orion:
+    image: fiware/orion-ld:latest
+    hostname: orion
+    container_name: fiware-orion
+    restart: always
+    command: -dbhost mongo -logLevel DEBUG
+    depends_on:
+      - mongo
+    networks:
+      - main-network
+    ports:
+      - "1026:1026"
+    environment:
+      - ORION_MONGO_HOST=mongo
+      - ORION_MONGO_PORT=27017
+
+  # 3. PostGIS - Cơ sở dữ liệu không gian cho dữ liệu tĩnh (Vùng nguy cơ)
+  postgis:
+    image: postgis/postgis:latest
+    hostname: postgis
+    container_name: db-postgis
+    ports:
+      - "5432:5432"
+    networks:
+      - main-network
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    volumes:
+      - ./context-data/initial_setup.sql:/docker-entrypoint-initdb.d/init.sql
+
+  # 4. Backend API - API Gateway (Node.js)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: backend
+    depends_on:
+      - orion
+      - postgis
+    networks:
+      - main-network
+    ports:
+      - "3000:3000"
+    environment:
+      - ORION_HOST=http://orion:1026
+      - POSTGRES_HOST=postgis
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+
+  # 5. Ingestion & Analysis Service - Xử lý dữ liệu & Cảnh báo (Python)
+  ingestion:
+    build:
+      context: ./ingestion-analysis-service
+      dockerfile: Dockerfile
+    container_name: ingestion-service
+    depends_on:
+      - orion
+    networks:
+      - main-network
+    environment:
+      - ORION_HOST=http://orion:1026
+      - OPENWEATHER_API_KEY=${OPENWEATHER_API_KEY}
+
+networks:
+  main-network:
+    driver: bridge
