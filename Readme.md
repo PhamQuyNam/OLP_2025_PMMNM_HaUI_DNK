@@ -1,4 +1,4 @@
-# XÂY DỰNG ỨNG DỤNG NGUỒN MỞ QUẢN LÝ TÀI SẢN CÔNG CỘNG TRONG THÀNH PHỐ TỪ DỮ LIỆU CÔNG KHAI (Bài dự thi OLP PMNM 2025)
+# HỆ THỐNG NỀN TĂNG DỮ LIỆU MỞ GIÚP CẢNH BÁO SỚM VÀ PHẢN ỨNG KHẨN CẤP THIÊN TAI (Bài dự thi OLP PMNM 2025)
 
 **Đội:** Haui-DNK
 
@@ -9,61 +9,71 @@
 
 Bài dự thi Xây dựng ứng dụng thành phố thông minh dựa trên nền tảng dữ liệu mở.
 
-## 💡 Ý tưởng Cốt lõi: Nền Tảng "SỨC MẠNH CỘNG ĐỒNG" Quản Lý Tài Sản Công Cộng
+## 💡 Ý tưởng Cốt lõi: 
 
-Chúng tôi không chỉ xây dựng một ứng dụng; chúng tôi kiến tạo **Hệ thống Quản lý Tài sản Công cộng Thời gian Thực** dựa trên triết lý **Dữ liệu Mở** và **Mô hình Liên kết (LOD)**.
-Sứ mệnh cốt lõi của giải pháp là chuyển đổi vai trò của **Người Dân** từ người thụ động thành **"Cảm Biến Sống" (Live Sensor)** cho Thành phố.
-
-Giải pháp của chúng tôi đóng vai trò là **'Cầu Nối Khẩn Cấp'** kỹ thuật số, sử dụng sức mạnh của nguồn mở **(Apache License)** và tiêu chuẩn IoT mở **(NGSI-LD/FIWARE)** để tạo ra một cơ chế giám sát tài sản công cộng minh bạch và tức thời. Thay vì chờ đợi, người dân chỉ cần **một cú chạm** để báo cáo sự cố (từ đèn đường hỏng đến nắp cống mất), đồng thời gắn nhãn vị trí **(Geo-Tagging)** và tình trạng. Ngay lập tức, dữ liệu này trở thành **Context Entity** trong nền tảng dữ liệu đô thị mở, kích hoạt **quy trình khắc phục** ưu tiên cho nhà quản lý.
+Hệ thống của chúng tôi là một giải pháp tiên phong nhằm chuyển đổi mô hình quản lý thiên tai tại Việt Nam từ phản ứng thụ động sang **dự báo chủ động** và **phản ứng phối hợp hai chiều**. Ý tưởng cốt lõi là thiết lập một nền tảng **Dữ liệu Mở (Open Context Data Platform)** sử dụng chuẩn **NGSI-LD** để quản lý trạng thái **thời gian thực** của các Thực thể liên quan đến nguy cơ thiên tai. Hệ thống không chỉ tích hợp các **tiêu chí dự đoán** khoa học (như Độ dốc , Lượng mưa tích lũy , Mực nước Sông/Hồ ), mà còn tạo ra **kênh tương tác hai chiều** giữa các nhà quản lý với người dân. Nhà quản lý có được **Bản đồ Tình huống Chung** để ra quyết định , trong khi người dân có thể gửi các **Báo cáo sự cố** hoặc **tín hiệu Cầu cứu (SOS)** tức thời , tạo ra nguồn dữ liệu **NGSI-LD:CitizenReport** để hỗ trợ công tác cứu hộ. Toàn bộ hệ thống được xây dựng bằng công nghệ nguồn mở, đảm bảo tính khả chuyển và khả năng tái sử dụng cao.
 
 ## 🏗️ Kiến trúc Hệ thống
 
 Đây là sơ đồ mô tả luồng dữ liệu chính, từ người dùng đến lớp dữ liệu lõi và ngược lại.
 
 ```mermaid
-graph TD
-
-    %% 1. USER & DATA INPUT LAYER
-    subgraph L1["1. Lớp Đầu Vào Dữ liệu (User/Frontend)"]
-        A1["Người Dân / Mobile App"] -->|1.1 Gui phan anh| B
-        A2["Nhà Quản lý / Web Dashboard"] -->|1.2 Cap nhat trang thai| B
+flowchart LR
+    %% ===== 0. AUTH & INFRA =====
+    subgraph S0["0. Hạ tầng & Xác thực"]
+        A[Người dùng] --> AUTH[Xác thực / Phân quyền]
+        AUTH --> DBUser[(PostgreSQL + PostGIS)]
     end
 
-    %% 2. APPLICATION LOGIC & ADAPTER LAYER
-    subgraph L2["2. Lớp Logic Ứng dụng - Smart Agent (FastAPI/Django)"]
-        B["API Gateway / Context Broker Adapter"]
-        B -->|2.1 Chuan hoa & Validate du lieu| C
-        C["Lop Chuyen doi Du lieu - NGSI-LD Mapper"]
+    %% ===== 1. INGESTION =====
+    subgraph S1["1. Thu thập & Chuẩn hoá Dữ liệu"]
+        direction LR
+        OpenAPI["Dữ liệu Mở (Thời tiết)"]
+        StaticData["Dữ liệu Tĩnh (Địa hình, Đất, Ngưỡng)"]
+        Citizen["Người dân gửi báo cáo"]
+
+        OpenAPI --> INGEST["Ingestion Service"]
+        StaticData --> INGEST
+        Citizen --> API["API Gateway"]
+
+        INGEST -->|"Chuẩn hóa NGSI-LD"| Orion
     end
 
-    %% 3. CONTEXT & DATA CORE LAYER
-    subgraph L3["3. Lớp Dữ liệu Lõi (FIWARE Core)"]
-        C -->|3.1 Tao hoac Cap nhat Entity Context - NGSI-LD| D
-        D["Orion-LD Context Broker"]
-        D -->|3.2 Relationship: IssueReport lien ket PublicAsset| E
-        E{"Mo hinh Du lieu Lien ket - LOD"}
-        E -->|3.3 Persistent Storage| F
-        F["PostgreSQL + PostGIS"]
-        D -- "3.4 Subscribe NGSI-LD" --> G
-        G["QuantumLeap - Luu tru lich su"]
+    %% ===== 2. CONTEXT CORE =====
+    subgraph S2["2. Nền tảng Dữ liệu Ngữ cảnh (FIWARE)"]
+        direction LR
+        Orion[Orion-LD Context Broker]
+        Mongo[(MongoDB - Context Storage)]
+
+        Orion -->|"Lưu Context hiện tại"| Mongo
+        Orion -->|"Publish sự kiện"| Logic["Dịch vụ Logic / Rule Engine"]
+
+        subgraph P["Lưu lịch sử"]
+            Orion --> QL[QuantumLeap]
+            QL --> TS[(TimescaleDB)]
+        end
     end
 
-    %% 4. STORAGE & HISTORICAL DATA
-    subgraph L4["4. Lớp Lưu Trữ Lịch Sử & Media"]
-        G --> H["TimescaleDB / Historian"]
-        B -->|4.1 Luu tru Anh/Video - Media| I
-        I["MinIO Object Storage - S3"]
+    %% ===== 3. BUSINESS & ML =====
+    subgraph S3["3. Phân tích & Dự đoán"]
+        Logic -->|"Query dữ liệu tĩnh"| DBUser
+        Logic -->|"Chạy mô hình ML"| Model["Model dự báo Sạt lở / Lũ quét"]
+        Model -->|"Cập nhật cảnh báo"| Orion
+        API -->|"Tạo/Cập nhật CitizenReport"| Orion
     end
 
-    %% 5. DATA OUTPUT & INTERACTION
-    subgraph L5["5. Lớp Ứng dụng Đầu Ra"]
-        J1["Web Dashboard"] -->|5.1 Query Real-time NGSI-LD| D
-        J1 -->|5.2 Query Lich su| H
-        J2["Mobile App"] -->|5.3 Query Trang thai| D
-    end
+    %% ===== 4. APPLICATION =====
+    subgraph S4["4. Ứng dụng"]
+        Admin["Web Dashboard"]
+        Mobile["Mobile App"]
 
-    %% RESPONSE FLOW
-    D -->|Thong bao - Notification Service| K["Nguoi Dan / Quan ly"]
+        Admin -->|"Query trạng thái"| Orion
+        Admin -->|"Truy vấn lịch sử"| TS
+        Admin -->|"Quản lý dữ liệu tĩnh"| DBUser
+
+        Mobile -->|"Lấy cảnh báo"| Orion
+        Orion -->|"Gửi thông báo"| Mobile
+    end
 
 ```
 ## 🛠️ Công nghệ & Phụ thuộc (Tech Stack)
@@ -71,12 +81,13 @@ graph TD
 Nền tảng này sử dụng và tích hợp các PMMN sau:
 
 - **Nền tảng Dữ liệu Đô thị Mở:**	FIWARE Orion-LD Context Broker  
+- **Mô hình hóa Dữ liệu:** Sử dụng tiêu chuẩn SOSA/SSN (W3C)
 - **Lưu Trữ Dữ liệu (GIS/Relational):**  PostgreSQL (Kèm theo tiện ích mở rộng PostGIS)
 - **Lưu Trữ Lịch sử (Historian):** FIWARE QuantumLeap (với Mongodb )  
+- **Lưu Trữ Media/Object:** MinIO
 - **Backend/Smart Agent:** Python (FastAPI )  
 - **Frontend/Giao diện:** React.js  
 - **Bản Đồ Số:** Leaflet.js  
-- **Lưu Trữ Media/Object:** MinIO
 - **Đóng gói/Triển khai:** Docker và Docker Compose
 
 ## 🚀 Hướng dẫn Cài đặt
@@ -96,9 +107,11 @@ docker-compose up --build -d
 
 ## 🌐 Xem Giao diện Web (Ví dụ)
 
-- **Ứng dụng Web (Frontend):** http://localhost:3000   
-- **API Backend (Smart Agent):** http://localhost:8000  
-- **Orion-LD Context Broker:** http://localhost:1026/version  
+- **Dashboard Nhà Quản lý:** http://localhost:3000/manager   
+- **Ứng dụng Người Dân:** http://localhost:3000/citizen   
+- **API Backend (FastAPI):** http://localhost:8000/docs
+- **API Cảnh báo/Báo cáo:** http://localhost:8000/api/reports
+- **Orion-LD Context Broker:** http://localhost:1026/ngsi-ld/v1/entities  
 
 **Dừng hệ thống:**
 ```bash
