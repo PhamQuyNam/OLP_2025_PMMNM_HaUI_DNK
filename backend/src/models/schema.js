@@ -28,6 +28,13 @@ const createTables = async () => {
             );
         `;
 
+         // --- Thực thi ---
+        await pool.query(createUsersTable);
+        console.log("✅ Checked/Created table 'users'");
+
+        await pool.query(createRiskZonesTable);
+        console.log("✅ Checked/Created table 'risk_zones'");
+
         // --- 3. (MỚI) SEED DATA - Thêm dữ liệu mẫu nếu bảng rỗng ---
         const checkData = await pool.query('SELECT count(*) FROM risk_zones');
         if (parseInt(checkData.rows[0].count) === 0) {
@@ -38,13 +45,6 @@ const createTables = async () => {
             await pool.query(insertQuery);
             console.log("🌱 Seeded sample data for 'risk_zones'");
         }
-
-        // --- Thực thi ---
-        await pool.query(createUsersTable);
-        console.log("✅ Checked/Created table 'users'");
-
-        await pool.query(createRiskZonesTable);
-        console.log("✅ Checked/Created table 'risk_zones'");
 
     } catch (err) {
         console.error("❌ Lỗi khi khởi tạo bảng:", err.message);
