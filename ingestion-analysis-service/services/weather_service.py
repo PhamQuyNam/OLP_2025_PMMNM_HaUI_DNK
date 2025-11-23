@@ -6,7 +6,7 @@ from config.settings import API_KEY
 def fetch_rain_data(lat, lon):
     """Lấy dữ liệu mưa tại một tọa độ cụ thể"""
 
-    if not API_KEY or API_KEY == "8a79d2955889e2648c6307e5cab1b7d4":
+    if not API_KEY or API_KEY == "your_api_key":
         # Giả lập: Vùng núi (kinh độ < 105.5) thì mưa to hơn đồng bằng
         if lon < 105.5:
             # Random từ 15mm đến 50mm (Sẽ kích hoạt Mức 2 hoặc Mức 3)

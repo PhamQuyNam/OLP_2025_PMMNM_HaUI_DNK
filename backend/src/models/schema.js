@@ -36,6 +36,20 @@ const createTables = async () => {
         await pool.query(createRiskZonesTable);
         console.log("✅ Checked/Created table 'risk_zones'");
 
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS alert_history (
+                id SERIAL PRIMARY KEY,
+                station_name VARCHAR(100),
+                risk_type VARCHAR(50),
+                alert_level VARCHAR(20),
+                rain_value FLOAT,
+                description TEXT,
+                impacted_points JSONB,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        `);
+        console.log("✅ Table 'alert_history' checked.");
+
     } catch (err) {
         console.error("❌ Lỗi khi khởi tạo bảng:", err.message);
     }

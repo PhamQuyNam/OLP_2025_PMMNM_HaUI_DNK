@@ -8,6 +8,9 @@ const createTables = require('./src/models/schema');
 // Import Routes
 //const authRoutes = require('./src/routes/authRoutes');
 const mapRoutes = require('./src/routes/mapRoutes');
+const historyRoutes = require('./src/routes/historyRoutes');
+const weatherRoutes = require('./src/routes/weatherRoutes');
+const reportRoutes = require('./src/routes/reportRoutes');
 
 const app = express();
 app.use(cors());
@@ -16,6 +19,9 @@ app.use(express.json());
 // Sử dụng Routes
 //app.use('/api/auth', authRoutes);
 app.use('/api/map', mapRoutes);
+app.use('/api/history', historyRoutes);
+app.use('/api/weather', weatherRoutes);
+app.use('/api/reports', reportRoutes);
 
 const PORT = 3000;
 // --- KHỞI ĐỘNG SERVER ---

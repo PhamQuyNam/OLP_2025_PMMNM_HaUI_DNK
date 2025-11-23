@@ -76,7 +76,7 @@ def import_real_history():
 
         # Lấy dữ liệu 90 ngày
         end_date = datetime.now().strftime("%Y-%m-%d")
-        start_date = (datetime.now() - timedelta(days=90)).strftime("%Y-%m-%d")
+        start_date = "2025-01-01"
 
         total_alerts = 0
 
