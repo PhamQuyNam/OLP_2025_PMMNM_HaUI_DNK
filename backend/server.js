@@ -6,14 +6,16 @@ const cors = require('cors');
 const createTables = require('./src/models/schema');
 
 // Import Routes
-const authRoutes = require('./src/routes/authRoutes');
+//const authRoutes = require('./src/routes/authRoutes');
+const mapRoutes = require('./src/routes/mapRoutes');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
 // Sử dụng Routes
-app.use('/api/auth', authRoutes);
+//app.use('/api/auth', authRoutes);
+app.use('/api/map', mapRoutes);
 
 const PORT = 3000;
 // --- KHỞI ĐỘNG SERVER ---
