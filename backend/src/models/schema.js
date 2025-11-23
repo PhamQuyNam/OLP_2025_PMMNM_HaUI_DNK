@@ -24,6 +24,7 @@ const createTables = async () => {
                 id SERIAL PRIMARY KEY,
                 name VARCHAR(100),
                 risk_level VARCHAR(20),
+                risk_type VARCHAR(50),
                 geom GEOMETRY(Polygon, 4326)
             );
         `;
@@ -34,17 +35,6 @@ const createTables = async () => {
 
         await pool.query(createRiskZonesTable);
         console.log("✅ Checked/Created table 'risk_zones'");
-
-        // --- 3. (MỚI) SEED DATA - Thêm dữ liệu mẫu nếu bảng rỗng ---
-        const checkData = await pool.query('SELECT count(*) FROM risk_zones');
-        if (parseInt(checkData.rows[0].count) === 0) {
-            const insertQuery = `
-                INSERT INTO risk_zones (name, risk_level, geom) VALUES
-                ('Khu vực A - Sườn đồi dốc', 'HIGH', ST_GeomFromText('POLYGON((104.9 21.5, 104.95 21.5, 104.95 21.55, 104.9 21.55, 104.9 21.5))', 4326));
-            `;
-            await pool.query(insertQuery);
-            console.log("🌱 Seeded sample data for 'risk_zones'");
-        }
 
     } catch (err) {
         console.error("❌ Lỗi khi khởi tạo bảng:", err.message);
