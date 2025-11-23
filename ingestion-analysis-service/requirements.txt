@@ -1,0 +1,5 @@
+requests
+pandas
+scikit-learn
+python-dotenv
+psycopg2-binary

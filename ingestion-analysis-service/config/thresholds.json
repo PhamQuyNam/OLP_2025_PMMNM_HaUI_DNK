@@ -1,0 +1,15 @@
+{
+  "rainfall": {
+    "unit": "mm/1h",
+    "moderate": 10.0,
+    "heavy": 25.0,
+    "extreme": 40.0,
+    "description": "Ngưỡng mưa trong 1 giờ (Theo chuẩn cảnh báo nhanh)"
+  },
+  "water_level": {
+    "alarm_level_1": 9.5,
+    "alarm_level_2": 10.5,
+    "alarm_level_3": 11.5,
+    "description": "Mực nước sông (m)"
+  }
+}
