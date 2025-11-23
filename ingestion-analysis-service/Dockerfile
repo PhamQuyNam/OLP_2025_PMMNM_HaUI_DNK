@@ -1,4 +1,12 @@
-FROM ubuntu:latest
-LABEL authors="ADMIN"
+FROM python:3.9
 
-ENTRYPOINT ["top", "-b"]
+ENV PYTHONUNBUFFERED=1
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+# Sửa dòng này trỏ vào main.py
+CMD ["python", "main.py"]
