@@ -1,3 +1,4 @@
+import json
 import psycopg2
 from config.settings import DB_HOST, DB_NAME, DB_USER, DB_PASS
 
