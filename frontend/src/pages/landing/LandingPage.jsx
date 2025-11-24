@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   Map,
@@ -15,6 +16,9 @@ import {
 import Navbar from "../../components/common/Navbar";
 
 const LandingPage = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   return (
     <div className="min-h-screen bg-zinc-100 font-sans text-slate-800 overflow-x-hidden selection:bg-primary/30">
       <Navbar />
