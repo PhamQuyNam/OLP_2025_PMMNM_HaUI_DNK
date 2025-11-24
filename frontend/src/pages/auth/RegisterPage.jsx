@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { User, Mail, Lock, Shield, Phone } from "lucide-react";
+import { User, Mail, Lock, Phone, ArrowRight, Shield } from "lucide-react";
 import AuthLayout from "../../layouts/AuthLayout";
 
 const RegisterPage = () => {
@@ -16,124 +16,111 @@ const RegisterPage = () => {
     }, 1500);
   };
 
+  // Component Input dùng chung cho gọn code
+  const InputField = ({ icon: Icon, type, placeholder, label }) => (
+    <div className="space-y-1.5 group">
+      <label className="text-sm font-bold text-slate-700 ml-1">{label}</label>
+      <div className="relative transition-all duration-300 transform group-focus-within:scale-[1.01]">
+        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">
+          <Icon size={18} />
+        </div>
+        <input
+          type={type}
+          required
+          placeholder={placeholder}
+          className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 shadow-sm transition-all font-medium text-slate-700"
+        />
+      </div>
+    </div>
+  );
+
   return (
     <AuthLayout
       title="Tạo tài khoản mới"
       subtitle="Tham gia mạng lưới cảnh báo thiên tai quốc gia."
     >
-      <form onSubmit={handleSubmit} className="space-y-5">
-        {/* Full Name */}
-        <div className="space-y-1.5">
-          <label className="text-sm font-semibold text-slate-700">
-            Họ và tên
-          </label>
-          <div className="relative">
-            <User
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
-              size={18}
-            />
-            <input
-              type="text"
-              required
-              placeholder="Nguyễn Văn A"
-              className="form-input w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
-            />
-          </div>
-        </div>
-
-        {/* Phone (Quan trọng để nhận SMS cảnh báo) */}
-        <div className="space-y-1.5">
-          <label className="text-sm font-semibold text-slate-700">
-            Số điện thoại
-          </label>
-          <div className="relative">
-            <Phone
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
-              size={18}
-            />
-            <input
-              type="tel"
-              required
-              placeholder="0912 345 678"
-              className="form-input w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
-            />
-          </div>
+      <form onSubmit={handleSubmit} className="space-y-4 animate-fade-in-up">
+        {/* Hàng 1: Tên & SĐT (Chia đôi cho gọn) */}
+        <div className="grid grid-cols-2 gap-4">
+          <InputField
+            icon={User}
+            type="text"
+            label="Họ và tên"
+            placeholder="Nguyễn Văn A"
+          />
+          <InputField
+            icon={Phone}
+            type="tel"
+            label="Số điện thoại"
+            placeholder="09xx..."
+          />
         </div>
 
         {/* Email */}
-        <div className="space-y-1.5">
-          <label className="text-sm font-semibold text-slate-700">Email</label>
-          <div className="relative">
-            <Mail
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
-              size={18}
-            />
-            <input
-              type="email"
-              required
-              placeholder="email@example.com"
-              className="form-input w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
-            />
-          </div>
-        </div>
+        <InputField
+          icon={Mail}
+          type="email"
+          label="Email"
+          placeholder="name@example.com"
+        />
 
         {/* Password */}
-        <div className="space-y-1.5">
-          <label className="text-sm font-semibold text-slate-700">
-            Mật khẩu
-          </label>
-          <div className="relative">
-            <Lock
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
-              size={18}
-            />
+        <InputField
+          icon={Lock}
+          type="password"
+          label="Mật khẩu"
+          placeholder="••••••••"
+        />
+
+        {/* Checkbox điều khoản */}
+        <div className="flex items-start gap-3 mt-2 p-3 rounded-xl bg-slate-50 border border-slate-100">
+          <div className="flex items-center h-5">
             <input
-              type="password"
+              id="terms"
+              type="checkbox"
               required
-              placeholder="••••••••"
-              className="form-input w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
+              className="w-4 h-4 text-primary border-slate-300 rounded focus:ring-primary"
             />
           </div>
-        </div>
-
-        <div className="flex items-start gap-2 mt-2">
-          <input
-            type="checkbox"
-            id="term"
-            required
-            className="mt-1 rounded border-gray-300 text-primary focus:ring-primary"
-          />
-          <label htmlFor="term" className="text-sm text-slate-500">
-            Tôi đồng ý với{" "}
+          <label htmlFor="terms" className="text-xs text-slate-500 font-medium">
+            Tôi cam kết tuân thủ quy định về{" "}
+            <span className="text-slate-800 font-bold">Cảnh báo sai lệch</span>{" "}
+            và đồng ý với{" "}
             <a href="#" className="text-primary hover:underline">
               Điều khoản sử dụng
-            </a>{" "}
-            và{" "}
-            <a href="#" className="text-primary hover:underline">
-              Chính sách bảo mật
             </a>
             .
           </label>
         </div>
 
+        {/* Button */}
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3.5 rounded-xl shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-70 mt-4"
+          className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 rounded-2xl shadow-lg shadow-slate-200 transition-all transform active:scale-[0.98] flex items-center justify-center gap-2 mt-2 hover:-translate-y-0.5"
         >
           {isLoading ? (
-            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
           ) : (
-            "Đăng ký tài khoản"
+            <>
+              Đăng ký tài khoản
+              <ArrowRight size={18} />
+            </>
           )}
         </button>
       </form>
 
-      <div className="mt-6 text-center text-slate-500 text-sm">
-        Đã có tài khoản?{" "}
-        <Link to="/login" className="font-bold text-primary hover:underline">
-          Đăng nhập ngay
-        </Link>
+      {/* Footer */}
+      <div className="mt-8 text-center">
+        <p className="text-slate-500 text-sm font-medium">
+          Đã là thành viên?{" "}
+          <Link
+            to="/login"
+            className="text-primary font-bold hover:text-sky-700 hover:underline transition-colors ml-1"
+          >
+            Đăng nhập ngay
+          </Link>
+        </p>
       </div>
     </AuthLayout>
   );
