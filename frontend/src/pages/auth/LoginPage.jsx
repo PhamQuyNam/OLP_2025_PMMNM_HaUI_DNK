@@ -1,22 +1,22 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Mail, Lock, LogIn, CheckCircle2 } from "lucide-react";
+import { Mail, Lock, LogIn, CheckCircle2, Eye, EyeOff } from "lucide-react"; // <-- Import thêm Eye, EyeOff
 import AuthLayout from "../../layouts/AuthLayout";
 
 const LoginPage = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [isLoading, setIsLoading] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false); // Thêm state giả lập thành công
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [showPassword, setShowPassword] = useState(false); // <-- State ẩn hiện mật khẩu
 
   const handleSubmit = (e) => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Giả lập gọi API
     setTimeout(() => {
       setIsLoading(false);
-      setIsSuccess(true); // Hiện thông báo thành công
+      setIsSuccess(true);
 
       setTimeout(() => {
         if (formData.email.includes("admin")) {
@@ -24,7 +24,7 @@ const LoginPage = () => {
         } else {
           navigate("/citizen");
         }
-      }, 800); // Đợi 0.8s để người dùng thấy icon check xanh
+      }, 800);
     }, 1500);
   };
 
@@ -54,7 +54,7 @@ const LoginPage = () => {
           </div>
         </div>
 
-        {/* Password Input */}
+        {/* Password Input (Đã nâng cấp Ẩn/Hiện) */}
         <div className="space-y-1.5 group">
           <div className="flex justify-between items-center ml-1">
             <label className="text-sm font-bold text-slate-700">Mật khẩu</label>
@@ -70,19 +70,28 @@ const LoginPage = () => {
               <Lock size={20} />
             </div>
             <input
-              type="password"
+              type={showPassword ? "text" : "password"} // <-- Logic chuyển đổi type
               required
               placeholder="••••••••"
-              className="w-full pl-12 pr-4 py-3.5 bg-white border border-slate-200 rounded-2xl focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 shadow-sm transition-all font-medium text-slate-700 placeholder:text-slate-400"
+              className="w-full pl-12 pr-12 py-3.5 bg-white border border-slate-200 rounded-2xl focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 shadow-sm transition-all font-medium text-slate-700 placeholder:text-slate-400" // <-- pr-12 để tránh chữ đè lên icon mắt
               value={formData.password}
               onChange={(e) =>
                 setFormData({ ...formData, password: e.target.value })
               }
             />
+
+            {/* Nút Con Mắt */}
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-primary focus:outline-none transition-colors"
+            >
+              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            </button>
           </div>
         </div>
 
-        {/* Submit Button (Có hiệu ứng chuyển trạng thái) */}
+        {/* Submit Button */}
         <button
           type="submit"
           disabled={isLoading || isSuccess}
@@ -111,7 +120,6 @@ const LoginPage = () => {
         </button>
       </form>
 
-      {/* Footer Link */}
       <div className="mt-10 text-center">
         <p className="text-slate-500 text-sm font-medium">
           Chưa có tài khoản?{" "}
