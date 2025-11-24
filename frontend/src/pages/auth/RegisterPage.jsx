@@ -1,8 +1,45 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { User, Mail, Lock, Phone, ArrowRight, Shield } from "lucide-react";
+import { User, Mail, Lock, Phone, ArrowRight, Eye, EyeOff } from "lucide-react"; // <-- Thêm Eye, EyeOff
 import AuthLayout from "../../layouts/AuthLayout";
 
+// --- COMPONENT INPUT RIÊNG (Để xử lý ẩn/hiện mật khẩu gọn gàng) ---
+const InputField = ({ icon: Icon, type, placeholder, label }) => {
+  const [showPassword, setShowPassword] = useState(false);
+  const isPasswordType = type === "password";
+
+  return (
+    <div className="space-y-1.5 group">
+      <label className="text-sm font-bold text-slate-700 ml-1">{label}</label>
+      <div className="relative transition-all duration-300 transform group-focus-within:scale-[1.01]">
+        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">
+          <Icon size={18} />
+        </div>
+        <input
+          type={isPasswordType ? (showPassword ? "text" : "password") : type}
+          required
+          placeholder={placeholder}
+          className={`w-full pl-11 py-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 shadow-sm transition-all font-medium text-slate-700 ${
+            isPasswordType ? "pr-12" : "pr-4"
+          }`}
+        />
+
+        {/* Chỉ hiện nút mắt nếu là ô mật khẩu */}
+        {isPasswordType && (
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-primary focus:outline-none transition-colors"
+          >
+            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// --- COMPONENT CHÍNH ---
 const RegisterPage = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
@@ -16,31 +53,12 @@ const RegisterPage = () => {
     }, 1500);
   };
 
-  // Component Input dùng chung cho gọn code
-  const InputField = ({ icon: Icon, type, placeholder, label }) => (
-    <div className="space-y-1.5 group">
-      <label className="text-sm font-bold text-slate-700 ml-1">{label}</label>
-      <div className="relative transition-all duration-300 transform group-focus-within:scale-[1.01]">
-        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">
-          <Icon size={18} />
-        </div>
-        <input
-          type={type}
-          required
-          placeholder={placeholder}
-          className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 shadow-sm transition-all font-medium text-slate-700"
-        />
-      </div>
-    </div>
-  );
-
   return (
     <AuthLayout
       title="Tạo tài khoản mới"
       subtitle="Tham gia mạng lưới cảnh báo thiên tai quốc gia."
     >
       <form onSubmit={handleSubmit} className="space-y-4 animate-fade-in-up">
-        {/* Hàng 1: Tên & SĐT (Chia đôi cho gọn) */}
         <div className="grid grid-cols-2 gap-4">
           <InputField
             icon={User}
@@ -56,7 +74,6 @@ const RegisterPage = () => {
           />
         </div>
 
-        {/* Email */}
         <InputField
           icon={Mail}
           type="email"
@@ -64,7 +81,7 @@ const RegisterPage = () => {
           placeholder="name@example.com"
         />
 
-        {/* Password */}
+        {/* Ô Mật khẩu (Tự động có nút mắt) */}
         <InputField
           icon={Lock}
           type="password"
@@ -72,7 +89,6 @@ const RegisterPage = () => {
           placeholder="••••••••"
         />
 
-        {/* Checkbox điều khoản */}
         <div className="flex items-start gap-3 mt-2 p-3 rounded-xl bg-slate-50 border border-slate-100">
           <div className="flex items-center h-5">
             <input
@@ -93,7 +109,6 @@ const RegisterPage = () => {
           </label>
         </div>
 
-        {/* Button */}
         <button
           type="submit"
           disabled={isLoading}
@@ -110,7 +125,6 @@ const RegisterPage = () => {
         </button>
       </form>
 
-      {/* Footer */}
       <div className="mt-8 text-center">
         <p className="text-slate-500 text-sm font-medium">
           Đã là thành viên?{" "}
