@@ -3,47 +3,81 @@ import { ShieldCheck, ArrowLeft } from "lucide-react";
 
 const AuthLayout = ({ children, title, subtitle }) => {
   return (
-    <div className="min-h-screen flex bg-slate-50 font-sans">
-      {/* === CỘT TRÁI: ARTWORK & BRANDING === */}
+    // Tổng thể nền trắng
+    <div className="min-h-screen flex bg-white font-sans">
+      {/* === CỘT TRÁI: ARTWORK & BRANDING (ĐÃ NÂNG CẤP) === */}
       <div className="hidden lg:flex w-1/2 bg-slate-900 relative overflow-hidden items-center justify-center">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:40px_40px] opacity-20"></div>
+        {/* 1. GRID NỀN (ĐẬM HƠN & RÕ HƠN) */}
+        {/* Tăng opacity từ 20 lên 30 và dùng màu trắng mờ để nổi bật trên nền đen */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff1a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff1a_1px,transparent_1px)] bg-[size:40px_40px]"></div>
 
-        {/* Ambient Light */}
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/20 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2"></div>
-        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-indigo-500/20 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2"></div>
+        {/* Hiệu ứng Vignette (Tối 4 góc) để tập trung vào giữa */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,#0f172a_90%)]"></div>
 
-        <div className="relative z-10 text-center px-12">
-          <div className="mb-8 flex justify-center">
-            <div className="w-20 h-20 bg-white/10 backdrop-blur-md rounded-3xl flex items-center justify-center border border-white/10 shadow-2xl">
-              <ShieldCheck size={48} className="text-primary" />
+        {/* 2. LIGHT BLOBS (CHUYỂN ĐỘNG NHẸ) */}
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/20 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2 animate-pulse"></div>
+        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2"></div>
+
+        {/* 3. NỘI DUNG CHÍNH (GIỮ NGUYÊN) */}
+        <div className="relative z-10 text-center px-12 max-w-2xl">
+          <div className="mb-10 flex justify-center">
+            <div className="relative group">
+              {/* Hiệu ứng tỏa sáng sau logo */}
+              <div className="absolute -inset-1 bg-gradient-to-r from-primary to-indigo-500 rounded-3xl blur opacity-40 group-hover:opacity-75 transition duration-500"></div>
+              <div className="relative w-24 h-24 bg-slate-900/50 backdrop-blur-xl rounded-3xl flex items-center justify-center border border-white/10 shadow-2xl">
+                <ShieldCheck
+                  size={56}
+                  className="text-primary drop-shadow-[0_0_10px_rgba(14,165,233,0.5)]"
+                />
+              </div>
             </div>
           </div>
-          <h2 className="text-4xl font-bold text-white mb-4 tracking-tight">
-            Viet Resilience Hub
+
+          <h2 className="text-5xl font-bold text-white mb-6 tracking-tight leading-tight">
+            Viet{" "}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-sky-300">
+              Resilience
+            </span>{" "}
+            Hub
           </h2>
-          <p className="text-slate-400 text-lg leading-relaxed">
-            Nền tảng dữ liệu mở cảnh báo thiên tai và hỗ trợ cứu hộ khẩn cấp.
-            <br />
-            Kết nối cộng đồng - Vững vàng trước bão lũ.
+
+          <p className="text-slate-400 text-lg leading-relaxed font-medium">
+            Hệ thống cảnh báo thiên tai thông minh &<br /> Nền tảng dữ liệu mở
+            quốc gia.
           </p>
 
           {/* Badge OLP */}
-          <div className="mt-12 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm">
-            <span className="flex h-2 w-2 rounded-full bg-emerald-500"></span>
-            <span className="text-xs font-bold text-slate-300 tracking-wider uppercase">
+          <div className="mt-12 inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-slate-800/50 border border-white/10 backdrop-blur-md shadow-lg">
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+            </span>
+            <span className="text-xs font-bold text-slate-300 tracking-widest uppercase">
               Sản phẩm dự thi OLP 2025
             </span>
           </div>
         </div>
+
+        {/* 4. ĐƯỜNG CẮT LƯỢN SÓNG (CURVE DIVIDER) - PHẦN QUAN TRỌNG NHẤT */}
+        {/* Đây là một SVG màu trắng, nằm đè lên mép phải của cột màu đen */}
+        <div className="absolute top-0 right-0 bottom-0 w-16 h-full z-20 pointer-events-none overflow-hidden">
+          <svg
+            className="h-full w-full text-white fill-current"
+            preserveAspectRatio="none"
+            viewBox="0 0 100 100"
+          >
+            {/* Vẽ đường cong Bezier mềm mại */}
+            <path d="M 100 0 L 50 0 C 10 30, 10 70, 50 100 L 100 100 Z" />
+          </svg>
+        </div>
       </div>
 
       {/* === CỘT PHẢI: FORM AREA === */}
-      <div className="w-full lg:w-1/2 flex flex-col justify-center px-8 sm:px-16 lg:px-24 bg-white relative">
-        {/* Nút quay lại trang chủ */}
+      <div className="w-full lg:w-1/2 flex flex-col justify-center px-8 sm:px-16 lg:px-24 relative z-10">
+        {/* Nút quay lại */}
         <Link
           to="/"
-          className="absolute top-8 left-8 flex items-center gap-2 text-slate-500 hover:text-primary transition-colors group text-sm font-medium"
+          className="absolute top-8 left-8 flex items-center gap-2 text-slate-500 hover:text-primary transition-colors group text-sm font-bold uppercase tracking-wide"
         >
           <ArrowLeft
             size={18}
@@ -52,13 +86,14 @@ const AuthLayout = ({ children, title, subtitle }) => {
           Trang chủ
         </Link>
 
-        <div className="w-full max-w-md mx-auto">
+        <div className="w-full max-w-[400px] mx-auto">
           <div className="mb-10">
-            <h1 className="text-3xl font-bold text-slate-900 mb-2">{title}</h1>
-            <p className="text-slate-500">{subtitle}</p>
+            <h1 className="text-3xl font-extrabold text-slate-900 mb-2 tracking-tight">
+              {title}
+            </h1>
+            <p className="text-slate-500 font-medium">{subtitle}</p>
           </div>
 
-          {/* Nội dung form sẽ được chèn vào đây */}
           {children}
         </div>
       </div>
