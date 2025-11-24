@@ -64,3 +64,36 @@ html {
 .animate-float {
   animation: float 6s ease-in-out infinite;
 }
+
+/* === ANIMATION MỚI === */
+
+/* 1. Hiệu ứng Lưới trôi (Moving Grid) */
+@keyframes moveGrid {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 40px 40px; /* Phải khớp với bg-[size:40px_40px] để loop mượt */
+  }
+}
+
+.animate-grid-flow {
+  animation: moveGrid 5s linear infinite; /* 20s là tốc độ rất chậm, mượt mà */
+}
+
+/* 2. Hiệu ứng Logo thở (Breathing Glow) - Thay thế cho Pulse mặc định */
+@keyframes breathe {
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+}
+
+.animate-breathe {
+  animation: breathe 4s ease-in-out infinite; /* Nhịp thở chậm rãi 4s */
+}
