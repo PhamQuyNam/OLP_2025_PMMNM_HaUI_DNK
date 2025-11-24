@@ -1,1 +1,66 @@
 @import "tailwindcss";
+
+/* Định nghĩa màu chuẩn OLP tại đây để dùng được ở mọi nơi */
+@theme {
+  --color-primary: #0ea5e9; /* Xanh da trời (Sky-500) */
+  --color-primary-hover: #0284c7; /* Xanh đậm hơn khi hover */
+  --color-danger: #ef4444; /* Đỏ cảnh báo */
+}
+
+/* Fix lỗi hiển thị bản đồ Leaflet */
+.leaflet-container {
+  width: 100%;
+  height: 100vh;
+}
+
+/* Hiệu ứng nền mờ (Glassmorphism) cho Navbar */
+.glass-nav {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+}
+/* 1. Cuộn trang mượt mà (Khi bấm vào menu) */
+html {
+  scroll-behavior: smooth;
+}
+
+/* 2. Định nghĩa Animation "Fade In Up" (Trôi từ dưới lên) */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 3. Class tiện ích để dùng trong HTML */
+.animate-fade-in-up {
+  animation: fadeInUp 0.8s ease-out forwards;
+}
+
+/* 4. Hiệu ứng Shimmer (Ánh sáng chạy qua nút bấm) */
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+}
+/* Hiệu ứng trôi lơ lửng cho Mockup */
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-15px);
+  }
+}
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}

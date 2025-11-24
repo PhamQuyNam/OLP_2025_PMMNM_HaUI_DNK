@@ -1,23 +1,31 @@
-import { useState } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import LandingPage from "./pages/landing/LandingPage";
+
+// Placeholder cho các trang chưa code (để không lỗi router)
+const Login = () => (
+  <h1 className="text-center mt-10 text-2xl">Trang Đăng Nhập (Coming Soon)</h1>
+);
+const CitizenApp = () => (
+  <h1 className="text-center mt-10 text-2xl">
+    Ứng dụng Người Dân (Coming Soon)
+  </h1>
+);
+const ManagerDashboard = () => (
+  <h1 className="text-center mt-10 text-2xl">
+    Dashboard Quản Lý (Coming Soon)
+  </h1>
+);
 
 function App() {
   return (
-    <div className="min-h-screen bg-slate-100 flex items-center justify-center">
-      <div className="bg-white p-8 rounded-2xl shadow-xl text-center max-w-md">
-        <h1 className="text-4xl font-bold text-primary mb-4">
-          Viet Resilience Hub
-        </h1>
-        <p className="text-gray-600 mb-6">
-          Hệ thống cảnh báo thiên tai & Dữ liệu mở (Vite + Tailwind)
-        </p>
-        <button className="bg-danger hover:bg-red-600 text-white font-bold py-3 px-6 rounded-full transition-all transform hover:scale-105 shadow-lg">
-          Test Nút SOS
-        </button>
-        <div className="mt-6 text-sm text-green-600 font-semibold bg-green-50 py-2 rounded-lg border border-green-200">
-          ✅ Đã cài đặt thành công!
-        </div>
-      </div>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/citizen" element={<CitizenApp />} />
+        <Route path="/manager" element={<ManagerDashboard />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
