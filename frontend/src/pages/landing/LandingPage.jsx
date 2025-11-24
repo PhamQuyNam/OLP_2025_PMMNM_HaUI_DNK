@@ -169,54 +169,107 @@ const LandingPage = () => {
                 </div>
               </div>
 
-              {/* 2. ĐIỆN THOẠI NGƯỜI DÂN (Giữ nguyên vì đã đẹp, chỉ chỉnh vị trí tí chút) */}
-              <div className="absolute top-12 right-16 w-[280px] h-[480px] rounded-[2.5rem] bg-white border-[8px] border-slate-900 shadow-2xl animate-float [animation-delay:1s] z-20 overflow-hidden">
+              {/* 2. ĐIỆN THOẠI NGƯỜI DÂN (BẢN FINAL - CLEAN MAP) */}
+              <div className="absolute top-12 right-16 w-[280px] h-[480px] rounded-[2.5rem] bg-slate-900 border-[8px] border-slate-900 shadow-2xl animate-float [animation-delay:1s] z-20 overflow-hidden ring-1 ring-white/20">
                 {/* Tai thỏ */}
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-6 bg-slate-900 rounded-b-xl z-30"></div>
 
-                <div className="h-full w-full bg-slate-50 relative flex flex-col">
-                  {/* Map nền điện thoại */}
-                  <div className="flex-1 bg-sky-50 relative opacity-60">
-                    <div className="absolute inset-0 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:16px_16px]"></div>
-                    {/* Route Line giả lập */}
-                    <svg
-                      className="absolute inset-0 w-full h-full text-blue-400"
-                      stroke="currentColor"
-                      strokeWidth="3"
-                      fill="none"
-                    >
+                <div className="h-full w-full bg-slate-50 relative flex flex-col font-sans">
+                  {/* --- MAP LAYER (SẠCH SẼ & CHÍNH XÁC) --- */}
+                  <div className="absolute inset-0 overflow-hidden bg-slate-50">
+                    {/* Grid nền nhẹ (Tạo cảm giác bản đồ số) */}
+                    <div className="absolute inset-0 bg-[radial-gradient(#cbd5e1_1.5px,transparent_1.5px)] [background-size:24px_24px] opacity-50"></div>
+
+                    {/* TUYẾN ĐƯỜNG (Route) - Đã căn chỉnh tọa độ nối đúng 2 điểm */}
+                    <svg className="absolute inset-0 w-full h-full">
+                      {/* Bóng đổ đường đi (cho nổi bật) */}
                       <path
-                        d="M100 100 Q 150 200 200 300"
-                        strokeDasharray="6 4"
+                        d="M140 390 C 140 300, 235 300, 235 175"
+                        stroke="white"
+                        strokeWidth="8"
+                        fill="none"
+                        strokeLinecap="round"
                       />
+                      {/* Đường chính (Màu cam) */}
+                      <path
+                        d="M140 390 C 140 300, 235 300, 235 175"
+                        stroke="#f59e0b"
+                        strokeWidth="4"
+                        fill="none"
+                        strokeLinecap="round"
+                        strokeDasharray="8 6"
+                        className="animate-[dash_1s_linear_infinite]"
+                      />
+                      {/* Animation chạy */}
+                      <defs>
+                        <style>{`
+                            @keyframes dash {
+                              to { stroke-dashoffset: -14; }
+                            }
+                          `}</style>
+                      </defs>
                     </svg>
+
+                    {/* MARKER: ĐIỂM SƠ TÁN (Safe Zone) - Tọa độ chuẩn */}
+                    <div className="absolute top-[160px] right-[45px] -translate-x-1/2 -translate-y-1/2 z-10">
+                      <div className="flex flex-col items-center gap-1">
+                        {/* Label */}
+                        <div className="bg-emerald-500 text-white text-[9px] font-bold px-2 py-1 rounded shadow-md whitespace-nowrap animate-bounce">
+                          Điểm An toàn
+                        </div>
+                        {/* Icon */}
+                        <div className="relative">
+                          <div className="absolute -inset-1 bg-emerald-500/20 rounded-full animate-ping"></div>
+                          <div className="w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center text-white shadow-lg border-2 border-white z-10 relative">
+                            <ShieldCheck size={12} fill="currentColor" />
+                          </div>
+                          {/* Chân cắm xuống đất */}
+                          <div className="w-0.5 h-3 bg-emerald-600 absolute top-5 left-1/2 -translate-x-1/2"></div>
+                          <div className="w-2 h-1 bg-black/20 rounded-full blur-[1px] absolute top-8 left-1/2 -translate-x-1/2"></div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* MARKER: BẠN (User) - Tọa độ chuẩn */}
+                    <div className="absolute bottom-[90px] left-[140px] -translate-x-1/2 z-10">
+                      <div className="relative">
+                        <div className="absolute -inset-6 bg-blue-500/20 rounded-full animate-ping"></div>
+                        <div className="absolute -inset-3 bg-blue-500/30 rounded-full animate-pulse"></div>
+                        <div className="w-5 h-5 bg-blue-600 rounded-full border-[3px] border-white shadow-lg z-10 relative"></div>
+                      </div>
+                    </div>
                   </div>
 
-                  {/* Alert Card */}
-                  <div className="absolute top-20 left-4 right-4 bg-white/95 backdrop-blur rounded-xl p-4 shadow-lg border-l-4 border-red-500 animate-bounce">
-                    <div className="flex items-start gap-3">
-                      <div className="bg-red-100 p-2 rounded-full text-red-600 shrink-0">
-                        <BellRing size={20} />
+                  {/* --- UI LAYER --- */}
+
+                  {/* Thẻ Cảnh báo (Giữ nguyên vị trí đẹp) */}
+                  <div className="relative z-20 mx-4 mt-10 bg-white/90 backdrop-blur-md rounded-xl p-3 shadow-lg border border-red-100 ring-1 ring-red-50">
+                    <div className="flex items-center gap-3">
+                      <div className="bg-red-50 p-2 rounded-lg text-red-500 shrink-0">
+                        <BellRing size={18} />
                       </div>
                       <div>
-                        <h4 className="text-sm font-bold text-slate-800">
-                          Cảnh báo Lũ quét!
+                        <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wide flex items-center gap-2">
+                          Lũ quét khẩn cấp
+                          <span className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></span>
                         </h4>
-                        <p className="text-[11px] text-slate-500 mt-1 leading-tight">
-                          Mực nước sông Gianh vượt báo động 3. Hãy sơ tán ngay.
+                        <p className="text-[10px] text-slate-500 leading-tight mt-0.5">
+                          Nước dâng cao (+0.5m). Di chuyển theo lộ trình.
                         </p>
                       </div>
                     </div>
                   </div>
 
-                  {/* SOS Button */}
-                  <div className="absolute bottom-10 left-1/2 -translate-x-1/2">
-                    <div className="relative group cursor-pointer">
-                      <div className="absolute -inset-4 bg-red-500/30 rounded-full animate-ping"></div>
-                      <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-rose-600 rounded-full flex items-center justify-center shadow-xl shadow-red-500/40 text-white font-bold text-sm transform transition-transform group-hover:scale-110">
-                        SOS
+                  {/* Nút SOS */}
+                  <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 w-full flex justify-center">
+                    <button className="group relative outline-none cursor-pointer">
+                      <div className="absolute -inset-1 bg-red-500/40 rounded-full blur opacity-75 group-hover:opacity-100 transition duration-200 animate-pulse"></div>
+                      <div className="relative w-14 h-14 bg-gradient-to-b from-red-500 to-red-600 rounded-full flex items-center justify-center shadow-xl border-4 border-white/30 active:scale-95 transition-transform">
+                        <span className="font-bold text-white text-xs tracking-wider">
+                          SOS
+                        </span>
                       </div>
-                    </div>
+                    </button>
                   </div>
                 </div>
               </div>
