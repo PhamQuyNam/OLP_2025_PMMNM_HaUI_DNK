@@ -5,25 +5,28 @@ const AuthLayout = ({ children, title, subtitle }) => {
   return (
     // Tổng thể nền trắng
     <div className="min-h-screen flex bg-white font-sans">
-      {/* === CỘT TRÁI: ARTWORK & BRANDING (ĐÃ NÂNG CẤP) === */}
+      {/* === CỘT TRÁI: ARTWORK & BRANDING (ĐÃ NÂNG CẤP ANIMATION) === */}
       <div className="hidden lg:flex w-1/2 bg-slate-900 relative overflow-hidden items-center justify-center">
-        {/* 1. GRID NỀN (ĐẬM HƠN & RÕ HƠN) */}
-        {/* Tăng opacity từ 20 lên 30 và dùng màu trắng mờ để nổi bật trên nền đen */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff1a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff1a_1px,transparent_1px)] bg-[size:40px_40px]"></div>
+        {/* 1. GRID NỀN (ĐÃ THÊM CHUYỂN ĐỘNG) */}
+        {/* Thêm class 'animate-grid-flow' vào đây */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff1a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff1a_1px,transparent_1px)] bg-[size:40px_40px] animate-grid-flow"></div>
 
-        {/* Hiệu ứng Vignette (Tối 4 góc) để tập trung vào giữa */}
+        {/* Hiệu ứng Vignette */}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,#0f172a_90%)]"></div>
 
-        {/* 2. LIGHT BLOBS (CHUYỂN ĐỘNG NHẸ) */}
+        {/* 2. LIGHT BLOBS */}
         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/20 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2 animate-pulse"></div>
         <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2"></div>
 
-        {/* 3. NỘI DUNG CHÍNH (GIỮ NGUYÊN) */}
+        {/* 3. NỘI DUNG CHÍNH */}
         <div className="relative z-10 text-center px-12 max-w-2xl">
           <div className="mb-10 flex justify-center">
-            <div className="relative group">
-              {/* Hiệu ứng tỏa sáng sau logo */}
-              <div className="absolute -inset-1 bg-gradient-to-r from-primary to-indigo-500 rounded-3xl blur opacity-40 group-hover:opacity-75 transition duration-500"></div>
+            <div className="relative">
+              {/* Hiệu ứng tỏa sáng TỰ ĐỘNG (Breathe Animation) */}
+              {/* Đã thay đổi: animate-breathe thay vì group-hover */}
+              <div className="absolute -inset-1 bg-gradient-to-r from-primary to-indigo-500 rounded-3xl blur opacity-40 animate-breathe"></div>
+
+              {/* Icon chính */}
               <div className="relative w-24 h-24 bg-slate-900/50 backdrop-blur-xl rounded-3xl flex items-center justify-center border border-white/10 shadow-2xl">
                 <ShieldCheck
                   size={56}
@@ -33,6 +36,7 @@ const AuthLayout = ({ children, title, subtitle }) => {
             </div>
           </div>
 
+          {/* ... (Các phần text bên dưới giữ nguyên) */}
           <h2 className="text-5xl font-bold text-white mb-6 tracking-tight leading-tight">
             Viet{" "}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-sky-300">
@@ -46,7 +50,6 @@ const AuthLayout = ({ children, title, subtitle }) => {
             quốc gia.
           </p>
 
-          {/* Badge OLP */}
           <div className="mt-12 inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-slate-800/50 border border-white/10 backdrop-blur-md shadow-lg">
             <span className="relative flex h-2.5 w-2.5">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -58,15 +61,13 @@ const AuthLayout = ({ children, title, subtitle }) => {
           </div>
         </div>
 
-        {/* 4. ĐƯỜNG CẮT LƯỢN SÓNG (CURVE DIVIDER) - PHẦN QUAN TRỌNG NHẤT */}
-        {/* Đây là một SVG màu trắng, nằm đè lên mép phải của cột màu đen */}
+        {/* Đường cong (Giữ nguyên) */}
         <div className="absolute top-0 right-0 bottom-0 w-16 h-full z-20 pointer-events-none overflow-hidden">
           <svg
             className="h-full w-full text-white fill-current"
             preserveAspectRatio="none"
             viewBox="0 0 100 100"
           >
-            {/* Vẽ đường cong Bezier mềm mại */}
             <path d="M 100 0 L 50 0 C 10 30, 10 70, 50 100 L 100 100 Z" />
           </svg>
         </div>
