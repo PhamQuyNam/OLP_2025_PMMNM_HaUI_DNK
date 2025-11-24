@@ -37,6 +37,31 @@ const AuthLayout = ({ children, title, subtitle }) => {
           </div>
         </div>
       </div>
+
+      {/* === CỘT PHẢI: FORM AREA === */}
+      <div className="w-full lg:w-1/2 flex flex-col justify-center px-8 sm:px-16 lg:px-24 bg-white relative">
+        {/* Nút quay lại trang chủ */}
+        <Link
+          to="/"
+          className="absolute top-8 left-8 flex items-center gap-2 text-slate-500 hover:text-primary transition-colors group text-sm font-medium"
+        >
+          <ArrowLeft
+            size={18}
+            className="group-hover:-translate-x-1 transition-transform"
+          />
+          Trang chủ
+        </Link>
+
+        <div className="w-full max-w-md mx-auto">
+          <div className="mb-10">
+            <h1 className="text-3xl font-bold text-slate-900 mb-2">{title}</h1>
+            <p className="text-slate-500">{subtitle}</p>
+          </div>
+
+          {/* Nội dung form sẽ được chèn vào đây */}
+          {children}
+        </div>
+      </div>
     </div>
   );
 };
