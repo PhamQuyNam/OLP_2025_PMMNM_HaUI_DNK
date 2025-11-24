@@ -1,1 +1,22 @@
 @import "tailwindcss";
+
+/* Định nghĩa màu chuẩn OLP tại đây để dùng được ở mọi nơi */
+@theme {
+  --color-primary: #0ea5e9; /* Xanh da trời (Sky-500) */
+  --color-primary-hover: #0284c7; /* Xanh đậm hơn khi hover */
+  --color-danger: #ef4444; /* Đỏ cảnh báo */
+}
+
+/* Fix lỗi hiển thị bản đồ Leaflet */
+.leaflet-container {
+  width: 100%;
+  height: 100vh;
+}
+
+/* Hiệu ứng nền mờ (Glassmorphism) cho Navbar */
+.glass-nav {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+}
