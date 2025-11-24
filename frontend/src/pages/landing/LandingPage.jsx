@@ -80,75 +80,148 @@ const LandingPage = () => {
                 <span>Dashboard Quản Lý</span>
               </Link>
             </div>
-            {/* --- START: GLASS MOCKUP V2 (KẾT NỐI DÂN & QUẢN LÝ) --- */}
+            {/* --- START: GLASS MOCKUP V3 (DETAILED DASHBOARD) --- */}
             <div className="mt-20 mb-10 relative z-20 max-w-5xl mx-auto hidden lg:block h-[500px]">
-              {/* 1. MÀN HÌNH QUẢN LÝ (Nằm phía sau, bên trái) */}
-              <div className="absolute top-0 left-10 w-[65%] h-[400px] rounded-2xl bg-slate-900/90 backdrop-blur-md border border-white/10 shadow-2xl animate-float z-10 overflow-hidden">
+              {/* 1. MÀN HÌNH QUẢN LÝ (Nền sau - Chi tiết hơn) */}
+              <div className="absolute top-0 left-10 w-[65%] h-[400px] rounded-2xl bg-slate-900/95 backdrop-blur-md border border-slate-700 shadow-2xl animate-float z-10 overflow-hidden flex flex-col">
                 {/* Header giả lập */}
-                <div className="h-8 bg-white/10 border-b border-white/5 flex items-center px-4 gap-2">
-                  <div className="w-2.5 h-2.5 rounded-full bg-red-500/80"></div>
-                  <div className="w-2.5 h-2.5 rounded-full bg-amber-500/80"></div>
-                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/80"></div>
-                  <div className="ml-auto text-[10px] text-slate-400 font-mono">
-                    LIVE MONITORING
+                <div className="h-10 bg-slate-800/50 border-b border-white/5 flex items-center px-4 justify-between shrink-0">
+                  <div className="flex gap-2">
+                    <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                    <div className="w-3 h-3 rounded-full bg-amber-500"></div>
+                    <div className="w-3 h-3 rounded-full bg-emerald-500"></div>
+                  </div>
+                  <div className="px-3 py-1 bg-black/30 rounded text-[10px] text-emerald-400 font-mono flex items-center gap-2">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    </span>
+                    SYSTEM ONLINE
                   </div>
                 </div>
-                {/* Nội dung Map Grid */}
-                <div className="relative h-full opacity-40">
-                  <div className="absolute inset-0 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:30px_30px]"></div>
-                  {/* Vùng nguy hiểm giả lập */}
-                  <div className="absolute top-1/3 left-1/4 w-32 h-32 bg-red-500/30 rounded-full blur-2xl animate-pulse"></div>
-                  <div className="absolute bottom-1/3 right-1/3 w-40 h-40 bg-blue-500/20 rounded-full blur-3xl"></div>
+
+                {/* Body Dashboard */}
+                <div className="flex-1 flex overflow-hidden relative">
+                  {/* A. Sidebar giả lập */}
+                  <div className="w-14 border-r border-white/5 bg-slate-800/30 flex flex-col items-center py-4 gap-4 shrink-0">
+                    {[1, 2, 3, 4].map((i) => (
+                      <div
+                        key={i}
+                        className={`w-8 h-8 rounded-lg ${
+                          i === 1 ? "bg-primary text-white" : "bg-white/5"
+                        } flex items-center justify-center`}
+                      >
+                        {/* Giả lập icon bằng hình khối */}
+                        <div
+                          className={`w-4 h-4 rounded ${
+                            i === 1 ? "bg-white" : "bg-slate-500"
+                          }`}
+                        ></div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* B. Khu vực Bản đồ chính */}
+                  <div className="flex-1 relative bg-slate-900">
+                    {/* Grid Map nền */}
+                    <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:20px_20px]"></div>
+
+                    {/* Các Widget thông số (Góc trên phải) */}
+                    <div className="absolute top-4 right-4 flex flex-col gap-2 z-20">
+                      <div className="bg-slate-800/80 backdrop-blur border border-white/10 p-3 rounded-lg w-32 animate-pulse">
+                        <div className="h-1.5 w-12 bg-slate-600 rounded mb-2"></div>
+                        <div className="h-4 w-20 bg-primary/50 rounded"></div>
+                      </div>
+                      <div className="bg-slate-800/80 backdrop-blur border border-white/10 p-3 rounded-lg w-32">
+                        <div className="h-1.5 w-8 bg-slate-600 rounded mb-2"></div>
+                        <div className="h-4 w-16 bg-emerald-500/50 rounded"></div>
+                      </div>
+                    </div>
+
+                    {/* Log hệ thống (Góc dưới trái) */}
+                    <div className="absolute bottom-4 left-4 bg-black/40 p-3 rounded border border-white/5 w-48">
+                      <div className="space-y-1.5">
+                        <div className="h-1.5 w-full bg-slate-700 rounded"></div>
+                        <div className="h-1.5 w-3/4 bg-slate-700 rounded"></div>
+                        <div className="h-1.5 w-5/6 bg-slate-700 rounded"></div>
+                      </div>
+                    </div>
+
+                    {/* C. ĐIỂM CẢNH BÁO ĐỎ (Làm rõ nét hơn) */}
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
+                      <div className="relative">
+                        {/* Vòng tỏa sóng lớn */}
+                        <div className="absolute -inset-8 bg-red-500/20 rounded-full animate-ping"></div>
+                        <div className="absolute -inset-4 bg-red-500/40 rounded-full animate-pulse"></div>
+
+                        {/* Tâm điểm rõ nét */}
+                        <div className="relative w-6 h-6 bg-red-600 border-2 border-white rounded-full shadow-[0_0_20px_rgba(239,68,68,0.6)]"></div>
+
+                        {/* Nhãn ghi chú (Label) */}
+                        <div className="absolute left-full top-1/2 -translate-y-1/2 ml-4 bg-slate-900/90 border border-red-500/50 text-red-400 text-[10px] font-bold px-3 py-1 rounded whitespace-nowrap backdrop-blur-md">
+                          ⚠️ CẢNH BÁO: MỨC 3
+                        </div>
+                        {/* Đường nối */}
+                        <div className="absolute left-full top-1/2 w-4 h-[1px] bg-red-500/50"></div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              {/* 2. ĐIỆN THOẠI NGƯỜI DÂN (Nổi bật phía trước, bên phải) */}
-              <div className="absolute top-12 right-20 w-[280px] h-[480px] rounded-[2.5rem] bg-white border-[8px] border-slate-900 shadow-2xl animate-float [animation-delay:1s] z-20 overflow-hidden">
-                {/* Tai thỏ & Màn hình */}
+              {/* 2. ĐIỆN THOẠI NGƯỜI DÂN (Giữ nguyên vì đã đẹp, chỉ chỉnh vị trí tí chút) */}
+              <div className="absolute top-12 right-16 w-[280px] h-[480px] rounded-[2.5rem] bg-white border-[8px] border-slate-900 shadow-2xl animate-float [animation-delay:1s] z-20 overflow-hidden">
+                {/* Tai thỏ */}
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-6 bg-slate-900 rounded-b-xl z-30"></div>
 
                 <div className="h-full w-full bg-slate-50 relative flex flex-col">
                   {/* Map nền điện thoại */}
-                  <div className="flex-1 bg-sky-100 relative opacity-50">
+                  <div className="flex-1 bg-sky-50 relative opacity-60">
                     <div className="absolute inset-0 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:16px_16px]"></div>
+                    {/* Route Line giả lập */}
+                    <svg
+                      className="absolute inset-0 w-full h-full text-blue-400"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                      fill="none"
+                    >
+                      <path
+                        d="M100 100 Q 150 200 200 300"
+                        strokeDasharray="6 4"
+                      />
+                    </svg>
                   </div>
 
-                  {/* THẺ CẢNH BÁO (Điểm nhấn) */}
-                  <div className="absolute top-20 left-4 right-4 bg-white/90 backdrop-blur rounded-xl p-4 shadow-lg border-l-4 border-red-500 animate-bounce">
+                  {/* Alert Card */}
+                  <div className="absolute top-20 left-4 right-4 bg-white/95 backdrop-blur rounded-xl p-4 shadow-lg border-l-4 border-red-500 animate-bounce">
                     <div className="flex items-start gap-3">
-                      <div className="bg-red-100 p-2 rounded-full text-red-600">
+                      <div className="bg-red-100 p-2 rounded-full text-red-600 shrink-0">
                         <BellRing size={20} />
                       </div>
                       <div>
                         <h4 className="text-sm font-bold text-slate-800">
                           Cảnh báo Lũ quét!
                         </h4>
-                        <p className="text-xs text-slate-500 mt-1">
+                        <p className="text-[11px] text-slate-500 mt-1 leading-tight">
                           Mực nước sông Gianh vượt báo động 3. Hãy sơ tán ngay.
                         </p>
                       </div>
                     </div>
                   </div>
 
-                  {/* NÚT SOS TO (Điểm nhấn) */}
-                  <div className="absolute bottom-8 left-1/2 -translate-x-1/2">
+                  {/* SOS Button */}
+                  <div className="absolute bottom-10 left-1/2 -translate-x-1/2">
                     <div className="relative group cursor-pointer">
                       <div className="absolute -inset-4 bg-red-500/30 rounded-full animate-ping"></div>
-                      <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-rose-600 rounded-full flex items-center justify-center shadow-xl shadow-red-500/40 text-white font-bold text-xs transform transition-transform group-hover:scale-110">
+                      <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-rose-600 rounded-full flex items-center justify-center shadow-xl shadow-red-500/40 text-white font-bold text-sm transform transition-transform group-hover:scale-110">
                         SOS
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-
-              {/* 3. ĐƯỜNG KẾT NỐI (Data Flow) */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-0 h-0 z-0">
-                {/* Chỉ là trang trí ẩn dụ, không cần vẽ line phức tạp */}
-                <div className="absolute -top-20 -left-40 w-96 h-96 bg-primary/20 rounded-full blur-3xl -z-10"></div>
-              </div>
             </div>
-            {/* --- END: GLASS MOCKUP V2 --- */}
+            {/* --- END: GLASS MOCKUP V3 --- */}
             {/* Scroll Indicator */}
             <div className="animate-bounce text-slate-400 flex justify-center opacity-50">
               <ChevronDown size={32} />
