@@ -25,10 +25,10 @@ let DefaultIcon = L.icon({
 });
 L.Marker.prototype.options.icon = DefaultIcon;
 
-// TỌA ĐỘ TRUNG TÂM TP HÀ TĨNH (Để đặt Marker)
+// TỌA ĐỘ TRUNG TÂM TP HÀ TĨNH
 const HA_TINH_CENTER = [18.3436, 105.9002];
 
-// Component phụ: Tự động Zoom vào ranh giới tỉnh khi tải xong
+// Component phụ: Tự động Zoom vào ranh giới khi tải xong
 const FitBoundsToData = ({ data }) => {
   const map = useMap();
   useEffect(() => {
@@ -47,14 +47,14 @@ const CitizenHomePage = () => {
   useEffect(() => {
     const fetchBoundary = async () => {
       try {
-        // Gọi API Nominatim chuẩn Open Data
+        // API Nominatim - Lấy ranh giới THÀNH PHỐ
         const response = await axios.get(
           "https://nominatim.openstreetmap.org/search",
           {
             params: {
-              q: "Ha Tinh Province", // Từ khóa chính xác theo gợi ý
-              countrycodes: "vn", // Giới hạn trong Việt Nam
-              polygon_geojson: 1, // Yêu cầu trả về hình dáng vùng (Polygon)
+              q: "Thành phố Hà Tĩnh", // <--- ĐỔI TỪ KHÓA TẠI ĐÂY (Chính xác nhất cho OSM VN)
+              countrycodes: "vn",
+              polygon_geojson: 1,
               format: "json",
               limit: 1,
             },
@@ -62,13 +62,13 @@ const CitizenHomePage = () => {
         );
 
         if (response.data && response.data.length > 0) {
-          console.log("Dữ liệu GeoJSON:", response.data[0]); // Log để kiểm tra
+          console.log("Dữ liệu TP Hà Tĩnh:", response.data[0]);
           setGeoJsonData(response.data[0].geojson);
         } else {
-          console.warn("Không tìm thấy ranh giới tỉnh Hà Tĩnh");
+          console.warn("Không tìm thấy ranh giới TP Hà Tĩnh");
         }
       } catch (error) {
-        console.error("Lỗi gọi API bản đồ:", error);
+        console.error("Lỗi tải bản đồ:", error);
       } finally {
         setLoading(false);
       }
@@ -81,7 +81,7 @@ const CitizenHomePage = () => {
     <div className="h-[calc(100vh-56px)] w-full relative">
       <MapContainer
         center={HA_TINH_CENTER}
-        zoom={10}
+        zoom={13} // Zoom lớn hơn (13) vì Thành phố nhỏ hơn Tỉnh
         scrollWheelZoom={true}
         className="h-full w-full z-0"
         zoomControl={false}
@@ -92,16 +92,16 @@ const CitizenHomePage = () => {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
-        {/* Lớp ranh giới Tỉnh Hà Tĩnh (Vùng màu đỏ) */}
+        {/* Lớp ranh giới THÀNH PHỐ Hà Tĩnh */}
         {geoJsonData && (
           <>
             <GeoJSON
               data={geoJsonData}
               style={{
-                color: "#ef4444", // Viền đỏ
-                weight: 2,
-                fillColor: "#ef4444",
-                fillOpacity: 0.1, // Nền đỏ nhạt
+                color: "#3b82f6", // Đổi sang viền Xanh dương (Blue) cho ra chất "Đô thị thông minh"
+                weight: 3,
+                fillColor: "#3b82f6",
+                fillOpacity: 0.05, // Nền rất nhạt để không che đường phố
               }}
             />
             <FitBoundsToData data={geoJsonData} />
@@ -121,13 +121,13 @@ const CitizenHomePage = () => {
         <ZoomControl position="topright" />
       </MapContainer>
 
-      {/* Loading Indicator */}
+      {/* Loading Widget */}
       {loading && (
         <div className="absolute inset-0 bg-white/50 backdrop-blur-sm z-[1000] flex items-center justify-center">
-          <div className="bg-white p-4 rounded-xl shadow-xl flex flex-col items-center">
+          <div className="bg-white p-4 rounded-xl shadow-xl flex flex-col items-center animate-fade-in-up">
             <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mb-2"></div>
             <span className="text-sm font-bold text-slate-600">
-              Đang tải bản đồ Hà Tĩnh...
+              Đang tải dữ liệu Đô thị...
             </span>
           </div>
         </div>
@@ -156,7 +156,7 @@ const CitizenHomePage = () => {
           </div>
           <div>
             <p className="text-xs text-slate-500 font-medium">
-              Thời tiết Hà Tĩnh
+              Thời tiết TP. Hà Tĩnh
             </p>
             <p className="text-sm font-bold text-slate-800">24°C • Mưa nhẹ</p>
           </div>
