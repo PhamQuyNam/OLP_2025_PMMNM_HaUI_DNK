@@ -1,4 +1,16 @@
 services:
+  gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: api-gateway
+    ports:
+      - "8000:80"  # Map cổng 8000 của máy bạn vào cổng 80 của Nginx
+    networks:
+      - main-network
+    depends_on:
+      - backend
+      - orion
   # 1. MongoDB - Cơ sở dữ liệu cho Orion Context Broker
   mongo:
     image: mongo:4.4
