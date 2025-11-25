@@ -8,52 +8,51 @@ import {
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 
-// Fix lỗi icon marker mặc định của Leaflet trong React
-import iconMarker from "leaflet/dist/images/marker-icon.png";
-import iconRetina from "leaflet/dist/images/marker-icon-2x.png";
+// --- FIX LỖI ICON MARKER ---
+import icon from "leaflet/dist/images/marker-icon.png";
 import iconShadow from "leaflet/dist/images/marker-shadow.png";
 
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: iconRetina,
-  iconUrl: iconMarker,
+let DefaultIcon = L.icon({
+  iconUrl: icon,
   shadowUrl: iconShadow,
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
 });
 
-// TỌA ĐỘ HÀ TĨNH (Trung tâm thành phố)
+L.Marker.prototype.options.icon = DefaultIcon;
+// ---------------------------
+
 const CENTER_POSITION = [18.3436, 105.9002];
 
 const CitizenHomePage = () => {
   return (
     <div className="h-[calc(100vh-56px)] w-full relative">
-      {/* Bản đồ Full màn hình */}
       <MapContainer
         center={CENTER_POSITION}
         zoom={13}
         scrollWheelZoom={true}
         className="h-full w-full z-0"
-        zoomControl={false} // Tắt nút zoom mặc định để tự custom hoặc dùng tay
+        zoomControl={false} // Tắt zoom mặc định
       >
-        {/* Lớp bản đồ nền (OpenStreetMap - Chuẩn OLP) */}
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
-        {/* Marker ví dụ tại trung tâm Hà Tĩnh */}
         <Marker position={CENTER_POSITION}>
           <Popup>
             <div className="text-center">
-              <h3 className="font-bold text-primary">Bạn đang ở đây</h3>
+              <h3 className="font-bold text-primary">Vị trí của bạn</h3>
               <p className="text-xs text-slate-500">TP. Hà Tĩnh</p>
             </div>
           </Popup>
         </Marker>
 
-        <ZoomControl position="top-right" />
+        {/* 👇 ĐÃ SỬA LẠI ĐÚNG CÚ PHÁP: topright (không gạch nối) */}
+        <ZoomControl position="topright" />
       </MapContainer>
 
-      {/* Widget Nổi: Thông tin thời tiết nhanh */}
+      {/* Widget Thời tiết */}
       <div className="absolute top-4 left-4 right-14 z-[400]">
         <div className="bg-white/90 backdrop-blur-md p-3 rounded-xl shadow-lg border border-white/20 flex items-center gap-3">
           <div className="bg-blue-100 p-2 rounded-lg text-blue-600">
