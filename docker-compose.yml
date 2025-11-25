@@ -9,8 +9,18 @@ services:
     networks:
       - main-network
     depends_on:
-      - backend
+      - auth-service
       - orion
+
+  auth-service:
+    build: ./auth-service
+    container_name: auth-service
+    networks:
+      - main-network
+    env_file: .env
+    environment:
+      - PORT=3001
+
   # 1. MongoDB - Cơ sở dữ liệu cho Orion Context Broker
   mongo:
     image: mongo:4.4
