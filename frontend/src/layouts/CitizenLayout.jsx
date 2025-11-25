@@ -1,5 +1,5 @@
-import { Outlet, NavLink } from "react-router-dom";
 import { Map, Bell, FileText, User, ShieldAlert } from "lucide-react";
+import { Outlet, NavLink, Link } from "react-router-dom";
 
 const CitizenLayout = () => {
   return (
@@ -7,8 +7,11 @@ const CitizenLayout = () => {
     <div className="min-h-screen bg-slate-50 font-sans pb-20 md:pb-0">
       {/* === HEADER (DÙNG CHUNG NHƯNG TÙY BIẾN) === */}
       <header className="fixed top-0 w-full z-40 bg-white/90 backdrop-blur-md border-b border-slate-200 px-4 md:px-8 py-3 flex items-center justify-between shadow-sm transition-all">
-        {/* Logo */}
-        <div className="flex items-center gap-2">
+        {/* Logo (Đã sửa thành Link để quay về trang chủ) */}
+        <Link
+          to="/"
+          className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+        >
           <div className="bg-primary/10 p-1.5 rounded-lg">
             <ShieldAlert className="text-primary w-6 h-6" />
           </div>
@@ -18,7 +21,7 @@ const CitizenLayout = () => {
           <h1 className="font-bold text-slate-800 text-lg md:hidden">
             VRH Citizen
           </h1>
-        </div>
+        </Link>
 
         {/* === MENU DESKTOP (Chỉ hiện trên màn hình > md) === */}
         <div className="hidden md:flex items-center gap-6">
