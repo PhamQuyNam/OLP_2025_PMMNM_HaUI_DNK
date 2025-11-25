@@ -1,12 +1,16 @@
+import { useState, useEffect } from "react";
 import {
   MapContainer,
   TileLayer,
   Marker,
   Popup,
   ZoomControl,
+  GeoJSON,
+  useMap,
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
+import axios from "axios"; // Dùng để gọi dữ liệu bản đồ mở
 
 // --- FIX LỖI ICON MARKER ---
 import icon from "leaflet/dist/images/marker-icon.png";
@@ -17,42 +21,117 @@ let DefaultIcon = L.icon({
   shadowUrl: iconShadow,
   iconSize: [25, 41],
   iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
 });
-
 L.Marker.prototype.options.icon = DefaultIcon;
-// ---------------------------
 
-const CENTER_POSITION = [18.3436, 105.9002];
+// CẤU HÌNH KHU VỰC: HÀ TĨNH
+const HA_TINH_COORDS = [18.3436, 105.9002]; // Trung tâm TP Hà Tĩnh
+
+// Component phụ để tự động Zoom vào khu vực Hà Tĩnh khi có dữ liệu
+const FitBoundsToData = ({ data }) => {
+  const map = useMap();
+  useEffect(() => {
+    if (data) {
+      const geoJsonLayer = L.geoJSON(data);
+      map.fitBounds(geoJsonLayer.getBounds(), { padding: [20, 20] });
+    }
+  }, [data, map]);
+  return null;
+};
 
 const CitizenHomePage = () => {
+  const [geoJsonData, setGeoJsonData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // Gọi API lấy ranh giới hành chính Hà Tĩnh từ OpenStreetMap (Nominatim)
+  useEffect(() => {
+    const fetchBoundary = async () => {
+      try {
+        // API Dữ liệu mở (Open Data) - Chuẩn OLP
+        const response = await axios.get(
+          "https://nominatim.openstreetmap.org/search",
+          {
+            params: {
+              q: "Hà Tĩnh",
+              country: "Vietnam",
+              polygon_geojson: 1,
+              format: "json",
+              limit: 1,
+            },
+          }
+        );
+
+        if (response.data && response.data.length > 0) {
+          setGeoJsonData(response.data[0].geojson);
+        }
+      } catch (error) {
+        console.error("Lỗi tải bản đồ:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBoundary();
+  }, []);
+
   return (
     <div className="h-[calc(100vh-56px)] w-full relative">
       <MapContainer
-        center={CENTER_POSITION}
-        zoom={13}
+        center={HA_TINH_COORDS}
+        zoom={10}
         scrollWheelZoom={true}
         className="h-full w-full z-0"
-        zoomControl={false} // Tắt zoom mặc định
+        zoomControl={false}
       >
+        {/* 1. BẢN ĐỒ NỀN (OpenStreetMap) */}
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
-        <Marker position={CENTER_POSITION}>
+        {/* 2. LỚP RANH GIỚI HÀ TĨNH (Highlight) */}
+        {geoJsonData && (
+          <>
+            <GeoJSON
+              data={geoJsonData}
+              style={{
+                color: "#ef4444", // Viền màu đỏ cảnh báo
+                weight: 2, // Độ đậm viền
+                fillColor: "#ef4444",
+                fillOpacity: 0.1, // Nền đỏ nhạt bên trong tỉnh
+              }}
+            />
+            <FitBoundsToData data={geoJsonData} />
+          </>
+        )}
+
+        {/* Marker: Vị trí của bạn (Giả lập) */}
+        <Marker position={HA_TINH_COORDS}>
           <Popup>
             <div className="text-center">
               <h3 className="font-bold text-primary">Vị trí của bạn</h3>
-              <p className="text-xs text-slate-500">TP. Hà Tĩnh</p>
+              <p className="text-xs text-slate-500">Trung tâm TP. Hà Tĩnh</p>
             </div>
           </Popup>
         </Marker>
 
-        {/* 👇 ĐÃ SỬA LẠI ĐÚNG CÚ PHÁP: topright (không gạch nối) */}
         <ZoomControl position="topright" />
       </MapContainer>
 
-      {/* Widget Thời tiết */}
+      {/* Widget Loading (Khi đang tải bản đồ) */}
+      {loading && (
+        <div className="absolute inset-0 bg-white/50 backdrop-blur-sm z-[500] flex items-center justify-center">
+          <div className="flex flex-col items-center gap-2">
+            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+            <span className="text-sm font-bold text-primary">
+              Đang tải dữ liệu Hà Tĩnh...
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* Widget Thời tiết nổi */}
       <div className="absolute top-4 left-4 right-14 z-[400]">
         <div className="bg-white/90 backdrop-blur-md p-3 rounded-xl shadow-lg border border-white/20 flex items-center gap-3">
           <div className="bg-blue-100 p-2 rounded-lg text-blue-600">
