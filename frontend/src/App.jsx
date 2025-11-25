@@ -1,18 +1,17 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import LandingPage from "./pages/landing/LandingPage";
+import LoginPage from "./pages/auth/LoginPage";
+import RegisterPage from "./pages/auth/RegisterPage";
 
-// Placeholder cho các trang chưa code (để không lỗi router)
-const Login = () => (
-  <h1 className="text-center mt-10 text-2xl">Trang Đăng Nhập (Coming Soon)</h1>
-);
 const CitizenApp = () => (
-  <h1 className="text-center mt-10 text-2xl">
-    Ứng dụng Người Dân (Coming Soon)
+  <h1 className="text-center mt-10 text-2xl text-slate-600">
+    Ứng dụng Người Dân (Đang phát triển...)
   </h1>
 );
+
 const ManagerDashboard = () => (
-  <h1 className="text-center mt-10 text-2xl">
-    Dashboard Quản Lý (Coming Soon)
+  <h1 className="text-center mt-10 text-2xl text-slate-600">
+    Dashboard Quản Lý (Đang phát triển...)
   </h1>
 );
 
@@ -20,8 +19,14 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* 1. Trang chủ */}
         <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<Login />} />
+
+        {/* 2. Nhóm trang Xác thực (Auth) - Đã sửa lại dùng component thật */}
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+
+        {/* 3. Nhóm trang Chức năng chính (Sau này sẽ code) */}
         <Route path="/citizen" element={<CitizenApp />} />
         <Route path="/manager" element={<ManagerDashboard />} />
       </Routes>
