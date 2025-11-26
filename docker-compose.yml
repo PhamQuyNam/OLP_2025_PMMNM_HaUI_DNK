@@ -60,14 +60,6 @@ services:
       - PORT=3005
       - ORION_HOST=http://orion:1026
 
-  notification-service:
-    build: ./notification-service
-    container_name: notification-service
-    networks: [ main-network ]
-    env_file: .env
-    environment:
-      - AUTH_SERVICE_URL=http://auth-service:3001/api/auth/internal/users-in-zone
-
   # 1. MongoDB - Cơ sở dữ liệu cho Orion Context Broker
   mongo:
     image: mongo:4.4
