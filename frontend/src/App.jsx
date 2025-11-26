@@ -13,31 +13,41 @@ import LandingPage from "./pages/landing/LandingPage";
 import LoginPage from "./pages/auth/LoginPage";
 import RegisterPage from "./pages/auth/RegisterPage";
 
-const CitizenApp = () => (
-  <h1 className="text-center mt-10 text-2xl text-slate-600">
-    Ứng dụng Người Dân (Đang phát triển...)
-  </h1>
-);
+// Import mới
+import CitizenLayout from "./layouts/CitizenLayout";
+import CitizenHomePage from "./pages/citizen/CitizenHomePage";
 
+// Placeholder
 const ManagerDashboard = () => (
-  <h1 className="text-center mt-10 text-2xl text-slate-600">
-    Dashboard Quản Lý (Đang phát triển...)
-  </h1>
+  <h1 className="text-center mt-10">Dashboard (Đang phát triển)</h1>
+);
+const CitizenAlerts = () => (
+  <h1 className="text-center mt-20">Danh sách Cảnh báo</h1>
+);
+const CitizenReport = () => <h1 className="text-center mt-20">Gửi Báo cáo</h1>;
+const CitizenProfile = () => (
+  <h1 className="text-center mt-20">Hồ sơ Cá nhân</h1>
 );
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* 1. Trang chủ */}
+        {/* Public Routes */}
         <Route path="/" element={<LandingPage />} />
-
-        {/* 2. Nhóm trang Xác thực (Auth) - Đã sửa lại dùng component thật */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
 
-        {/* 3. Nhóm trang Chức năng chính (Sau này sẽ code) */}
-        <Route path="/citizen" element={<CitizenApp />} />
+        {/* Citizen Routes (Có Layout riêng) */}
+        <Route path="/citizen" element={<CitizenLayout />}>
+          <Route index element={<CitizenHomePage />} />{" "}
+          {/* Trang chủ mặc định */}
+          <Route path="alerts" element={<CitizenAlerts />} />
+          <Route path="report" element={<CitizenReport />} />
+          <Route path="profile" element={<CitizenProfile />} />
+        </Route>
+
+        {/* Manager Routes */}
         <Route path="/manager" element={<ManagerDashboard />} />
       </Routes>
     </BrowserRouter>
