@@ -16,7 +16,7 @@ import RegisterPage from "./pages/auth/RegisterPage";
 // Import mới
 import CitizenLayout from "./layouts/CitizenLayout";
 import CitizenHomePage from "./pages/citizen/CitizenHomePage";
-
+import CitizenGuidePage from "./pages/citizen/CitizenGuidePage";
 // Placeholder
 const ManagerDashboard = () => (
   <h1 className="text-center mt-10">Dashboard (Đang phát triển)</h1>
@@ -45,6 +45,7 @@ function App() {
           <Route path="alerts" element={<CitizenAlerts />} />
           <Route path="report" element={<CitizenReport />} />
           <Route path="profile" element={<CitizenProfile />} />
+          <Route path="guide" element={<CitizenGuidePage />} />
         </Route>
 
         {/* Manager Routes */}
