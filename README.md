@@ -7,7 +7,7 @@
 [![Documentation](https://img.shields.io/badge/Documentation-View_Site-blue?style=for-the-badge)](https://github.com/PhamQuyNam/OLP_2025_PMMNM_HaUI_DNK.git)
 [![License](https://img.shields.io/badge/License-Apache_2.0-yellow.svg?style=for-the-badge)](./LICENSE)
 
-Bài dự thi Xây dựng ứng dụng thành phố thông minh dựa trên nền tảng dữ liệu mở.
+Bài dự thi Phát triển ứng dụng thành phố thông minh dựa trên nền tảng dữ liệu mở.
 
 ## 💡 Ý tưởng Cốt lõi: 
 
@@ -85,7 +85,8 @@ Nền tảng này sử dụng và tích hợp các PMMN sau:
 - **Lưu Trữ Dữ liệu (GIS/Relational):**  PostgreSQL (Kèm theo tiện ích mở rộng PostGIS)
 - **Lưu Trữ Lịch sử (Historian):** FIWARE QuantumLeap (với Mongodb )  
 - **Lưu Trữ Media/Object:** MinIO
-- **Backend/Smart Agent:** Python (FastAPI )  
+- **Backend API Gateway:** Node.js (Express)
+- **Ingestion Service:** Python (Scikit-learn, Pandas)
 - **Frontend/Giao diện:** React.js  
 - **Bản Đồ Số:** Leaflet.js  
 - **Đóng gói/Triển khai:** Docker và Docker Compose
@@ -109,8 +110,8 @@ docker-compose up --build -d
 
 - **Dashboard Nhà Quản lý:** http://localhost:3000/manager   
 - **Ứng dụng Người Dân:** http://localhost:3000/citizen   
-- **API Backend (FastAPI):** http://localhost:8000/docs
-- **API Cảnh báo/Báo cáo:** http://localhost:8000/api/reports
+- **API Backend (Node.js):** http://localhost:3000/api/...
+- **API Cảnh báo/Báo cáo:** http://localhost:3000/api/reports
 - **Orion-LD Context Broker:** http://localhost:1026/ngsi-ld/v1/entities  
 
 **Dừng hệ thống:**
