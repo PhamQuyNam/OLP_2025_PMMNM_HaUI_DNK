@@ -21,6 +21,53 @@ services:
     environment:
       - PORT=3001
 
+  data-service:
+    build: ./data-service
+    container_name: data-service
+    networks:
+      - main-network
+    env_file: .env
+    environment:
+      - PORT=3002
+
+  weather-realtime-service:
+    build: ./weather-realtime-service
+    container_name: weather-service
+    networks:
+      - main-network
+    env_file: .env
+    environment:
+      - PORT=3003
+      - ORION_HOST=http://orion:1026
+
+  report-service:
+    build: ./report-service
+    container_name: report-service
+    networks:
+      - main-network
+    env_file: .env
+    environment:
+      - PORT=3004
+      - ORION_HOST=http://orion:1026
+
+  alert-service:
+    build: ./alert-service
+    container_name: alert-service
+    networks:
+      - main-network
+    env_file: .env
+    environment:
+      - PORT=3005
+      - ORION_HOST=http://orion:1026
+
+  notification-service:
+    build: ./notification-service
+    container_name: notification-service
+    networks: [ main-network ]
+    env_file: .env
+    environment:
+      - AUTH_SERVICE_URL=http://auth-service:3001/api/auth/internal/users-in-zone
+
   # 1. MongoDB - Cơ sở dữ liệu cho Orion Context Broker
   mongo:
     image: mongo:4.4
@@ -59,26 +106,6 @@ services:
     networks:
       - main-network
     environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB}
-
-  # 4. Backend API - API Gateway (Node.js)
-  backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    container_name: backend
-    depends_on:
-      - orion
-      - postgis
-    networks:
-      - main-network
-    ports:
-      - "3000:3000"
-    environment:
-      - ORION_HOST=http://orion:1026
-      - POSTGRES_HOST=postgis
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}

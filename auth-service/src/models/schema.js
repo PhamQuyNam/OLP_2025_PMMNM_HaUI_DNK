@@ -12,7 +12,8 @@ const createTables = async () => {
                 role VARCHAR(20) NOT NULL DEFAULT 'CITIZEN',
                 phone VARCHAR(20),
                 geom GEOMETRY(Point, 4326),
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
         `;
 
