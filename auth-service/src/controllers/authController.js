@@ -68,4 +68,43 @@ const login = async (req, res) => {
     }
 };
 
-module.exports = { register, login };
+const updateProfile = async (req, res) => {
+    const userId = req.user.id; // Lấy ID từ token (do middleware gán vào)
+    const { username, password, phone, lat, lon } = req.body;
+
+    try {
+        let updateData = { username, phone, lat, lon, password: null };
+
+        // Nếu người dùng gửi password mới thì mã hóa, không thì để null
+        if (password && password.trim() !== "") {
+            const salt = await bcrypt.genSalt(10);
+            updateData.password = await bcrypt.hash(password, salt);
+        }
+
+        const updatedUser = await UserModel.updateUser(userId, updateData);
+
+        if (!updatedUser) return res.status(404).json({ message: "Người dùng không tồn tại" });
+
+        res.json({ message: "Cập nhật thành công", user: updatedUser });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Lỗi server khi cập nhật" });
+    }
+};
+
+const deleteAccount = async (req, res) => {
+    const userId = req.user.id; // Lấy ID từ token
+
+    try {
+        // Gọi Model để xóa
+        await UserModel.deleteUser(userId);
+
+        res.json({ message: "Xóa tài khoản thành công" });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Lỗi server khi xóa tài khoản" });
+    }
+};
+
+module.exports = { register, login, updateProfile, deleteAccount };
