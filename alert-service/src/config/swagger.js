@@ -8,10 +8,10 @@ const options = {
       version: '1.0.0',
     },
     servers: [
-      { url: '/api/alerts', description: 'Alert Service' }, // Quan trọng: Base URL qua Gateway
+      { url: '/', description: 'Alert Service' }, // Quan trọng: Base URL qua Gateway
     ],
   },
-  apis: ['./src/routes/*.js', './src/controllers/*.js'], // Đường dẫn tới file có comment
+  apis: ['./src/routes/alertRoutes.js', './src/controllers/alertController.js'], // Đường dẫn tới file có comment
 };
 
 const specs = swaggerJsdoc(options);
