@@ -8,10 +8,10 @@ const options = {
       version: '1.0.0',
     },
     servers: [
-      { url: '/api/weather', description: 'Weather Service' }, // Quan trọng: Base URL qua Gateway
+      { url: '/', description: 'Weather Service' }, // Quan trọng: Base URL qua Gateway
     ],
   },
-  apis: ['./src/routes/*.js', './src/controllers/*.js'], // Đường dẫn tới file có comment
+  apis: ['./src/routes/weatherRoutes.js', './src/controllers/weatherController.js'], // Đường dẫn tới file có comment
 };
 
 const specs = swaggerJsdoc(options);

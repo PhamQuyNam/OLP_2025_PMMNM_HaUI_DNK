@@ -11,29 +11,39 @@ STATION_LON = 105.9002
 # 👇 NÂNG CẤP: Danh sách các trạm quan trắc chiến lược
 MONITORING_STATIONS = [
     {
-        "id": "urn:ngsi-ld:RainObserved:Station_HuongSon",
-        "name": "Trạm Hương Sơn (Vùng Núi)",
-        "lat": 18.4571,
-        "lon": 105.3456,
-        # Hương Sơn: Mưa thường to hơn, dễ sạt lở
-    },
-    {
-        "id": "urn:ngsi-ld:RainObserved:Station_VuQuang",
-        "name": "Trạm Vũ Quang (Vùng Núi)",
-        "lat": 18.3426,
-        "lon": 105.4351
-    },
-    {
-        "id": "urn:ngsi-ld:RainObserved:Station_TPHaTinh",
-        "name": "Trạm TP Hà Tĩnh (Đồng Bằng)",
+        "id": "urn:ngsi-ld:RainObserved:HT_Center_Vincom",
+        "name": "Trạm Trung Tâm (Vincom)",
         "lat": 18.3436,
-        "lon": 105.9002
+        "lon": 105.9002,
+        "desc": "Khu vực thương mại sầm uất, ngập gây tắc nghẽn giao thông."
     },
     {
-        "id": "urn:ngsi-ld:RainObserved:Station_KyAnh",
-        "name": "Trạm Kỳ Anh (Ven Biển)",
-        "lat": 18.0796,
-        "lon": 106.2939
+        "id": "urn:ngsi-ld:RainObserved:HT_North_CauCay",
+        "name": "Trạm Cầu Cày (Thoát nước Bắc)",
+        "lat": 18.3585,
+        "lon": 105.8890,
+        "desc": "Cửa ngõ thoát nước ra sông Cày. Mực nước tại đây quyết định tốc độ rút nước."
+    },
+    {
+        "id": "urn:ngsi-ld:RainObserved:HT_Lake_BongSon",
+        "name": "Trạm Hồ Bồng Sơn",
+        "lat": 18.3390,
+        "lon": 105.9050,
+        "desc": "Hồ điều hòa trung tâm."
+    },
+    {
+        "id": "urn:ngsi-ld:RainObserved:HT_South_DaiNai",
+        "name": "Trạm Đại Nài (Vùng trũng Nam)",
+        "lat": 18.3250,
+        "lon": 105.9080,
+        "desc": "Khu vực thấp trũng, chịu ảnh hưởng sớm nhất khi mưa lớn."
+    },
+    {
+        "id": "urn:ngsi-ld:RainObserved:HT_Res_BacHa",
+        "name": "Trạm KDC Bắc Hà",
+        "lat": 18.3480,
+        "lon": 105.8980,
+        "desc": "Khu dân cư mật độ cao, hệ thống thoát nước cũ."
     }
 ]
 STATION_ID = "urn:ngsi-ld:RainObserved:Station001"

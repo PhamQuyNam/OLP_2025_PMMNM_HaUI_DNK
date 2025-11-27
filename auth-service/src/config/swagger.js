@@ -18,7 +18,7 @@ const options = {
     },
     security: [{ bearerAuth: [] }],
     servers: [
-      { url: '/api/auth', description: 'Auth Service' }, // Quan trọng: Base URL qua Gateway
+      { url: '/', description: 'Auth Service' }, // Quan trọng: Base URL qua Gateway
     ],
   },
   apis: ['./src/routes/authRoutes.js', './src/controllers/authController.js'], // Đường dẫn tới file có comment
