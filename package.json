@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "swagger-jsdoc": "^6.2.8",
     "uuid": "^13.0.0"
   }
 }
