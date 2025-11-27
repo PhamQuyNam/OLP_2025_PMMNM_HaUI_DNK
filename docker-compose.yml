@@ -60,6 +60,22 @@ services:
       - PORT=3005
       - ORION_HOST=http://orion:1026
 
+  swagger-ui:
+    image: swaggerapi/swagger-ui
+    container_name: swagger-ui
+    networks:
+      - main-network
+    environment:
+      # Cấu hình danh sách các file JSON từ các service con
+      # URL phải dùng tên container (nội bộ docker)
+        URLS: "[
+        { url: 'http://localhost:8000/api/auth/api-docs.json', name: '1. Auth Service' },
+        { url: 'http://localhost:8000/api/map/api-docs.json', name: '2. Map API (Data Service)' },
+        { url: 'http://localhost:8000/api/weather/api-docs.json', name: '3. Weather Service' },
+        { url: 'http://localhost:8000/api/reports/api-docs.json', name: '4. Report Service' },
+        { url: 'http://localhost:8000/api/alerts/api-docs.json', name: '5. Alert Service' },
+        ]"
+
   # 1. MongoDB - Cơ sở dữ liệu cho Orion Context Broker
   mongo:
     image: mongo:4.4
