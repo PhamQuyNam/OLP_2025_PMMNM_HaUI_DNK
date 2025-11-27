@@ -8,12 +8,19 @@ const createTables = require('./src/models/schema');
 // Import Routes
 const authRoutes = require('./src/routes/authRoutes');
 
+const swaggerSpecs = require('./src/config/swagger');
+
 const app = express();
 app.use(cors());
 app.use(express.json());
 
+app.get('/api-docs.json', (req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.send(swaggerSpecs);
+});
+
 // Sử dụng Routes
-app.use('/api/auth', authRoutes);
+app.use('/', authRoutes);
 
 const PORT = process.env.PORT || 3001;
 // --- KHỞI ĐỘNG SERVER ---
