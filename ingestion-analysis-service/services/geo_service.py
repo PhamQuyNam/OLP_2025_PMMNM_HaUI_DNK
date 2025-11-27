@@ -18,7 +18,7 @@ def check_location_risk(lat, lon):
 
         # ST_Contains: Kiểm tra điểm nằm trong vùng
         query = """
-            SELECT name, risk_level, risk_type 
+            SELECT name, risk_level, risk_type
             FROM risk_zones 
             WHERE ST_Contains(geom, ST_SetSRID(ST_Point(%s, %s), 4326));
         """
