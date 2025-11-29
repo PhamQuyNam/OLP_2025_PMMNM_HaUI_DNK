@@ -12,11 +12,10 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import LandingPage from "./pages/landing/LandingPage";
 import LoginPage from "./pages/auth/LoginPage";
 import RegisterPage from "./pages/auth/RegisterPage";
-
-// Import mới
 import CitizenLayout from "./layouts/CitizenLayout";
 import CitizenHomePage from "./pages/citizen/CitizenHomePage";
 import CitizenGuidePage from "./pages/citizen/CitizenGuidePage";
+import ManagerLayout from "./layouts/ManagerLayout";
 // Placeholder
 const ManagerDashboard = () => (
   <h1 className="text-center mt-10">Dashboard (Đang phát triển)</h1>
@@ -48,8 +47,33 @@ function App() {
           <Route path="guide" element={<CitizenGuidePage />} />
         </Route>
 
-        {/* Manager Routes */}
-        <Route path="/manager" element={<ManagerDashboard />} />
+        {/* Manager Routes (Layout riêng, Dark Mode) */}
+        <Route path="/manager" element={<ManagerLayout />}>
+          <Route index element={<ManagerDashboard />} />{" "}
+          {/* Trang tổng quan mặc định */}
+          <Route
+            path="map"
+            element={
+              <h1 className="text-white">Bản đồ rủi ro (Đang phát triển)</h1>
+            }
+          />
+          <Route
+            path="incidents"
+            element={
+              <h1 className="text-white">Quản lý sự cố (Đang phát triển)</h1>
+            }
+          />
+          <Route
+            path="data"
+            element={
+              <h1 className="text-white">Quản lý dữ liệu (Đang phát triển)</h1>
+            }
+          />
+          <Route
+            path="settings"
+            element={<h1 className="text-white">Cấu hình (Đang phát triển)</h1>}
+          />
+        </Route>
       </Routes>
     </BrowserRouter>
   );
