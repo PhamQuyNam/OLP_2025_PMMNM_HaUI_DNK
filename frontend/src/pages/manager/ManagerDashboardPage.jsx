@@ -1,9 +1,8 @@
 import {
   AlertTriangle,
   Droplets,
-  Users,
+  BellRing,
   Activity,
-  MoreHorizontal,
   ArrowUpRight,
   ArrowDownRight,
 } from "lucide-react";
@@ -17,41 +16,35 @@ import {
   ResponsiveContainer,
   BarChart,
   Bar,
-  Legend,
 } from "recharts";
 
-// Dữ liệu giả lập cho biểu đồ
+// --- MOCK DATA (Dữ liệu giả lập chuẩn OLP) ---
+
+// 1. Lượng mưa theo giờ (24h)
 const RAIN_DATA = [
-  { time: "00:00", mm: 12 },
-  { time: "04:00", mm: 18 },
+  { time: "01:00", mm: 5 },
+  { time: "04:00", mm: 12 },
   { time: "08:00", mm: 45 },
-  { time: "12:00", mm: 80 }, // Đỉnh điểm
-  { time: "16:00", mm: 65 },
-  { time: "20:00", mm: 30 },
+  { time: "12:00", mm: 95 }, // Đỉnh điểm mưa lớn
+  { time: "16:00", mm: 60 },
+  { time: "20:00", mm: 25 },
 ];
 
-const ALERT_STATS = [
-  { name: "Sạt lở", count: 4, fill: "#f59e0b" }, // Cam
-  { name: "Ngập lụt", count: 8, fill: "#3b82f6" }, // Xanh
-  { name: "Lũ quét", count: 2, fill: "#ef4444" }, // Đỏ
+// 2. Mực nước trung bình tại các trạm (cm)
+const WATER_LEVEL_DATA = [
+  { name: "Sông La", level: 350 },
+  { name: "Sông Gianh", level: 420 }, // Cao
+  { name: "Kẻ Gỗ", level: 280 },
 ];
 
 const ManagerDashboardPage = () => {
   return (
-    <div className="space-y-6 text-slate-100">
-      {/* === 1. THỐNG KÊ TỔNG QUAN (STATS CARDS) === */}
+    <div className="space-y-6 text-slate-100 font-sans">
+      {/* === 1. HÀNG TRÊN CÙNG: 4 THẺ CHỈ SỐ QUAN TRỌNG === */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Card 1: Lượng mưa trung bình */}
         <StatCard
-          title="Cảnh báo Khẩn cấp"
-          value="14"
-          unit="Vụ"
-          icon={AlertTriangle}
-          color="bg-red-500"
-          trend="+2"
-          trendUp={true}
-        />
-        <StatCard
-          title="Lượng mưa TB"
+          title="Lượng mưa (24h)"
           value="128"
           unit="mm"
           icon={Droplets}
@@ -59,210 +52,150 @@ const ManagerDashboardPage = () => {
           trend="+15%"
           trendUp={true}
         />
+
+        {/* Card 2: Khu vực Cảnh báo (Sạt lở/Lũ) */}
         <StatCard
-          title="Người dân Online"
-          value="2,450"
-          unit="User"
-          icon={Users}
-          color="bg-emerald-500"
-          trend="Ổn định"
+          title="Khu vực Cảnh báo"
+          value="3"
+          unit="Vùng"
+          icon={AlertTriangle}
+          color="bg-red-500"
+          trend="+1"
+          trendUp={true} // Tăng là xấu (Nguy hiểm tăng)
+        />
+
+        {/* Card 3: SOS Chưa xử lý */}
+        <StatCard
+          title="SOS Chờ xử lý"
+          value="5"
+          unit="Tin"
+          icon={BellRing}
+          color="bg-orange-500"
+          trend="-2"
+          trendUp={false} // Giảm là tốt
+        />
+
+        {/* Card 4: Mực nước trung bình */}
+        <StatCard
+          title="Mực nước TB"
+          value="3.5"
+          unit="m"
+          icon={Activity}
+          color="bg-cyan-500"
+          trend="Báo động 2"
           trendUp={true}
         />
-        <StatCard
-          title="Trạng thái Sensor"
-          value="98%"
-          unit="Active"
-          icon={Activity}
-          color="bg-purple-500"
-          trend="-1%"
-          trendUp={false}
-        />
       </div>
 
-      {/* === 2. BIỂU ĐỒ & BẢN ĐỒ NHỎ === */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Biểu đồ Lượng mưa (Chiếm 2 cột) */}
-        <div className="lg:col-span-2 bg-slate-800/50 border border-slate-700 p-5 rounded-2xl">
-          <div className="flex justify-between items-center mb-6">
-            <h3 className="font-bold text-lg">Diễn biến Mưa (24h qua)</h3>
-            <button className="text-xs bg-slate-700 px-3 py-1 rounded hover:bg-slate-600 transition-colors">
-              Chi tiết
-            </button>
-          </div>
-          <div className="h-64 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={RAIN_DATA}>
-                <defs>
-                  <linearGradient id="colorRain" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke="#334155"
-                  vertical={false}
-                />
-                <XAxis
-                  dataKey="time"
-                  stroke="#94a3b8"
-                  fontSize={12}
-                  tickLine={false}
-                  axisLine={false}
-                />
-                <YAxis
-                  stroke="#94a3b8"
-                  fontSize={12}
-                  tickLine={false}
-                  axisLine={false}
-                />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "#1e293b",
-                    borderColor: "#334155",
-                    color: "#fff",
-                  }}
-                  itemStyle={{ color: "#fff" }}
-                />
-                <Area
-                  type="monotone"
-                  dataKey="mm"
-                  stroke="#3b82f6"
-                  strokeWidth={3}
-                  fillOpacity={1}
-                  fill="url(#colorRain)"
-                />
-              </AreaChart>
-            </ResponsiveContainer>
+      {/* === 2. KHU VỰC CHÍNH (BẢN ĐỒ & BIỂU ĐỒ) === */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[500px]">
+        {/* CỘT TRÁI (2/3): BẢN ĐỒ GIÁM SÁT (Sẽ làm ở Bước sau) */}
+        <div className="lg:col-span-2 bg-slate-800/50 border border-slate-700 rounded-2xl p-4 relative overflow-hidden flex items-center justify-center">
+          {/* Placeholder cho Map */}
+          <div className="text-center opacity-50">
+            <div className="animate-pulse mb-2 text-6xl">🗺️</div>
+            <p>Bản đồ Cảnh báo Sạt lở & Lũ lụt</p>
+            <p className="text-sm text-slate-400">
+              (Sẽ tích hợp ở bước tiếp theo)
+            </p>
           </div>
         </div>
 
-        {/* Thống kê Loại Cảnh báo (Chiếm 1 cột) */}
-        <div className="bg-slate-800/50 border border-slate-700 p-5 rounded-2xl">
-          <h3 className="font-bold text-lg mb-6">Phân loại Rủi ro</h3>
-          <div className="h-64 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={ALERT_STATS}
-                layout="vertical"
-                margin={{ left: 0 }}
-              >
-                <XAxis type="number" hide />
-                <YAxis
-                  dataKey="name"
-                  type="category"
-                  stroke="#fff"
-                  width={80}
-                  fontSize={13}
-                />
-                <Tooltip
-                  cursor={{ fill: "transparent" }}
-                  contentStyle={{
-                    backgroundColor: "#1e293b",
-                    borderColor: "#334155",
-                  }}
-                />
-                <Bar dataKey="count" radius={[0, 4, 4, 0]} barSize={20}>
-                  {/* Tự động fill màu theo data */}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
+        {/* CỘT PHẢI (1/3): BIỂU ĐỒ SỐ LIỆU */}
+        <div className="flex flex-col gap-6 h-full">
+          {/* Biểu đồ Lượng mưa */}
+          <div className="flex-1 bg-slate-800/50 border border-slate-700 p-5 rounded-2xl min-h-0">
+            <h3 className="font-bold text-sm mb-4 text-slate-300">
+              Diễn biến Mưa (mm)
+            </h3>
+            <div className="h-[calc(100%-2rem)] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={RAIN_DATA}>
+                  <defs>
+                    <linearGradient id="colorRain" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="#334155"
+                    vertical={false}
+                  />
+                  <XAxis
+                    dataKey="time"
+                    stroke="#64748b"
+                    fontSize={10}
+                    tickLine={false}
+                    axisLine={false}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#1e293b",
+                      borderColor: "#334155",
+                      color: "#fff",
+                    }}
+                    itemStyle={{ color: "#fff" }}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="mm"
+                    stroke="#3b82f6"
+                    strokeWidth={2}
+                    fill="url(#colorRain)"
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
           </div>
-          <div className="mt-4 flex flex-col gap-2">
-            {ALERT_STATS.map((item, idx) => (
-              <div
-                key={idx}
-                className="flex items-center justify-between text-sm"
-              >
-                <div className="flex items-center gap-2">
-                  <div
-                    className="w-3 h-3 rounded-full"
-                    style={{ backgroundColor: item.fill }}
-                  ></div>
-                  <span className="text-slate-300">{item.name}</span>
-                </div>
-                <span className="font-bold">{item.count}</span>
-              </div>
-            ))}
+
+          {/* Biểu đồ Mực nước (Dạng cột) */}
+          <div className="flex-1 bg-slate-800/50 border border-slate-700 p-5 rounded-2xl min-h-0">
+            <h3 className="font-bold text-sm mb-4 text-slate-300">
+              Mực nước Trạm (cm)
+            </h3>
+            <div className="h-[calc(100%-2rem)] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={WATER_LEVEL_DATA} layout="vertical">
+                  <XAxis type="number" hide />
+                  <YAxis
+                    dataKey="name"
+                    type="category"
+                    stroke="#94a3b8"
+                    width={70}
+                    fontSize={11}
+                    tickLine={false}
+                    axisLine={false}
+                  />
+                  <Tooltip
+                    cursor={{ fill: "transparent" }}
+                    contentStyle={{
+                      backgroundColor: "#1e293b",
+                      borderColor: "#334155",
+                    }}
+                  />
+                  <Bar
+                    dataKey="level"
+                    fill="#06b6d4"
+                    radius={[0, 4, 4, 0]}
+                    barSize={15}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* === 3. DANH SÁCH SỰ CỐ MỚI NHẤT === */}
-      <div className="bg-slate-800/50 border border-slate-700 rounded-2xl overflow-hidden">
-        <div className="p-5 border-b border-slate-700 flex justify-between items-center">
-          <h3 className="font-bold text-lg">Báo cáo Mới nhất từ Người dân</h3>
-          <button className="text-primary text-sm hover:underline">
-            Xem tất cả
-          </button>
-        </div>
-        <div className="p-0">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-slate-900/50 text-slate-400 uppercase text-xs">
-              <tr>
-                <th className="px-6 py-4 font-semibold">Thời gian</th>
-                <th className="px-6 py-4 font-semibold">Vị trí</th>
-                <th className="px-6 py-4 font-semibold">Loại sự cố</th>
-                <th className="px-6 py-4 font-semibold">Mức độ</th>
-                <th className="px-6 py-4 font-semibold text-right">
-                  Hành động
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-700">
-              {[
-                {
-                  time: "10:45",
-                  loc: "Cầu Phủ, TP Hà Tĩnh",
-                  type: "Ngập lụt",
-                  level: "Cao",
-                  status: "red",
-                },
-                {
-                  time: "10:30",
-                  loc: "Xã Thạch Trung",
-                  type: "Sạt lở đất",
-                  level: "Trung bình",
-                  status: "orange",
-                },
-                {
-                  time: "09:15",
-                  loc: "Phường Nam Hà",
-                  type: "Tắc cống",
-                  level: "Thấp",
-                  status: "blue",
-                },
-              ].map((row, idx) => (
-                <tr
-                  key={idx}
-                  className="hover:bg-slate-700/30 transition-colors"
-                >
-                  <td className="px-6 py-4 text-slate-300">{row.time}</td>
-                  <td className="px-6 py-4 font-medium">{row.loc}</td>
-                  <td className="px-6 py-4">{row.type}</td>
-                  <td className="px-6 py-4">
-                    <span
-                      className={`px-2 py-1 rounded text-xs font-bold bg-${row.status}-500/20 text-${row.status}-400 border border-${row.status}-500/30`}
-                    >
-                      {row.level}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <button className="p-2 hover:bg-slate-600 rounded text-slate-400 hover:text-white">
-                      <MoreHorizontal size={18} />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+      {/* === 3. DANH SÁCH BÁO CÁO (Sẽ làm ở bước sau) === */}
+      <div className="bg-slate-800/30 border border-slate-700 rounded-2xl p-6 text-center text-slate-500 border-dashed">
+        Phần Danh sách SOS & Thanh ngưỡng cảnh báo sẽ nằm ở đây...
       </div>
     </div>
   );
 };
 
-// Component Card nhỏ
+// Component Card nhỏ (Giữ nguyên logic cũ nhưng chỉnh style chút)
 const StatCard = ({
   title,
   value,
@@ -279,11 +212,16 @@ const StatCard = ({
       </div>
       <div
         className={`flex items-center gap-1 text-xs font-bold ${
-          trendUp ? "text-emerald-400" : "text-red-400"
+          trendUp ? "text-red-400" : "text-emerald-400"
         }`}
       >
         {trend}
-        {trendUp ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
+        {/* Logic mũi tên: Tăng (xấu) -> Đỏ, Giảm (tốt) -> Xanh (Tùy ngữ cảnh, tạm để vậy) */}
+        {trend.includes("+") ? (
+          <ArrowUpRight size={14} />
+        ) : (
+          <ArrowDownRight size={14} />
+        )}
       </div>
     </div>
     <div>
