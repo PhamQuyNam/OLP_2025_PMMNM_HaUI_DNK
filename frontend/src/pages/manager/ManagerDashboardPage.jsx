@@ -17,7 +17,7 @@ import {
   BarChart,
   Bar,
 } from "recharts";
-
+import DashboardMap from "../../components/manager/DashboardMap";
 // --- MOCK DATA (Dữ liệu giả lập chuẩn OLP) ---
 
 // 1. Lượng mưa theo giờ (24h)
@@ -89,16 +89,9 @@ const ManagerDashboardPage = () => {
 
       {/* === 2. KHU VỰC CHÍNH (BẢN ĐỒ & BIỂU ĐỒ) === */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[500px]">
-        {/* CỘT TRÁI (2/3): BẢN ĐỒ GIÁM SÁT (Sẽ làm ở Bước sau) */}
-        <div className="lg:col-span-2 bg-slate-800/50 border border-slate-700 rounded-2xl p-4 relative overflow-hidden flex items-center justify-center">
-          {/* Placeholder cho Map */}
-          <div className="text-center opacity-50">
-            <div className="animate-pulse mb-2 text-6xl">🗺️</div>
-            <p>Bản đồ Cảnh báo Sạt lở & Lũ lụt</p>
-            <p className="text-sm text-slate-400">
-              (Sẽ tích hợp ở bước tiếp theo)
-            </p>
-          </div>
+        {/* CỘT TRÁI (2/3): BẢN ĐỒ GIÁM SÁT - ĐÃ TÍCH HỢP */}
+        <div className="lg:col-span-2 h-full min-h-[400px]">
+          <DashboardMap />
         </div>
 
         {/* CỘT PHẢI (1/3): BIỂU ĐỒ SỐ LIỆU */}
