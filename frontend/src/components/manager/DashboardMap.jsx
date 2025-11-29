@@ -4,11 +4,13 @@ import {
   Circle,
   Popup,
   Tooltip as LeafletTooltip,
+  LayersControl,
+  LayerGroup,
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 
-// --- FIX LỖI ICON (Bắt buộc) ---
+// --- FIX LỖI ICON ---
 import icon from "leaflet/dist/images/marker-icon.png";
 import iconShadow from "leaflet/dist/images/marker-shadow.png";
 
@@ -24,7 +26,7 @@ L.Marker.prototype.options.icon = DefaultIcon;
 // Tọa độ Hà Tĩnh
 const CENTER = [18.3436, 105.9002];
 
-// Dữ liệu Vùng Rủi ro Giả lập (Mock Data)
+// Dữ liệu Vùng Rủi ro
 const RISK_ZONES = [
   {
     id: 1,
@@ -57,70 +59,97 @@ const RISK_ZONES = [
 
 const DashboardMap = () => {
   return (
-    <div className="h-full w-full relative rounded-xl overflow-hidden border border-slate-600">
+    <div className="h-full w-full relative rounded-xl overflow-hidden border border-slate-600 shadow-inner">
       <MapContainer
         center={CENTER}
         zoom={12}
-        scrollWheelZoom={false} // Tắt lăn chuột để không bị rối khi cuộn trang
+        scrollWheelZoom={false}
         className="h-full w-full z-0"
-        zoomControl={false}
+        zoomControl={false} // Tắt zoom mặc định
       >
-        {/* 1. Dùng Bản đồ Nền Tối (Dark Matter) cho hợp Dashboard */}
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
-          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-        />
+        {/* BỘ ĐIỀU KHIỂN LỚP BẢN ĐỒ (Góc trên phải) */}
+        <LayersControl position="topright">
+          {/* 1. Bản đồ Sáng (Mặc định - Dễ nhìn nhất) */}
+          <LayersControl.BaseLayer checked name="Bản đồ Sáng (Clean)">
+            <TileLayer
+              attribution='&copy; <a href="https://carto.com/attributions">CARTO</a>'
+              url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+            />
+          </LayersControl.BaseLayer>
 
-        {/* 2. Vẽ các Vùng Nguy cơ */}
-        {RISK_ZONES.map((zone) => (
-          <Circle
-            key={zone.id}
-            center={[zone.lat, zone.lng]}
-            radius={zone.radius}
-            pathOptions={{
-              color: zone.color,
-              fillColor: zone.color,
-              fillOpacity: 0.4,
-              weight: 1,
-            }}
-          >
-            {/* Tooltip hiện tên khi di chuột vào */}
-            <LeafletTooltip direction="top" offset={[0, -10]} opacity={1}>
-              <div className="text-center font-bold text-slate-800">
-                {zone.name} <br />
-                <span
-                  className={`text-xs ${
-                    zone.color === "#ef4444" ? "text-red-600" : "text-blue-600"
-                  }`}
+          {/* 2. Bản đồ Tiêu chuẩn (Chi tiết đường xá) */}
+          <LayersControl.BaseLayer name="Bản đồ Đường phố (OSM)">
+            <TileLayer
+              attribution="&copy; OpenStreetMap contributors"
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+          </LayersControl.BaseLayer>
+
+          {/* 3. Bản đồ Tối (Cho ai thích Dark Mode) */}
+          <LayersControl.BaseLayer name="Bản đồ Tối (Dark)">
+            <TileLayer
+              attribution='&copy; <a href="https://carto.com/attributions">CARTO</a>'
+              url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+            />
+          </LayersControl.BaseLayer>
+
+          {/* Lớp dữ liệu cảnh báo (Luôn bật) */}
+          <LayersControl.Overlay checked name="Vùng Cảnh báo">
+            <LayerGroup>
+              {RISK_ZONES.map((zone) => (
+                <Circle
+                  key={zone.id}
+                  center={[zone.lat, zone.lng]}
+                  radius={zone.radius}
+                  pathOptions={{
+                    color: zone.color,
+                    fillColor: zone.color,
+                    fillOpacity: 0.4,
+                    weight: 2,
+                  }}
                 >
-                  {zone.level}
-                </span>
-              </div>
-            </LeafletTooltip>
+                  <LeafletTooltip
+                    direction="top"
+                    offset={[0, -10]}
+                    opacity={1}
+                    permanent
+                  >
+                    <div className="text-center font-bold text-slate-800 bg-white/80 px-2 py-1 rounded shadow-sm border border-slate-200 text-xs whitespace-nowrap">
+                      {zone.name}
+                    </div>
+                  </LeafletTooltip>
 
-            <Popup>
-              <div className="text-slate-800">
-                <strong>{zone.name}</strong>
-                <p>Bán kính: {zone.radius}m</p>
-                <button className="bg-slate-800 text-white px-2 py-1 rounded text-xs mt-1">
-                  Xem chi tiết
-                </button>
-              </div>
-            </Popup>
-          </Circle>
-        ))}
+                  <Popup>
+                    <div className="text-slate-800">
+                      <strong>{zone.name}</strong>
+                      <p className="m-0 text-xs">
+                        Mức độ:{" "}
+                        <span className="font-bold text-red-600">
+                          {zone.level}
+                        </span>
+                      </p>
+                    </div>
+                  </Popup>
+                </Circle>
+              ))}
+            </LayerGroup>
+          </LayersControl.Overlay>
+        </LayersControl>
       </MapContainer>
 
-      {/* Chú thích nhanh (Legend) nổi trên bản đồ */}
-      <div className="absolute bottom-2 left-2 z-[400] bg-slate-900/80 backdrop-blur p-2 rounded border border-slate-700 text-[10px] text-slate-300">
-        <div className="flex items-center gap-2 mb-1">
-          <span className="w-2 h-2 rounded-full bg-red-500"></span> Sạt lở
+      {/* Chú thích (Legend) - Cập nhật giao diện sáng sủa hơn */}
+      <div className="absolute bottom-2 left-2 z-[400] bg-white/90 backdrop-blur-sm p-2.5 rounded-lg shadow-lg border border-slate-200 text-[11px] text-slate-600 font-medium">
+        <div className="flex items-center gap-2 mb-1.5">
+          <span className="w-2.5 h-2.5 rounded-full bg-red-500 border border-red-200"></span>{" "}
+          Sạt lở đất
         </div>
-        <div className="flex items-center gap-2 mb-1">
-          <span className="w-2 h-2 rounded-full bg-blue-500"></span> Ngập lụt
+        <div className="flex items-center gap-2 mb-1.5">
+          <span className="w-2.5 h-2.5 rounded-full bg-blue-500 border border-blue-200"></span>{" "}
+          Ngập lụt
         </div>
         <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-amber-500"></span> Lũ quét
+          <span className="w-2.5 h-2.5 rounded-full bg-amber-500 border border-amber-200"></span>{" "}
+          Lũ quét
         </div>
       </div>
     </div>
