@@ -86,6 +86,40 @@ def get_impacted_points(lat, lon, radius_km=10):
         print(f"❌ Lỗi tra cứu Điểm xung yếu: {e}")
         return []
 
+def get_nearest_waterway(lat, lon):
+    """
+    Tìm con sông gần nhất và tính khoảng cách (mét)
+    """
+    try:
+        conn = psycopg2.connect(host=DB_HOST, database=DB_NAME, user=DB_USER, password=DB_PASS)
+        cur = conn.cursor()
+
+        # ST_Distance: Tính khoảng cách
+        # <->: Toán tử tìm kiếm hàng xóm gần nhất (KNN) cực nhanh
+        query = """
+            SELECT name, type, 
+                   ST_Distance(
+                       geom::geography, 
+                       ST_SetSRID(ST_Point(%s, %s), 4326)::geography
+                   ) as distance_meters
+            FROM waterways
+            ORDER BY geom <-> ST_SetSRID(ST_Point(%s, %s), 4326)
+            LIMIT 1;
+        """
+
+        cur.execute(query, (lon, lat, lon, lat))
+        result = cur.fetchone()
+
+        cur.close()
+        conn.close()
+
+        if result:
+            return {"name": result[0], "type": result[1], "distance": result[2]}
+        return None
+
+    except Exception as e:
+        print(f"❌ Lỗi tính khoảng cách sông: {e}")
+        return None
 
 def save_alert_history(station_name, risk_type, level, rain_val, desc, impacted_points=None):
     """Lưu log cảnh báo kèm danh sách điểm"""
