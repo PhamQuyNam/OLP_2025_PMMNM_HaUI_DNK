@@ -44,8 +44,18 @@ const createTables = async () => {
                 original_created_at TIMESTAMP
             );
         `);
-
         console.log("✅ Data Service: GIS & History tables ready.");
+
+        // 4. Bảng Thủy hệ (Sông, Suối, Kênh, Rạch)
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS waterways (
+                id SERIAL PRIMARY KEY,
+                name VARCHAR(100),
+                type VARCHAR(50), -- river, canal, stream
+                geom GEOMETRY(LineString, 4326) -- Lưu hình dáng dòng sông
+            );
+        `);
+        console.log("✅ Data Service: Waterways table checked.");
 
     } catch (err) {
         console.error("❌ Error creating data tables:", err.message);
