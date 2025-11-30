@@ -26,6 +26,7 @@ const createAlertTables = async () => {
             rain_value FLOAT,
             description TEXT,
             impacted_points JSONB,
+            status VARCHAR(20) DEFAULT 'APPROVED',
             approved_by VARCHAR(50), -- Ai là người chịu trách nhiệm vụ này?
             archived_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Thời điểm lưu kho
             original_created_at TIMESTAMP -- Thời điểm xảy ra sự cố thực tế
