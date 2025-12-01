@@ -1,54 +1,60 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import authService from "../services/authService"; // Import service bạn đã có
-import { useNavigate } from "react-router-dom"; // Để điều hướng khi login/logout
+import authService from "../services/authService";
 
-// 1. Tạo Context
+// 1. Khởi tạo Context
 const AuthContext = createContext();
 
-// 2. Tạo Provider (Nhà cung cấp dữ liệu)
+// 2. Tạo Provider
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null); // Lưu thông tin User (Tên, Role, Avatar...)
-  const [isLoading, setIsLoading] = useState(true); // Trạng thái tải lại trang (F5)
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Hàm khởi tạo: Chạy 1 lần khi F5 để nạp lại user từ localStorage
+  // Load lại user từ localStorage khi F5 trang
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     const token = localStorage.getItem("token");
 
     if (storedUser && token) {
-      setUser(JSON.parse(storedUser));
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch (error) {
+        console.error("Lỗi parse user từ storage", error);
+        // Nếu lỗi (ví dụ storage bị sửa bậy), xóa sạch để an toàn
+        logout();
+      }
     }
-    setIsLoading(false); // Nạp xong
+    setIsLoading(false);
   }, []);
 
-  // Hàm Login: Gọi API xong cập nhật State
+  // Hàm Login: Gọi API -> Lưu Storage -> Cập nhật State
   const login = async (formData) => {
     try {
-      const data = await authService.login(formData);
+      const response = await authService.login(formData);
 
-      // Lưu vào LocalStorage (để F5 không mất)
-      const userData = data.user; // Giả sử BE trả về object user
-      const token = data.token || data.accessToken;
+      // Chú ý: Cấu trúc response phụ thuộc vào BE trả về.
+      // Dựa vào code cũ của bạn: response.user và response.token (hoặc accessToken)
+      const userData = response.user;
+      const token = response.token || response.accessToken;
 
-      localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify(userData));
+      if (userData && token) {
+        localStorage.setItem("token", token);
+        localStorage.setItem("user", JSON.stringify(userData));
+        setUser(userData); // Cập nhật ngay lập tức để giao diện đổi
+      }
 
-      // Cập nhật State (Để giao diện tự đổi ngay lập tức)
-      setUser(userData);
-
-      return userData; // Trả về để component Login biết đường redirect
+      return response; // Trả về để component biết đường xử lý tiếp
     } catch (error) {
-      throw error; // Ném lỗi để component Login hiển thị Toast
+      throw error; // Ném lỗi ra để component hiển thị Toast
     }
   };
 
-  // Hàm Logout
+  // Hàm Logout: Xóa sạch -> Về null
   const logout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     setUser(null);
-    // Có thể điều hướng về trang chủ hoặc login tại đây nếu muốn
-    window.location.href = "/login";
+    // Tùy chọn: Chuyển hướng về trang login sau khi logout
+    // window.location.href = "/login";
   };
 
   return (
@@ -58,7 +64,7 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-// 3. Hook tùy chỉnh để dùng nhanh ở các nơi khác
+// 3. Hook custom để dùng nhanh ở các component khác
 export const useAuth = () => {
   return useContext(AuthContext);
 };
