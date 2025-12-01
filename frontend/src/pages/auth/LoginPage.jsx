@@ -4,7 +4,7 @@ import { Mail, Lock, LogIn, CheckCircle2, Eye, EyeOff } from "lucide-react";
 import { toast } from "react-toastify"; // Import Toast
 import AuthLayout from "../../layouts/AuthLayout";
 import authService from "../../services/authService"; // Import Service
-
+import { useAuth } from "../../context/AuthContext";
 // --- COMPONENT INPUT (Tái sử dụng từ RegisterPage) ---
 const InputField = ({
   icon: Icon,
@@ -58,6 +58,7 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const { login } = useAuth();
 
   // 1. State lưu dữ liệu
   const [formData, setFormData] = useState({
@@ -79,35 +80,17 @@ const LoginPage = () => {
     setIsLoading(true);
 
     try {
-      console.log("Submitting Login:", formData);
+      // 👇 THAY ĐỔI LỚN Ở ĐÂY: Gọi login từ Context
+      const response = await login(formData);
 
-      // Gọi API Login
-      const response = await authService.login(formData);
+      // Không cần tự set localStorage nữa, Context đã làm rồi!
 
-      console.log("Login Response:", response);
-
-      // --- XỬ LÝ SAU KHI LOGIN THÀNH CÔNG ---
-
-      // 1. Lưu Token & User info vào LocalStorage
-      // (Tùy vào cấu trúc trả về của BE, thường là response.token hoặc response.accessToken)
-      const token = response.token || response.accessToken;
-      if (token) {
-        localStorage.setItem("token", token);
-      }
-
-      if (response.user) {
-        localStorage.setItem("user", JSON.stringify(response.user));
-      }
-
-      // 2. Hiệu ứng thành công
       setIsSuccess(true);
       toast.success("Đăng nhập thành công!");
 
-      // 3. Điều hướng dựa trên vai trò (Role)
-      // Đợi 1 chút để người dùng thấy hiệu ứng check xanh
+      // Logic điều hướng giữ nguyên
       setTimeout(() => {
-        const role = response.user?.role || "CITIZEN"; // Mặc định là dân
-
+        const role = response.user?.role || "CITIZEN";
         if (role === "MANAGER" || role === "ADMIN") {
           navigate("/manager");
         } else {
@@ -115,12 +98,9 @@ const LoginPage = () => {
         }
       }, 800);
     } catch (error) {
-      console.error("Login Error:", error);
-      // Hiển thị lỗi từ Backend
+      // ... (phần xử lý lỗi giữ nguyên)
       const message =
-        error.response?.data?.message ||
-        error.message ||
-        "Email hoặc mật khẩu không đúng.";
+        error.response?.data?.message || error.message || "Lỗi đăng nhập";
       toast.error(message);
       setIsSuccess(false);
     } finally {
