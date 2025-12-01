@@ -1,15 +1,16 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import authService from "../services/authService";
 
-// 1. Khởi tạo Context
 const AuthContext = createContext();
 
-// 2. Tạo Provider
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load lại user từ localStorage khi F5 trang
+  // 1. Thêm State lưu vị trí (Mặc định là null)
+  const [userLocation, setUserLocation] = useState(null);
+
+  // Load user từ storage khi F5
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     const token = localStorage.getItem("token");
@@ -17,54 +18,78 @@ export const AuthProvider = ({ children }) => {
     if (storedUser && token) {
       try {
         setUser(JSON.parse(storedUser));
+        // Khi F5 lại trang, nếu đã login thì tự động lấy lại vị trí luôn
+        refreshLocation();
       } catch (error) {
-        console.error("Lỗi parse user từ storage", error);
-        // Nếu lỗi (ví dụ storage bị sửa bậy), xóa sạch để an toàn
+        console.error("Lỗi parse user", error);
         logout();
       }
     }
     setIsLoading(false);
   }, []);
 
-  // Hàm Login: Gọi API -> Lưu Storage -> Cập nhật State
+  // 2. Hàm lấy vị trí thực tế (Browser API)
+  const refreshLocation = () => {
+    if (!navigator.geolocation) {
+      console.warn("Trình duyệt không hỗ trợ Geolocation");
+      return;
+    }
+
+    // Gọi popup xin quyền
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        console.log("Vị trí tìm thấy:", latitude, longitude);
+
+        // Lưu vào State để dùng chung cho cả App
+        setUserLocation([latitude, longitude]);
+      },
+      (error) => {
+        console.error("Không thể lấy vị trí:", error.message);
+        // Có thể set vị trí mặc định là Hà Tĩnh nếu muốn
+        // setUserLocation([18.3436, 105.9002]);
+      },
+      { enableHighAccuracy: true } // Lấy chính xác cao (có dùng GPS)
+    );
+  };
+
   const login = async (formData) => {
     try {
       const response = await authService.login(formData);
-
-      // Chú ý: Cấu trúc response phụ thuộc vào BE trả về.
-      // Dựa vào code cũ của bạn: response.user và response.token (hoặc accessToken)
       const userData = response.user;
       const token = response.token || response.accessToken;
 
       if (userData && token) {
         localStorage.setItem("token", token);
         localStorage.setItem("user", JSON.stringify(userData));
-        setUser(userData); // Cập nhật ngay lập tức để giao diện đổi
-      }
+        setUser(userData);
 
-      return response; // Trả về để component biết đường xử lý tiếp
+        // 3. Kích hoạt lấy vị trí ngay khi Login thành công
+        refreshLocation();
+      }
+      return response;
     } catch (error) {
-      throw error; // Ném lỗi ra để component hiển thị Toast
+      throw error;
     }
   };
 
-  // Hàm Logout: Xóa sạch -> Về null
   const logout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     setUser(null);
-    // Tùy chọn: Chuyển hướng về trang login sau khi logout
-    // window.location.href = "/login";
+    setUserLocation(null); // Xóa vị trí khi thoát
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isLoading }}>
+    // 4. Truyền userLocation và refreshLocation xuống dưới
+    <AuthContext.Provider
+      value={{ user, login, logout, isLoading, userLocation, refreshLocation }}
+    >
       {children}
     </AuthContext.Provider>
   );
 };
 
-// 3. Hook custom để dùng nhanh ở các component khác
 export const useAuth = () => {
   return useContext(AuthContext);
 };
