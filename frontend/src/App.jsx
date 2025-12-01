@@ -11,7 +11,8 @@ import CitizenGuidePage from "./pages/citizen/CitizenGuidePage";
 // Manager Imports
 import ManagerLayout from "./layouts/ManagerLayout";
 import ManagerDashboardPage from "./pages/manager/ManagerDashboardPage"; // <-- Import file mới tạo
-
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 // Placeholder (Giữ lại các trang chưa làm)
 const CitizenAlerts = () => (
   <h1 className="text-center mt-20">Danh sách Cảnh báo (Coming Soon)</h1>
@@ -26,6 +27,7 @@ const CitizenProfile = () => (
 function App() {
   return (
     <BrowserRouter>
+      <ToastContainer position="top-right" autoClose={3000} />
       <Routes>
         {/* Public */}
         <Route path="/" element={<LandingPage />} />
