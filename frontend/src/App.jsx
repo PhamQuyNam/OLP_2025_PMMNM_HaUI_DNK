@@ -7,7 +7,7 @@ import RegisterPage from "./pages/auth/RegisterPage";
 import CitizenLayout from "./layouts/CitizenLayout";
 import CitizenHomePage from "./pages/citizen/CitizenHomePage";
 import CitizenGuidePage from "./pages/citizen/CitizenGuidePage";
-
+import CitizenProfile from "./pages/citizen/CitizenProfile";
 // Manager Imports
 import ManagerLayout from "./layouts/ManagerLayout";
 import ManagerDashboardPage from "./pages/manager/ManagerDashboardPage";
@@ -22,9 +22,6 @@ const CitizenAlerts = () => (
 );
 const CitizenReport = () => (
   <h1 className="text-center mt-20">Gửi Báo cáo (Coming Soon)</h1>
-);
-const CitizenProfile = () => (
-  <h1 className="text-center mt-20">Hồ sơ Cá nhân (Coming Soon)</h1>
 );
 
 function App() {
