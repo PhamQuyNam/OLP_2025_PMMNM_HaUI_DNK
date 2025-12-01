@@ -1,41 +1,111 @@
-// SPDX-License-Identifier: Apache-2.0
-/**
- * Copyright 2025 Haui.DNK
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * http://www.apache.org/licenses/LICENSE-2.0
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- */
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Mail, Lock, LogIn, CheckCircle2, Eye, EyeOff } from "lucide-react"; // <-- Import thêm Eye, EyeOff
+import { Mail, Lock, LogIn, CheckCircle2, Eye, EyeOff } from "lucide-react";
+import { toast } from "react-toastify"; // Import Toast
 import AuthLayout from "../../layouts/AuthLayout";
+import authService from "../../services/authService"; // Import Service
+import { useAuth } from "../../context/AuthContext";
+// --- COMPONENT INPUT (Tái sử dụng từ RegisterPage) ---
+const InputField = ({
+  icon: Icon,
+  type,
+  placeholder,
+  label,
+  name,
+  value,
+  onChange,
+  required = true,
+}) => {
+  const [showPassword, setShowPassword] = useState(false);
+  const isPasswordType = type === "password";
 
+  return (
+    <div className="space-y-1.5 group">
+      <label className="text-sm font-bold text-slate-700 ml-1">{label}</label>
+      <div className="relative transition-all duration-300 transform group-focus-within:scale-[1.01]">
+        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">
+          <Icon size={18} />
+        </div>
+        <input
+          type={isPasswordType ? (showPassword ? "text" : "password") : type}
+          name={name}
+          value={value}
+          onChange={onChange}
+          required={required}
+          placeholder={placeholder}
+          className={`w-full pl-11 py-3.5 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 shadow-sm transition-all font-medium text-slate-700 placeholder:text-slate-400 ${
+            isPasswordType ? "pr-12" : "pr-4"
+          }`}
+        />
+
+        {/* Nút ẩn/hiện mật khẩu */}
+        {isPasswordType && (
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-primary focus:outline-none transition-colors cursor-pointer"
+          >
+            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// --- COMPONENT CHÍNH ---
 const LoginPage = () => {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({ email: "", password: "" });
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [showPassword, setShowPassword] = useState(false); // <-- State ẩn hiện mật khẩu
+  const { login } = useAuth();
 
-  const handleSubmit = (e) => {
+  // 1. State lưu dữ liệu
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+
+  // 2. Hàm xử lý nhập liệu
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  // 3. Hàm xử lý Đăng nhập (GỌI API THẬT)
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
 
-    setTimeout(() => {
-      setIsLoading(false);
-      setIsSuccess(true);
+    try {
+      // 👇 THAY ĐỔI LỚN Ở ĐÂY: Gọi login từ Context
+      const response = await login(formData);
 
+      // Không cần tự set localStorage nữa, Context đã làm rồi!
+
+      setIsSuccess(true);
+      toast.success("Đăng nhập thành công!");
+
+      // Logic điều hướng giữ nguyên
       setTimeout(() => {
-        if (formData.email.includes("admin")) {
+        const role = response.user?.role || "CITIZEN";
+        if (role === "MANAGER" || role === "ADMIN") {
           navigate("/manager");
         } else {
           navigate("/citizen");
         }
       }, 800);
-    }, 1500);
+    } catch (error) {
+      // ... (phần xử lý lỗi giữ nguyên)
+      const message =
+        error.response?.data?.message || error.message || "Lỗi đăng nhập";
+      toast.error(message);
+      setIsSuccess(false);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -45,60 +115,38 @@ const LoginPage = () => {
     >
       <form onSubmit={handleSubmit} className="space-y-5 animate-fade-in-up">
         {/* Email Input */}
-        <div className="space-y-1.5 group">
-          <label className="text-sm font-bold text-slate-700 ml-1">Email</label>
-          <div className="relative transition-all duration-300 transform group-focus-within:scale-[1.01]">
-            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">
-              <Mail size={20} />
-            </div>
-            <input
-              type="email"
-              required
-              placeholder="name@example.com"
-              className="w-full pl-12 pr-4 py-3.5 bg-white border border-slate-200 rounded-2xl focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 shadow-sm transition-all font-medium text-slate-700 placeholder:text-slate-400"
-              value={formData.email}
-              onChange={(e) =>
-                setFormData({ ...formData, email: e.target.value })
-              }
-            />
-          </div>
-        </div>
+        <InputField
+          icon={Mail}
+          type="email"
+          label="Email"
+          placeholder="name@example.com"
+          name="email"
+          value={formData.email}
+          onChange={handleChange}
+        />
 
-        {/* Password Input (Đã nâng cấp Ẩn/Hiện) */}
-        <div className="space-y-1.5 group">
+        {/* Password Input */}
+        <div className="space-y-1.5">
           <div className="flex justify-between items-center ml-1">
-            <label className="text-sm font-bold text-slate-700">Mật khẩu</label>
+            <span className="text-sm font-bold text-slate-700"></span>{" "}
+            {/* Label đã có trong InputField, chỗ này để căn chỉnh link Quên mật khẩu */}
             <a
               href="#"
-              className="text-xs font-semibold text-primary hover:text-sky-600 hover:underline transition-colors"
+              className="text-xs font-semibold text-primary hover:text-sky-600 hover:underline transition-colors mb-1"
             >
               Quên mật khẩu?
             </a>
           </div>
-          <div className="relative transition-all duration-300 transform group-focus-within:scale-[1.01]">
-            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">
-              <Lock size={20} />
-            </div>
-            <input
-              type={showPassword ? "text" : "password"} // <-- Logic chuyển đổi type
-              required
-              placeholder="••••••••"
-              className="w-full pl-12 pr-12 py-3.5 bg-white border border-slate-200 rounded-2xl focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 shadow-sm transition-all font-medium text-slate-700 placeholder:text-slate-400" // <-- pr-12 để tránh chữ đè lên icon mắt
-              value={formData.password}
-              onChange={(e) =>
-                setFormData({ ...formData, password: e.target.value })
-              }
-            />
 
-            {/* Nút Con Mắt */}
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-primary focus:outline-none transition-colors"
-            >
-              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-            </button>
-          </div>
+          <InputField
+            icon={Lock}
+            type="password"
+            label="Mật khẩu"
+            placeholder="••••••••"
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+          />
         </div>
 
         {/* Submit Button */}
