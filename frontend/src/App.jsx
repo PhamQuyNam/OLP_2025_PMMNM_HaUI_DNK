@@ -14,6 +14,7 @@ import ManagerDashboardPage from "./pages/manager/ManagerDashboardPage";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+import UnauthorizedPage from "./pages/auth/UnauthorizedPage";
 
 // Placeholder
 const CitizenAlerts = () => (
@@ -35,9 +36,14 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/unauthorized" element={<UnauthorizedPage />} />
 
         {/* === PROTECTED ROUTES (Đã đăng nhập mới được vào) === */}
-        <Route element={<ProtectedRoute />}>
+        <Route
+          element={
+            <ProtectedRoute allowedRoles={["CITIZEN", "MANAGER", "ADMIN"]} />
+          }
+        >
           {/* 1. Khu vực Người Dân */}
           <Route path="/citizen" element={<CitizenLayout />}>
             <Route index element={<CitizenHomePage />} />
@@ -46,8 +52,9 @@ function App() {
             <Route path="profile" element={<CitizenProfile />} />
             <Route path="guide" element={<CitizenGuidePage />} />
           </Route>
-
-          {/* 2. Khu vực Quản lý (Tạm thời bọc vào đây để chặn người lạ) */}
+        </Route>
+        {/* 2. Khu vực Quản lý (Tạm thời bọc vào đây để chặn người lạ) */}
+        <Route element={<ProtectedRoute allowedRoles={["MANAGER", "ADMIN"]} />}>
           <Route path="/manager" element={<ManagerLayout />}>
             <Route index element={<ManagerDashboardPage />} />
             <Route
