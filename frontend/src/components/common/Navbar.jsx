@@ -1,4 +1,3 @@
-// SPDX-License-Identifier: Apache-2.0
 import { Link } from "react-router-dom";
 import { ShieldAlert, Menu, LogOut, UserCircle } from "lucide-react";
 import { useState, useEffect } from "react";
