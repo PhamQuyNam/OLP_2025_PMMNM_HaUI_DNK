@@ -1,10 +1,9 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import {
   MapContainer,
   TileLayer,
-  Circle,
+  Marker,
   Popup,
-  Tooltip as LeafletTooltip,
   LayersControl,
   LayerGroup,
   GeoJSON,
@@ -13,9 +12,9 @@ import {
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
-import axios from "axios";
+import { CloudRain } from "lucide-react"; // Icon cho Popup
 
-// --- FIX LỖI ICON ---
+// Fix lỗi icon marker mặc định
 import icon from "leaflet/dist/images/marker-icon.png";
 import iconShadow from "leaflet/dist/images/marker-shadow.png";
 
@@ -28,41 +27,34 @@ let DefaultIcon = L.icon({
 });
 L.Marker.prototype.options.icon = DefaultIcon;
 
-// Tọa độ Hà Tĩnh
-const CENTER = [18.3436, 105.9002];
+const CENTER = [18.3436, 105.9002]; // Trung tâm Hà Tĩnh
 
-// Dữ liệu Vùng Rủi ro (ĐÃ SỬA TỌA ĐỘ VỀ TRONG THÀNH PHỐ)
-const RISK_ZONES = [
-  {
-    id: 1,
-    name: "Ngập lụt: Cầu Phủ",
-    lat: 18.325,
-    lng: 105.89,
-    radius: 800, // Giảm bán kính chút cho gọn
-    color: "#3b82f6", // Xanh dương
-    level: "Báo động 2",
-  },
-  {
-    id: 2,
-    name: "Sạt lở: Núi Nài",
-    lat: 18.315,
-    lng: 105.91,
-    radius: 600,
-    color: "#ef4444", // Đỏ
-    level: "Nguy hiểm cao",
-  },
-  {
-    id: 3,
-    name: "Lũ quét: Thạch Bình", // Đổi từ Hương Sơn -> Thạch Bình (Trong TP)
-    lat: 18.355,
-    lng: 105.92,
-    radius: 700,
-    color: "#f59e0b", // Cam
-    level: "Cảnh báo sớm",
-  },
-];
+// --- HÀM TẠO ICON TRẠM QUAN TRẮC (Admin Style - Gọn hơn) ---
+const createStationIcon = (color) => {
+  let cssColor = "bg-emerald-500";
+  let ringColor = "bg-emerald-500/30";
 
-// Component phụ: Tự động Zoom
+  if (color === "RED") {
+    cssColor = "bg-red-500";
+    ringColor = "bg-red-500/30";
+  } else if (color === "YELLOW") {
+    cssColor = "bg-amber-500";
+    ringColor = "bg-amber-500/30";
+  }
+
+  return new L.DivIcon({
+    className: "relative",
+    html: `
+      <div class="absolute -inset-1.5 ${ringColor} rounded-full animate-pulse"></div>
+      <div class="w-4 h-4 ${cssColor} border-2 border-white rounded-full shadow-sm"></div>
+    `,
+    iconSize: [16, 16],
+    iconAnchor: [8, 8],
+    popupAnchor: [0, -10],
+  });
+};
+
+// Component Zoom vào dữ liệu
 const FitBoundsToData = ({ data }) => {
   const map = useMap();
   useEffect(() => {
@@ -74,131 +66,87 @@ const FitBoundsToData = ({ data }) => {
   return null;
 };
 
-const DashboardMap = () => {
-  const [geoJsonData, setGeoJsonData] = useState(null);
-
-  useEffect(() => {
-    const fetchBoundary = async () => {
-      try {
-        const response = await axios.get(
-          "https://nominatim.openstreetmap.org/search",
-          {
-            params: {
-              q: "Thành phố Hà Tĩnh",
-              countrycodes: "vn",
-              polygon_geojson: 1,
-              format: "json",
-              limit: 1,
-            },
-          }
-        );
-        if (response.data && response.data.length > 0) {
-          setGeoJsonData(response.data[0].geojson);
-        }
-      } catch (error) {
-        console.error("Lỗi tải bản đồ:", error);
-      }
-    };
-    fetchBoundary();
-  }, []);
-
+// 👇 NHẬN PROPS: stations (Dữ liệu thời tiết) & geoJsonData (Ranh giới)
+const DashboardMap = ({ stations = [], geoJsonData }) => {
   return (
-    <div className="h-full w-full relative rounded-xl overflow-hidden border border-slate-600 shadow-inner">
+    <div className="h-full w-full relative rounded-xl overflow-hidden border border-slate-600 shadow-inner bg-slate-900">
       <MapContainer
         center={CENTER}
-        zoom={12}
+        zoom={13}
         scrollWheelZoom={true}
         className="h-full w-full z-0"
         zoomControl={false}
       >
         <LayersControl position="topright">
-          <LayersControl.BaseLayer checked name="Bản đồ Sáng (Clean)">
+          {/* Base Maps */}
+          <LayersControl.BaseLayer checked name="Bản đồ Tối (Dark)">
             <TileLayer
               attribution="&copy; CARTO"
-              url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+              url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
             />
           </LayersControl.BaseLayer>
-
-          <LayersControl.BaseLayer name="Bản đồ Đường phố (OSM)">
+          <LayersControl.BaseLayer name="Bản đồ Sáng (Light)">
             <TileLayer
               attribution="&copy; OpenStreetMap"
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
           </LayersControl.BaseLayer>
 
-          <LayersControl.BaseLayer name="Bản đồ Tối (Dark)">
-            <TileLayer
-              attribution="&copy; CARTO"
-              url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-            />
-          </LayersControl.BaseLayer>
-
-          {/* Lớp Ranh giới (ĐÃ SỬA MÀU & TẮT INTERACTIVE) */}
+          {/* Layer Ranh giới TP */}
           <LayersControl.Overlay checked name="Ranh giới Hành chính">
             <LayerGroup>
               {geoJsonData && (
                 <GeoJSON
                   data={geoJsonData}
-                  interactive={false} // <--- QUAN TRỌNG: Tắt tương tác để click xuyên qua được
+                  interactive={false}
                   style={{
-                    color: "#7e22ce", // Đổi sang Màu Tím Đậm (Purple-700) cho nổi bật
-                    weight: 3, // Nét đậm hơn chút
-                    fillColor: "#7e22ce",
-                    fillOpacity: 0.05,
-                    dashArray: "10, 5", // Nét đứt thưa hơn cho dễ nhìn
+                    color: "#a855f7", // Tím neon
+                    weight: 2,
+                    fillColor: "#a855f7",
+                    fillOpacity: 0.1,
+                    dashArray: "5, 5",
                   }}
                 />
               )}
             </LayerGroup>
           </LayersControl.Overlay>
 
-          {/* Lớp dữ liệu cảnh báo */}
-          <LayersControl.Overlay checked name="Vùng Cảnh báo">
+          {/* Layer Trạm Đo Mưa (Dữ liệu thật) */}
+          <LayersControl.Overlay checked name="Trạm Quan Trắc (Real-time)">
             <LayerGroup>
-              {RISK_ZONES.map((zone) => (
-                <Circle
-                  key={zone.id}
-                  center={[zone.lat, zone.lng]}
-                  radius={zone.radius}
-                  pathOptions={{
-                    color: zone.color,
-                    fillColor: zone.color,
-                    fillOpacity: 0.4,
-                    weight: 2,
-                  }}
+              {stations.map((station) => (
+                <Marker
+                  key={station.id}
+                  position={[station.lat, station.lon]}
+                  icon={createStationIcon(station.displayColor)}
                 >
-                  {/* Tooltip hiện khi hover */}
-                  <LeafletTooltip direction="top" offset={[0, -10]} opacity={1}>
-                    <div className="text-center font-bold text-slate-800 bg-white/95 px-3 py-1.5 rounded shadow-md border border-slate-200 text-xs whitespace-nowrap z-[1000]">
-                      {zone.name} <br />
-                      <span
-                        className={`text-[10px] uppercase ${
-                          zone.color === "#ef4444"
-                            ? "text-red-600"
-                            : "text-blue-600"
-                        }`}
-                      >
-                        {zone.level}
-                      </span>
-                    </div>
-                  </LeafletTooltip>
-
-                  {/* Popup hiện khi click */}
-                  <Popup>
-                    <div className="text-slate-800">
-                      <strong>{zone.name}</strong>
-                      <p className="m-0 text-xs mt-1">
-                        Mức độ:{" "}
-                        <span className="font-bold text-red-600">
-                          {zone.level}
+                  <Popup className="custom-popup-dark">
+                    <div className="text-slate-800 text-xs min-w-[150px]">
+                      <div className="flex items-center gap-2 mb-1 border-b pb-1 border-slate-100">
+                        <CloudRain size={14} className="text-blue-500" />
+                        <strong className="truncate">{station.name}</strong>
+                      </div>
+                      <div className="flex justify-between items-center mb-1">
+                        <span>Lượng mưa:</span>
+                        <span className="font-bold text-blue-600">
+                          {station.rain} mm
                         </span>
-                      </p>
-                      <button className="mt-2 w-full bg-slate-800 text-white text-[10px] py-1 rounded hover:bg-slate-700">
-                        Điều phối đội cứu hộ
-                      </button>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span>Trạng thái:</span>
+                        <span
+                          className={`font-bold ${
+                            station.status === "SAFE"
+                              ? "text-emerald-600"
+                              : "text-red-600"
+                          }`}
+                        >
+                          {station.status}
+                        </span>
+                      </div>
                     </div>
                   </Popup>
-                </Circle>
+                </Marker>
               ))}
             </LayerGroup>
           </LayersControl.Overlay>
@@ -208,23 +156,13 @@ const DashboardMap = () => {
         {geoJsonData && <FitBoundsToData data={geoJsonData} />}
       </MapContainer>
 
-      {/* Legend */}
-      <div className="absolute bottom-2 left-2 z-[400] bg-white/90 backdrop-blur-sm p-2.5 rounded-lg shadow-lg border border-slate-200 text-[11px] text-slate-600 font-medium">
-        <div className="flex items-center gap-2 mb-1.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-red-500 border border-red-200"></span>{" "}
-          Sạt lở đất
-        </div>
-        <div className="flex items-center gap-2 mb-1.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-blue-500 border border-blue-200"></span>{" "}
-          Ngập lụt
-        </div>
-        <div className="flex items-center gap-2 mb-1.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-amber-500 border border-amber-200"></span>{" "}
-          Lũ quét
+      {/* Legend nhỏ gọn */}
+      <div className="absolute bottom-2 left-2 z-[400] bg-slate-900/80 backdrop-blur p-2 rounded border border-slate-700 text-[10px] text-slate-300">
+        <div className="flex items-center gap-2 mb-1">
+          <span className="w-2 h-2 rounded-full bg-emerald-500"></span> An toàn
         </div>
         <div className="flex items-center gap-2">
-          <span className="w-4 border-t-2 border-purple-700 border-dashed"></span>{" "}
-          Ranh giới TP
+          <span className="w-2 h-2 rounded-full bg-red-500"></span> Cảnh báo
         </div>
       </div>
     </div>

@@ -23,7 +23,7 @@ const CitizenGuidePage = () => {
     }
   };
 
-  // Dữ liệu danh sách kỹ năng (6 Kỹ năng chuẩn OLP)
+  // Dữ liệu danh sách kỹ năng (Nội dung chuẩn hóa chi tiết)
   const GUIDES = [
     {
       id: 1,
@@ -31,7 +31,7 @@ const CitizenGuidePage = () => {
       icon: Droplets,
       color: "bg-blue-100 text-blue-600",
       content:
-        "Text: Hướng dẫn kê cao đồ đạc, ngắt cầu dao điện. Tìm nơi cao ráo để trú ẩn. Không lội qua dòng nước chảy xiết.",
+        "• Ngắt ngay cầu dao điện tổng của cả nhà.\n• Kê cao đồ đạc, lương thực, nước uống và các vật dụng thiết yếu.\n• Di chuyển người già, trẻ em, người khuyết tật đến nơi cao ráo, an toàn.\n• Không lội qua dòng nước chảy xiết (nước ngập trên đầu gối là nguy hiểm).\n• Không lái xe máy/ô tô vào vùng ngập sâu không rõ địa hình.\n• Theo dõi sát thông báo sơ tán trên ứng dụng này.",
     },
     {
       id: 2,
@@ -39,7 +39,7 @@ const CitizenGuidePage = () => {
       icon: Mountain,
       color: "bg-orange-100 text-orange-600",
       content:
-        "Text: Quan sát các vết nứt trên tường, sườn đồi. Lắng nghe tiếng động lạ từ lòng đất. Di dời ngay khi thấy dòng nước đục ngầu.",
+        "• Quan sát: Vết nứt mới xuất hiện trên tường nhà, sườn đồi, mái dốc.\n• Dấu hiệu: Cửa ra vào hoặc cửa sổ bị kẹt, khó đóng mở (do đất nền chuyển động).\n• Nguồn nước: Nước suối hoặc nước giếng bỗng chuyển màu đục ngầu.\n• Âm thanh: Nghe tiếng ầm ì, rung chấn lạ từ lòng đất.\n• Hành động: Sơ tán NGAY LẬP TỨC khỏi vùng chân núi/đồi khi thấy dấu hiệu trên.",
     },
     {
       id: 3,
@@ -47,7 +47,7 @@ const CitizenGuidePage = () => {
       icon: Zap,
       color: "bg-yellow-100 text-yellow-600",
       content:
-        "Text: Không đứng dưới cột điện, cây to khi mưa. Ngắt nguồn điện khi nước dâng vào nhà. Không chạm vào thiết bị điện khi tay ướt.",
+        "• Khi nhà bị ngập: Ngắt ngay nguồn điện. Không chạm vào thiết bị điện khi tay ướt hoặc chân đứng trong nước.\n• Khi ở ngoài trời: Không đứng trú mưa dưới cột điện, trạm biến áp, cây to.\n• Khi thấy dây điện đứt: Tuyệt đối không lại gần (giữ khoảng cách tối thiểu 10m). Báo ngay cho điện lực hoặc qua nút SOS trên ứng dụng.",
     },
     {
       id: 4,
@@ -55,7 +55,7 @@ const CitizenGuidePage = () => {
       icon: HeartPulse,
       color: "bg-red-100 text-red-600",
       content:
-        "Text: Cách vớt người bị nạn an toàn. Kỹ thuật ép tim lồng ngực (CPR) và hà hơi thổi ngạt. Giữ ấm cơ thể nạn nhân.",
+        "• Nguyên tắc 1: Không nhảy xuống cứu nếu không biết bơi/không có kỹ năng (hãy ném phao, gậy, dây).\n• Nguyên tắc 2: TUYỆT ĐỐI KHÔNG dốc ngược nạn nhân chạy (gây mất thời gian vàng).\n• Hô hấp nhân tạo: Đặt nạn nhân nằm ngửa, ấn tim lồng ngực và hà hơi thổi ngạt ngay lập tức nếu ngừng thở.\n• Giữ ấm: Cởi bỏ quần áo ướt, ủ ấm cơ thể và đưa đến trạm y tế gần nhất.",
     },
     {
       id: 5,
@@ -63,7 +63,7 @@ const CitizenGuidePage = () => {
       icon: Briefcase,
       color: "bg-emerald-100 text-emerald-600",
       content:
-        "Text: Danh sách vật dụng cần thiết: Đèn pin, pin dự phòng, nước uống, lương khô, thuốc men, giấy tờ tùy thân bọc nilon.",
+        "Chuẩn bị sẵn 1 túi chống nước gồm:\n• Nước uống (tối thiểu 3 lít/người) và lương khô/đồ hộp.\n• Đèn pin, pin dự phòng, còi cứu hộ, bật lửa.\n• Thuốc cá nhân, bông băng y tế, thuốc tiêu hóa.\n• Giấy tờ quan trọng (CCCD, Sổ đỏ...) bọc kỹ trong nhiều lớp nilon.\n• Một ít tiền mặt và quần áo khô.",
     },
     {
       id: 6,
@@ -71,7 +71,7 @@ const CitizenGuidePage = () => {
       icon: Sparkles,
       color: "bg-cyan-100 text-cyan-600",
       content:
-        "Text: Cách xử lý nguồn nước uống sạch. Vệ sinh nhà cửa bằng Cloramin B. Phòng tránh các bệnh da liễu và tiêu hóa.",
+        "• Nước rút đến đâu, thau rửa nhà cửa đến đó.\n• Xử lý nước: Dùng viên Cloramin B hoặc phèn chua để làm trong nước trước khi dùng.\n• Ăn uống: Thực hiện ăn chín, uống sôi. Tuyệt đối không ăn gia súc/gia cầm chết do lũ.\n• Vệ sinh cá nhân: Rửa chân tay sạch sẽ để tránh bệnh nước ăn chân, ghẻ lở, đau mắt đỏ.",
     },
   ];
 
