@@ -26,25 +26,17 @@ const createTables = async () => {
             );
         `);
 
-        // 3. Bảng Lịch sử Lưu trữ (Kho lạnh)
-        // Lưu ý: Bảng này chỉ để ĐỌC (Read-only) ở service này.
-        // Việc GHI (Write) do alert-service và script Python đảm nhiệm.
+        // 3. (MỚI) Bảng Trạm Quan Trắc (Lưu vị trí các trạm đo mưa)
         await pool.query(`
-            CREATE TABLE IF NOT EXISTS alert_archive (
+            CREATE TABLE IF NOT EXISTS monitoring_stations (
                 id SERIAL PRIMARY KEY,
-                station_name VARCHAR(100),
-                risk_type VARCHAR(50),
-                alert_level VARCHAR(20),
-                rain_value FLOAT,
+                station_id VARCHAR(100) UNIQUE, -- URN định danh (urn:ngsi-ld...)
+                name VARCHAR(100),
                 description TEXT,
-                impacted_points JSONB,
-                status VARCHAR(20) DEFAULT 'APPROVED',
-                approved_by VARCHAR(50),
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                original_created_at TIMESTAMP
+                geom GEOMETRY(Point, 4326) -- Tọa độ trạm
             );
         `);
-        console.log("✅ Data Service: GIS & History tables ready.");
+        console.log("✅ Data Service: Monitoring Stations table checked.");
 
         // 4. Bảng Thủy hệ (Sông, Suối, Kênh, Rạch)
         await pool.query(`

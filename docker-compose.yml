@@ -60,6 +60,14 @@ services:
       - PORT=3005
       - ORION_HOST=http://orion:1026
 
+  safety-service:
+    build: ./safety-service
+    container_name: safety-service
+    networks: [ main-network ]
+    env_file: .env
+    environment:
+      - PORT=3006
+
   swagger-ui:
     image: swaggerapi/swagger-ui
     container_name: swagger-ui
@@ -74,6 +82,7 @@ services:
         { url: 'http://localhost:8000/api/weather/api-docs.json', name: '3. Weather Service' },
         { url: 'http://localhost:8000/api/reports/api-docs.json', name: '4. Report Service' },
         { url: 'http://localhost:8000/api/alerts/api-docs.json', name: '5. Alert Service' },
+        { url: 'http://localhost:8000/api/safety/api-docs.json', name: '6. Safety Service' },
         ]"
 
   # 1. MongoDB - Cơ sở dữ liệu cho Orion Context Broker
