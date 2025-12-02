@@ -5,7 +5,7 @@ const getRealtimeWeather = async (req, res) => {
     try {
         // Gọi sang Orion
         // &options=keyValues giúp Orion trả về JSON gọn gàng (bỏ bớt type: Property)
-        const orionUrl = `${process.env.ORION_HOST}/ngsi-ld/v1/entities?type=RainObserved&options=keyValues`;
+        const orionUrl = `${process.env.ORION_HOST}/ngsi-ld/v1/entities?type=RainObserved&options=keyValues&limit=100`;
 
         const response = await axios.get(orionUrl);
 
