@@ -18,6 +18,8 @@ services:
     networks:
       - main-network
     env_file: .env
+    depends_on:
+      - postgis
     environment:
       - PORT=3001
 
@@ -27,6 +29,8 @@ services:
     networks:
       - main-network
     env_file: .env
+    depends_on:
+      - postgis
     environment:
       - PORT=3002
 
@@ -56,6 +60,8 @@ services:
     networks:
       - main-network
     env_file: .env
+    depends_on:
+      - postgis
     environment:
       - PORT=3005
       - ORION_HOST=http://orion:1026
@@ -65,6 +71,8 @@ services:
     container_name: safety-service
     networks: [ main-network ]
     env_file: .env
+    depends_on:
+      - postgis
     environment:
       - PORT=3006
 
