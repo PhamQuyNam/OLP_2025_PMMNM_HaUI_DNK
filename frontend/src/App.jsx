@@ -15,7 +15,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import UnauthorizedPage from "./pages/auth/UnauthorizedPage";
-
+import ManagerReportsPage from "./pages/manager/ManagerReportsPage";
 // Placeholder
 const CitizenAlerts = () => (
   <h1 className="text-center mt-20">Danh sách Cảnh báo (Coming Soon)</h1>
@@ -51,10 +51,7 @@ function App() {
         <Route element={<ProtectedRoute allowedRoles={["MANAGER", "ADMIN"]} />}>
           <Route path="/manager" element={<ManagerLayout />}>
             <Route index element={<ManagerDashboardPage />} />
-            <Route
-              path="map"
-              element={<h1 className="text-white p-10">Bản đồ rủi ro (Dev)</h1>}
-            />
+            <Route path="reports" element={<ManagerReportsPage />} />
             <Route
               path="incidents"
               element={<h1 className="text-white p-10">Quản lý sự cố (Dev)</h1>}
