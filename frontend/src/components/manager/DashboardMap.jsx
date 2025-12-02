@@ -181,20 +181,6 @@ const DashboardMap = ({ stations = [], reports = [], geoJsonData }) => {
                         "{report.desc || report.description}"
                       </p>
 
-                      {/* Thông tin liên hệ */}
-                      <div className="bg-slate-100 p-2 rounded flex items-center gap-2 mb-1">
-                        <Phone size={12} className="text-slate-500" />
-                        <span className="font-bold text-slate-700">
-                          {report.phone}
-                        </span>
-                        <a
-                          href={`tel:${report.phone}`}
-                          className="ml-auto text-xs bg-blue-500 text-white px-2 py-0.5 rounded hover:bg-blue-600 no-underline"
-                        >
-                          Gọi
-                        </a>
-                      </div>
-
                       {/* Thời gian */}
                       <div className="flex items-center gap-1 justify-end text-[10px] text-slate-400">
                         <Clock size={10} />

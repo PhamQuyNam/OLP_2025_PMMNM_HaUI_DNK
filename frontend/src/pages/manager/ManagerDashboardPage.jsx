@@ -157,13 +157,13 @@ const ManagerDashboardPage = () => {
           trendUp={stats.warningCount > 0}
         />
         <StatCard
-          title="SOS Chờ xử lý"
-          value={reports.length} // Hiển thị số lượng thật
+          title="SOS Khẩn cấp"
+          value="0"
           unit="Tin"
           icon={BellRing}
           color="bg-orange-500"
-          trend="Cần kiểm tra"
-          trendUp={reports.length > 0}
+          trend="Đang chờ tích hợp"
+          trendUp={false} // Không hiển thị mũi tên tăng
         />
         {/* Thẻ Mưa lớn nhất: Hiện tên trạm hoặc thông báo tạnh ráo */}
         <StatCard
