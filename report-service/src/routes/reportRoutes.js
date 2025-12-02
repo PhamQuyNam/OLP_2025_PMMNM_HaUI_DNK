@@ -1,6 +1,6 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const reportController = require('../controllers/reportController');
+const reportController = require("../controllers/reportController");
 
 /**
  * @swagger
@@ -65,7 +65,7 @@ const reportController = require('../controllers/reportController');
  *       500:
  *         description: Lỗi Server hoặc lỗi kết nối Orion
  */
-router.post('/', reportController.createReport);
+router.post("/", reportController.createReport);
 
 /**
  * @swagger
@@ -113,6 +113,6 @@ router.post('/', reportController.createReport);
  *       500:
  *         description: Lỗi Server
  */
-router.get('/', reportController.getReports);
+router.get("/", reportController.getReports);
 
 module.exports = router;
