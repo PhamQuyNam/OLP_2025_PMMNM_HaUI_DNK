@@ -1,15 +1,14 @@
 import axios from "axios";
 
 const axiosClient = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  // 👇 QUAN TRỌNG NHẤT: Phải có http://localhost:3001
+  baseURL: "/api",
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-// --- INTERCEPTORS (Bộ đón chặn) ---
-
-// 1. Gửi đi: Tự động đính kèm Token nếu đã đăng nhập
+// 1. Gửi đi: Tự động đính kèm Token...
 axiosClient.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
@@ -21,15 +20,13 @@ axiosClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// 2. Nhận về: Chỉ lấy data, xử lý lỗi gọn gàng
+// 2. Nhận về...
 axiosClient.interceptors.response.use(
   (response) => {
-    return response.data; // Trả về cục data sạch
+    return response.data;
   },
   (error) => {
-    // Log lỗi ra console để dev dễ debug
     console.error("API Error:", error.response);
-    // Trả về message lỗi từ Backend (nếu có) hoặc lỗi mặc định
     return Promise.reject(error.response?.data || error.message);
   }
 );
