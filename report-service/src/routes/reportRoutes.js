@@ -11,7 +11,7 @@ const reportController = require('../controllers/reportController');
 
 /**
  * @swagger
- * /api/reports:
+ * /api/reports/send:
  *   post:
  *     summary: Gửi báo cáo sự cố mới (Dành cho Người dân)
  *     description: API cho phép người dân gửi thông tin, vị trí và mô tả sự cố thiên tai họ đang chứng kiến.
@@ -65,11 +65,11 @@ const reportController = require('../controllers/reportController');
  *       500:
  *         description: Lỗi Server hoặc lỗi kết nối Orion
  */
-router.post('/', reportController.createReport);
+router.post('/send', reportController.createReport);
 
 /**
  * @swagger
- * /api/reports:
+ * /api/reports/receive:
  *   get:
  *     summary: Lấy danh sách báo cáo (Dành cho Manager Dashboard)
  *     description: Trả về danh sách các báo cáo từ người dân để hiển thị lên bản đồ quản lý.
@@ -113,6 +113,6 @@ router.post('/', reportController.createReport);
  *       500:
  *         description: Lỗi Server
  */
-router.get('/', reportController.getReports);
+router.get('/receive', reportController.getReports);
 
 module.exports = router;
