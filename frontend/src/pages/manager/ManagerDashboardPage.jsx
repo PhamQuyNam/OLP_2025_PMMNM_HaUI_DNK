@@ -28,6 +28,7 @@ import axios from "axios";
 // Import Components & Services
 import DashboardMap from "../../components/manager/DashboardMap";
 import weatherService from "../../services/weatherService";
+import reportService from "../../services/reportService";
 
 const MOCK_HISTORY_RAIN = [
   { time: "01:00", mm: 2 },
@@ -40,6 +41,7 @@ const MOCK_HISTORY_RAIN = [
 
 const ManagerDashboardPage = () => {
   const [weatherStations, setWeatherStations] = useState([]);
+  const [reports, setReports] = useState([]);
   const [geoJsonData, setGeoJsonData] = useState(null);
 
   const [stats, setStats] = useState({
@@ -81,6 +83,30 @@ const ManagerDashboardPage = () => {
 
     fetchData();
     const interval = setInterval(fetchData, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  //2. useEffect mới: Lấy danh sách Báo cáo
+  useEffect(() => {
+    const fetchReports = async () => {
+      try {
+        const data = await reportService.getAllReports();
+        console.log("Dữ liệu báo cáo:", data);
+
+        if (Array.isArray(data)) {
+          setReports(data);
+
+          // (Tùy chọn) Cập nhật số liệu vào thẻ StatCard "SOS Chờ xử lý"
+          // Bạn có thể setStats tại đây nếu muốn số SOS nhảy realtime
+        }
+      } catch (error) {
+        console.error("Lỗi lấy báo cáo:", error);
+      }
+    };
+
+    fetchReports();
+    // Gọi lại mỗi 10 giây để cập nhật nhanh
+    const interval = setInterval(fetchReports, 10000);
     return () => clearInterval(interval);
   }, []);
 
@@ -132,12 +158,12 @@ const ManagerDashboardPage = () => {
         />
         <StatCard
           title="SOS Chờ xử lý"
-          value="0"
+          value={reports.length} // Hiển thị số lượng thật
           unit="Tin"
           icon={BellRing}
           color="bg-orange-500"
-          trend="Ổn định"
-          trendUp={false}
+          trend="Cần kiểm tra"
+          trendUp={reports.length > 0}
         />
         {/* Thẻ Mưa lớn nhất: Hiện tên trạm hoặc thông báo tạnh ráo */}
         <StatCard
@@ -157,7 +183,11 @@ const ManagerDashboardPage = () => {
       {/* === 2. BẢN ĐỒ & BIỂU ĐỒ === */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[500px]">
         <div className="lg:col-span-2 h-full min-h-[400px]">
-          <DashboardMap stations={weatherStations} geoJsonData={geoJsonData} />
+          <DashboardMap
+            stations={weatherStations}
+            reports={reports}
+            geoJsonData={geoJsonData}
+          />
         </div>
 
         <div className="flex flex-col gap-6 h-full">
