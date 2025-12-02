@@ -1,4 +1,4 @@
-import { Outlet, NavLink, Link } from "react-router-dom";
+import { Outlet, NavLink, Link, useNavigate } from "react-router-dom"; // Thêm useNavigate
 import {
   LayoutDashboard,
   Map as MapIcon,
@@ -7,13 +7,23 @@ import {
   Settings,
   LogOut,
   ShieldAlert,
-  Menu,
+  Home, // Thêm icon Home
 } from "lucide-react";
+import { useAuth } from "../context/AuthContext"; // 1. Import AuthContext
 
 const ManagerLayout = () => {
+  const { logout } = useAuth(); // 2. Lấy hàm logout
+  const navigate = useNavigate();
+
+  // Hàm xử lý đăng xuất
+  const handleLogout = () => {
+    logout();
+    navigate("/"); // Về Landing Page sau khi thoát
+  };
+
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 flex font-sans">
-      {/* === SIDEBAR (CỐ ĐỊNH BÊN TRÁI) === */}
+      {/* === SIDEBAR === */}
       <aside className="w-64 bg-slate-950 border-r border-slate-800 flex-shrink-0 flex flex-col fixed h-full z-50">
         {/* Logo Area */}
         <div className="h-16 flex items-center gap-3 px-6 border-b border-slate-800">
@@ -68,31 +78,34 @@ const ManagerLayout = () => {
           />
         </nav>
 
-        {/* User Profile / Logout */}
-        <div className="p-4 border-t border-slate-800">
-          <div className="flex items-center gap-3 mb-4 px-2">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-primary to-purple-500 border border-white/10"></div>
-            <div className="overflow-hidden">
-              <p className="text-sm font-bold text-white truncate">
-                Admin Hà Tĩnh
-              </p>
-              <p className="text-xs text-slate-400 truncate">
-                Quản trị viên cấp cao
-              </p>
-            </div>
-          </div>
-          <button className="w-full flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-300 py-2 rounded-lg text-sm font-medium transition-colors">
+        {/* User Profile / Logout / Home */}
+        <div className="p-4 border-t border-slate-800 space-y-2">
+          {/* Nút Về trang chủ (Mới thêm) */}
+          <Link
+            to="/"
+            className="w-full flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white py-2 rounded-lg text-sm font-medium transition-colors border border-slate-800"
+          >
+            <Home size={16} /> Về Trang chủ
+          </Link>
+
+          {/* Nút Đăng xuất (Đã gắn logic) */}
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center justify-center gap-2 bg-red-900/20 hover:bg-red-900/40 text-red-400 py-2 rounded-lg text-sm font-medium transition-colors border border-red-900/30"
+          >
             <LogOut size={16} /> Đăng xuất
           </button>
         </div>
       </aside>
 
-      {/* === MAIN CONTENT AREA (BÊN PHẢI) === */}
+      {/* === MAIN CONTENT === */}
       <div className="flex-1 ml-64 flex flex-col min-h-screen">
-        {/* Header (Top Bar) */}
-        <header className="h-16 bg-slate-900/80 backdrop-blur-md border-b border-slate-800 sticky top-0 z-40 flex items-center justify-between px-8">
+        {/* Header */}
+        {/* 👇 GIẢI QUYẾT VẤN ĐỀ 1: 
+            Tăng z-index từ z-40 lên z-[500] để Header luôn nằm đè lên Bản đồ (Map có z-400) 
+        */}
+        <header className="h-16 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 sticky top-0 z-[500] flex items-center justify-between px-8">
           <h2 className="text-lg font-semibold text-slate-200">
-            {/* Chỗ này có thể dùng Breadcrumbs hoặc Title động sau này */}
             Trung tâm Điều hành Thông minh
           </h2>
 
@@ -113,7 +126,7 @@ const ManagerLayout = () => {
           </div>
         </header>
 
-        {/* Nội dung thay đổi (Outlet) */}
+        {/* Nội dung thay đổi */}
         <main className="p-8 flex-1 overflow-x-hidden">
           <Outlet />
         </main>
