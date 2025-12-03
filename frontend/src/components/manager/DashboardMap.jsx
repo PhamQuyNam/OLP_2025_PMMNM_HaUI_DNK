@@ -98,13 +98,13 @@ const DashboardMap = ({ stations = [], reports = [], geoJsonData }) => {
         zoomControl={false}
       >
         <LayersControl position="topright">
-          <LayersControl.BaseLayer checked name="Bản đồ Tối (Dark)">
+          <LayersControl.BaseLayer name="Bản đồ Tối (Dark)">
             <TileLayer
               attribution="&copy; CARTO"
               url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
             />
           </LayersControl.BaseLayer>
-          <LayersControl.BaseLayer name="Bản đồ Sáng (Light)">
+          <LayersControl.BaseLayer checked name="Bản đồ Sáng (Light)">
             <TileLayer
               attribution="&copy; OSM"
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
