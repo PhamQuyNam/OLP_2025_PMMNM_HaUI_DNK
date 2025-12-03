@@ -21,7 +21,7 @@ def calculate_topography(lat, lon):
         ]
 
         # Gọi API
-        res = requests.post(url, json={"locations": locations}, timeout=10).json()
+        res = requests.post(url, json={"locations": locations}, timeout=30).json()
         elevations = [r['elevation'] for r in res['results']]
 
         h_a, h_b, h_c = elevations
@@ -78,19 +78,48 @@ def calculate_imperviousness(lat, lon):
         out count;
     """
     try:
-        res = requests.get(overpass_url, params={'data': query})
-        count_str = res.text
-        import re
-        matches = re.findall(r'total="(\d+)"', count_str)
-        total_buildings = sum(int(m) for m in matches)
+        res = requests.get(overpass_url, params={'data': query}, timeout=30)
+        if res.status_code != 200:
+            # Không thành công: log và trả giá trị mặc định
+            print(f"Overpass returned status {res.status_code}: {res.text[:200]}")
+            return 30.0
 
-        if total_buildings > 100: return 90.0  # Rất đặc
-        if total_buildings > 50: return 70.0  # Đô thị
-        if total_buildings > 10: return 40.0  # Ven đô
+        data = res.json()
+
+        # Overpass khi dùng 'out count' thường trả elements = [{"type":"count", "tags":{"total":"NN"}} , ...]
+        total_buildings = 0
+        for el in data.get('elements', []):
+            tags = el.get('tags') or {}
+            t = tags.get('total')
+            if t is not None:
+                try:
+                    total_buildings += int(t)
+                except ValueError:
+                    pass
+
+        # Nếu không có phần tử 'count', fallback: đôi khi Overpass trả các element thật (node/way),
+        # thì ta có thể đếm len(elements) - nhưng với 'out count' thông thường không cần.
+        if total_buildings == 0 and data.get('elements'):
+            # Defensive fallback: count elements that look like nodes/ways
+            total_buildings = sum(1 for el in data['elements'] if el.get('type') in ('node', 'way'))
+
+        # Mapping thresholds -> imperviousness %
+        if total_buildings > 250:
+            return 90.0  # Trung tâm đô thị đặc
+        if total_buildings > 150:
+            return 75.0  # Đô thị dày
+        if total_buildings > 60:
+            return 55.0  # Ven đô
+        if total_buildings > 20:
+            return 25.0  # Nông thôn dày
         return 10.0  # Nông thôn/Ruộng
-    except:
-        return 30.0
 
+    except requests.RequestException as e:
+        print(f"Request error to Overpass: {e}")
+        return 30.0
+    except ValueError as e:
+        print(f"JSON parse error: {e}")
+        return 30.0
 
 # ---------------------------------------------------------
 # HÀM CHÍNH (MAIN LOOP)
