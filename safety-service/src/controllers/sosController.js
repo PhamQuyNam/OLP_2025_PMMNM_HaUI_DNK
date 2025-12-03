@@ -17,7 +17,7 @@ const handleSOS = async (req, res) => {
         `;
         await pool.query(insertQuery, [userId || 'anonymous', phone, message, lon, lat]);
 
-        // BƯỚC 2: Tìm các điểm an toàn trong bán kính 10km (10000m)
+        // BƯỚC 2: Tìm các điểm an toàn trong bán kính 3km (3000m)
         // Sắp xếp theo khoảng cách gần nhất
         const findZoneQuery = `
             SELECT
@@ -32,7 +32,7 @@ const handleSOS = async (req, res) => {
             WHERE ST_DWithin(
                 geom,
                 ST_SetSRID(ST_Point($1, $2), 4326),
-                0.09 -- ~10km (1 độ = 111km)
+                0.027 -- ~3km (1 độ = 111km)
             )
             ORDER BY geom <-> ST_SetSRID(ST_Point($1, $2), 4326);
         `;
