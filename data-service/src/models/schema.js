@@ -49,6 +49,27 @@ const createTables = async () => {
         `);
         console.log("✅ Data Service: Waterways table checked.");
 
+        // 7. Bảng Chỉ số Tĩnh của Trạm (Hồ sơ địa hình/thủy văn)
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS station_static_metrics (
+                station_id VARCHAR(100) PRIMARY KEY ,
+
+                -- Nhóm Địa hình
+                elevation FLOAT DEFAULT 0,      -- Độ cao (m)
+                slope FLOAT DEFAULT 0,          -- Độ dốc (%)
+
+                -- Nhóm Thủy văn
+                dist_to_river FLOAT DEFAULT 0,  -- Khoảng cách đến sông (m)
+                drainage_density FLOAT DEFAULT 0, -- Mật độ thoát nước (km/km2)
+
+                -- Nhóm Bề mặt
+                impervious_ratio FLOAT DEFAULT 0, -- Tỷ lệ bê tông hóa (%)
+
+                last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        `);
+        console.log("✅ Data Service: Station Static Metrics table checked.");
+
     } catch (err) {
         console.error("❌ Error creating data tables:", err.message);
     }
