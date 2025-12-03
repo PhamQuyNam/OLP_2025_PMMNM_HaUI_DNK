@@ -4,6 +4,7 @@ import {
   Map as MapIcon,
   BellRing,
   Database,
+  FileText,
   Settings,
   LogOut,
   ShieldAlert,
@@ -53,9 +54,9 @@ const ManagerLayout = () => {
             end
           />
           <ManagerNavItem
-            to="/manager/map"
-            icon={MapIcon}
-            label="Bản đồ rủi ro"
+            to="/manager/reports" // Đổi đường dẫn
+            icon={FileText} // Đổi icon cho hợp
+            label="Danh sách Báo cáo" // Đổi tên
           />
           <ManagerNavItem
             to="/manager/incidents"
