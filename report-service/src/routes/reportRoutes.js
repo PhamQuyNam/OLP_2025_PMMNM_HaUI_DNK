@@ -115,4 +115,29 @@ router.post('/send', reportController.createReport);
  */
 router.get('/receive', reportController.getReports);
 
+/**
+ * @swagger
+ * /api/reports/{id}:
+ *   delete:
+ *     summary: Xóa một báo cáo
+ *     description: Xóa vĩnh viễn báo cáo khỏi hệ thống (Orion).
+ *     tags: [Reports]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID đầy đủ của báo cáo (VD:urn:ngsi-ld:CitizenReport:...)
+ *         example: "urn:ngsi-ld:CitizenReport:1234-5678"
+ *     responses:
+ *       200:
+ *         description: Xóa thành công
+ *       404:
+ *         description: Không tìm thấy báo cáo
+ *       500:
+ *         description: Lỗi Server
+ */
+router.delete('/:id', reportController.deleteReport);
+
 module.exports = router;

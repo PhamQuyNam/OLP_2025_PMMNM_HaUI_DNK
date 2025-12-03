@@ -61,6 +61,7 @@ const getReports = async (req, res) => {
         const formattedData = response.data.map(item => ({
             id: item.id,
             type: item.reportType,
+            phone: item.reporterPhone,
             desc: item.description,
             status: item.status,
             time: item.reportTime,
@@ -74,4 +75,31 @@ const getReports = async (req, res) => {
     }
 };
 
-module.exports = { createReport, getReports };
+// API: Xóa báo cáo (Dựa trên ID)
+const deleteReport = async (req, res) => {
+    const { id } = req.params; // Lấy ID từ URL (VD: urn:ngsi-ld:CitizenReport:...)
+
+    if (!id) {
+        return res.status(400).json({ message: "Thiếu ID báo cáo" });
+    }
+
+    try {
+        // Gọi sang Orion để xóa thực thể
+        const orionUrl = `${process.env.ORION_HOST}/ngsi-ld/v1/entities/${id}`;
+
+        await axios.delete(orionUrl);
+
+        res.json({ message: "Đã xóa báo cáo thành công", id: id });
+
+    } catch (error) {
+        // Nếu Orion trả về 404 nghĩa là không tìm thấy báo cáo
+        if (error.response && error.response.status === 404) {
+            return res.status(404).json({ message: "Báo cáo không tồn tại hoặc đã bị xóa" });
+        }
+
+        console.error("Lỗi xóa report:", error.message);
+        res.status(500).json({ message: "Lỗi hệ thống khi xóa báo cáo" });
+    }
+};
+
+module.exports = { createReport, getReports, deleteReport };
