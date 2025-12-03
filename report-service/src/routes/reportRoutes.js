@@ -117,8 +117,6 @@ router.post("/send", reportController.createReport);
 
 router.get("/receive", reportController.getReports);
 
-module.exports = router;
-
 /**
  * @swagger
  * /api/reports/{id}:
