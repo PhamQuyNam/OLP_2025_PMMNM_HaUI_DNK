@@ -10,7 +10,7 @@ const reportService = {
   getAllReports() {
     return axiosClient.get("/reports/receive");
   },
-  // 3. Quản lý xóa báo cáo (DELETE)
+  // 3. Xóa báo cáo (DELETE)
   deleteReport(id) {
     return axiosClient.delete(`/reports/${id}`);
   },

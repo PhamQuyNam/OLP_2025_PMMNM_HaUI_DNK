@@ -8,7 +8,7 @@ import {
   CheckCircle,
   XCircle,
 } from "lucide-react";
-import { toast } from "react-toastify"; // Import thêm Toast để báo kết quả
+import { toast } from "react-toastify";
 
 const ManagerReportsPage = () => {
   const [reports, setReports] = useState([]);
@@ -21,6 +21,7 @@ const ManagerReportsPage = () => {
       if (Array.isArray(data)) setReports(data);
     } catch (error) {
       console.error(error);
+      toast.error("Lỗi tải danh sách báo cáo.");
     } finally {
       setLoading(false);
     }
@@ -28,27 +29,29 @@ const ManagerReportsPage = () => {
 
   useEffect(() => {
     fetchReports();
+    // Polling tự động cập nhật mỗi 15 giây (tùy chọn)
+    const interval = setInterval(fetchReports, 15000);
+    return () => clearInterval(interval);
   }, []);
 
-  // 👇 HÀM XỬ LÝ XÓA BÁO CÁO
+  // 👇 HÀM XỬ LÝ XÓA THẬT (Đã cập nhật)
   const handleDelete = async (id) => {
-    // 1. Hỏi xác nhận
-    if (!window.confirm("Bạn có chắc muốn xóa báo cáo này?")) {
+    if (!window.confirm("Bạn có chắc chắn muốn xóa báo cáo này vĩnh viễn?")) {
       return;
     }
 
     try {
-      // 2. Gọi API xóa (Cứ gọi thử, có thể lỗi 404)
+      // 1. Gọi API Xóa thật
       await reportService.deleteReport(id);
-      toast.success("Đã xóa báo cáo thành công!"); // Nếu BE có API thì chạy dòng này
-    } catch (error) {
-      console.warn("Backend chưa có API xóa, thực hiện xóa giả lập trên UI.");
-      // 3. Nếu lỗi (do BE chưa làm), ta thông báo nhẹ
-      toast.info("Đã ẩn báo cáo khỏi giao diện (Database chưa xóa).");
-    } finally {
-      // 4. QUAN TRỌNG: Dù thành công hay thất bại, TA VẪN XÓA KHỎI STATE
-      // Việc này giúp icon tam giác trên bản đồ và dòng trong bảng biến mất ngay lập tức
+
+      // 2. Nếu thành công (không lọt vào catch), xóa trên giao diện
       setReports((prev) => prev.filter((report) => report.id !== id));
+      toast.success("Đã xóa báo cáo thành công!");
+    } catch (error) {
+      console.error("Xóa thất bại:", error);
+      // Hiển thị lỗi từ Backend nếu có
+      const msg = error.response?.data?.message || "Không thể xóa báo cáo này.";
+      toast.error(msg);
     }
   };
 
@@ -98,7 +101,6 @@ const ManagerReportsPage = () => {
                     key={report.id || index}
                     className="hover:bg-slate-700/30 transition-colors group"
                   >
-                    {/* Cột Thời gian */}
                     <td className="px-6 py-4 text-slate-400 whitespace-nowrap">
                       <div className="flex items-center gap-2">
                         <Clock size={14} />
@@ -108,7 +110,7 @@ const ManagerReportsPage = () => {
                       </div>
                     </td>
 
-                    {/* 👇 Cột Người báo & SĐT (Đã sửa theo yêu cầu) */}
+                    {/* 👇 CỘT SĐT (Đã sửa lại gọn gàng vì có dữ liệu thật) */}
                     <td className="px-6 py-4">
                       <div className="flex flex-col">
                         <span className="font-bold text-white text-base">
@@ -116,12 +118,16 @@ const ManagerReportsPage = () => {
                         </span>
                         <div className="flex items-center gap-1.5 text-blue-400 font-mono text-sm mt-0.5">
                           <Phone size={12} />
-                          {report.phone || "Không có SĐT"}
+                          {/* Hiển thị trực tiếp, fallback nếu null */}
+                          {report.phone || (
+                            <span className="text-slate-600 italic">
+                              Không có SĐT
+                            </span>
+                          )}
                         </div>
                       </div>
                     </td>
 
-                    {/* Cột Loại sự cố */}
                     <td className="px-6 py-4">
                       <span
                         className={`inline-flex px-2.5 py-1 rounded-full text-xs font-bold border ${
@@ -134,7 +140,6 @@ const ManagerReportsPage = () => {
                       </span>
                     </td>
 
-                    {/* Cột Nội dung */}
                     <td
                       className="px-6 py-4 max-w-xs truncate text-slate-300"
                       title={report.desc || report.description}
@@ -142,7 +147,6 @@ const ManagerReportsPage = () => {
                       {report.desc || report.description}
                     </td>
 
-                    {/* Cột Vị trí */}
                     <td className="px-6 py-4 text-slate-400 text-xs font-mono">
                       <div className="flex items-center gap-1 bg-slate-900/50 w-fit px-2 py-1 rounded">
                         <MapPin size={12} />
@@ -151,7 +155,6 @@ const ManagerReportsPage = () => {
                       </div>
                     </td>
 
-                    {/* 👇 Cột Hành động (Nút X đỏ đã gắn logic xóa) */}
                     <td className="px-6 py-4 text-right">
                       <div className="flex justify-end gap-2">
                         <button
@@ -161,10 +164,11 @@ const ManagerReportsPage = () => {
                           <CheckCircle size={18} />
                         </button>
 
+                        {/* Nút Xóa gọi hàm handleDelete */}
                         <button
-                          onClick={() => handleDelete(report.id)} // Gọi hàm xóa
+                          onClick={() => handleDelete(report.id)}
                           className="p-2 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-all shadow-sm"
-                          title="Xóa báo cáo"
+                          title="Xóa vĩnh viễn"
                         >
                           <XCircle size={18} />
                         </button>
