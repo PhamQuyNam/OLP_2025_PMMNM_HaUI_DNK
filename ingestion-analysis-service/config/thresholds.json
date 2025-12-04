@@ -6,6 +6,23 @@
     "extreme": 40.0,
     "description": "Ngưỡng mưa trong 1 giờ (Theo chuẩn cảnh báo nhanh)"
   },
+  "flood_criteria": {
+    "rain_24h": {"low_range_max": 50.0, "high_range_min": 80.0, "is_inverted": false},
+    "rain_1h": {"low_range_max": 10.0, "high_range_min": 20.0, "is_inverted": false},
+    "elevation": {"low_range_max": 20.0, "high_range_min": 10.0, "is_inverted": true},
+    "slope": {"low_range_max": 5.0, "high_range_min": 1.0, "is_inverted": true},
+    "twi": {"low_range_max": 5.0, "high_range_min": 10.0, "is_inverted": false}, 
+    "water_distance": {"low_range_max": 1000.0, "high_range_min": 500.0, "is_inverted": true},
+    "isr": {"low_range_max": 30.0, "high_range_min": 60.0, "is_inverted": false},
+    "MAX_SCORE": 21
+  },
+  "landslide_criteria": {
+    "slope": {"low_range_max": 15.0, "high_range_min": 25.0, "is_inverted": false},
+    "rain_24h": {"low_range_max": 50.0, "high_range_min": 80.0, "is_inverted": false},
+    "elevation": {"low_range_max": 200.0, "high_range_min": 500.0, "is_inverted": false},
+    "twi": {"low_range_max": 5.0, "high_range_min": 10.0, "is_inverted": false},
+    "MAX_SCORE": 12
+  },
   "water_level": {
     "alarm_level_1": 9.5,
     "alarm_level_2": 10.5,
