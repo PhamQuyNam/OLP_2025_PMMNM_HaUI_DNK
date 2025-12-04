@@ -1,4 +1,3 @@
-// SPDX-License-Identifier: Apache-2.0
 <!--
   Copyright 2025 Haui.DNK
   Licensed under the Apache License, Version 2.0
@@ -176,7 +175,6 @@ Vui lòng thêm header ở đầu **mỗi file mã nguồn** mới (hoặc đả
 Bạn có thể thêm một dòng SPDX (ngắn gọn, hỗ trợ tooling), ví dụ:
 
 ```
-SPDX-License-Identifier: Apache-2.0
 ```
 
 Có thể đặt ngay dòng đầu (trước/hoặc cùng với header).
