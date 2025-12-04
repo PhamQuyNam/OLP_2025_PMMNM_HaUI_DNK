@@ -1,23 +1,17 @@
-// SPDX-License-Identifier: Apache-2.0
-<!--
-  Copyright 2025 Haui.DNK
-  Licensed under the Apache License, Version 2.0
-  http://www.apache.org/licenses/LICENSE-2.0
--->
 # HỆ THỐNG NỀN TĂNG DỮ LIỆU MỞ GIÚP CẢNH BÁO SỚM VÀ PHẢN ỨNG KHẨN CẤP THIÊN TAI (Bài dự thi OLP PMNM 2025)
 
-**Đội:** Haui-DNK
+**Đội:** HaUI-DNK
 
 **Trường:** Trường Công Nghệ Thông Tin và Truyền Thông (SICT) - Đại Học Công Nghiệp Hà Nội
 
-[![Documentation](https://img.shields.io/badge/Documentation-View_Site-blue?style=for-the-badge)](https://github.com/PhamQuyNam/OLP_2025_PMMNM_HaUI_DNK.git)
+<!-- [![Documentation](https://img.shields.io/badge/Documentation-View_Site-blue?style=for-the-badge)](https://github.com/PhamQuyNam/OLP_2025_PMMNM_HaUI_DNK.git) -->
 [![License](https://img.shields.io/badge/License-Apache_2.0-yellow.svg?style=for-the-badge)](./LICENSE)
 
 Bài dự thi Phát triển ứng dụng thành phố thông minh dựa trên nền tảng dữ liệu mở.
 
 ## 💡 Ý tưởng Cốt lõi: 
 
-Hệ thống của chúng tôi là một giải pháp tiên phong nhằm chuyển đổi mô hình quản lý thiên tai tại Việt Nam từ phản ứng thụ động sang **dự báo chủ động** và **phản ứng phối hợp hai chiều**. Ý tưởng cốt lõi là thiết lập một nền tảng **Dữ liệu Mở (Open Context Data Platform)** sử dụng chuẩn **NGSI-LD** để quản lý trạng thái **thời gian thực** của các Thực thể liên quan đến nguy cơ thiên tai. Hệ thống không chỉ tích hợp các **tiêu chí dự đoán** khoa học (như Độ dốc , Lượng mưa tích lũy , Mực nước Sông/Hồ ), mà còn tạo ra **kênh tương tác hai chiều** giữa các nhà quản lý với người dân. Nhà quản lý có được **Bản đồ Tình huống Chung** để ra quyết định , trong khi người dân có thể gửi các **Báo cáo sự cố** hoặc **tín hiệu Cầu cứu (SOS)** tức thời , tạo ra nguồn dữ liệu **NGSI-LD:CitizenReport** để hỗ trợ công tác cứu hộ. Toàn bộ hệ thống được xây dựng bằng công nghệ nguồn mở, đảm bảo tính khả chuyển và khả năng tái sử dụng cao.
+Hệ thống của chúng tôi là một giải pháp tiên phong nhằm chuyển đổi mô hình quản lý thiên tai tại Việt Nam từ phản ứng thụ động sang **dự báo chủ động** và **phản ứng phối hợp hai chiều**. Ý tưởng cốt lõi là thiết lập một nền tảng **Dữ liệu Mở (Open Context Data Platform)** sử dụng chuẩn **NGSI-LD** để quản lý trạng thái **thời gian thực** của các Thực thể liên quan đến nguy cơ thiên tai. Hệ thống không chỉ tích hợp các **tiêu chí dự đoán** khoa học (như Độ dốc , Lượng mưa tích lũy , Độ ẩm đất), mà còn tạo ra **kênh tương tác hai chiều** giữa các nhà quản lý với người dân. Nhà quản lý có được **Bản đồ Tình huống Chung** để ra quyết định , trong khi người dân có thể gửi các **Báo cáo sự cố** hoặc **tín hiệu Cầu cứu (SOS)** tức thời , tạo ra nguồn dữ liệu **NGSI-LD:CitizenReport** để hỗ trợ công tác cứu hộ. Toàn bộ hệ thống được xây dựng bằng công nghệ nguồn mở, đảm bảo tính khả chuyển và khả năng tái sử dụng cao.
 
 ## 🏗️ Kiến trúc Hệ thống
 
@@ -36,7 +30,7 @@ flowchart LR
         direction LR
         OpenAPI["Dữ liệu Mở (Thời tiết)"]
         StaticData["Dữ liệu Tĩnh (Địa hình, Đất, Ngưỡng)"]
-        Citizen["Người dân gửi báo cáo"]
+        Citizen["Người dân gửi phản ánh"]
 
         OpenAPI --> INGEST["Ingestion Service"]
         StaticData --> INGEST
@@ -71,14 +65,10 @@ flowchart LR
     %% ===== 4. APPLICATION =====
     subgraph S4["4. Ứng dụng"]
         Admin["Web Dashboard"]
-        Mobile["Mobile App"]
 
         Admin -->|"Query trạng thái"| Orion
         Admin -->|"Truy vấn lịch sử"| TS
         Admin -->|"Quản lý dữ liệu tĩnh"| DBUser
-
-        Mobile -->|"Lấy cảnh báo"| Orion
-        Orion -->|"Gửi thông báo"| Mobile
     end
 
 ```
@@ -109,15 +99,15 @@ git clone https://github.com/PhamQuyNam/OLP_2025_PMMNM_HaUI_DNK.git
 **Chạy ứng dụng**  
 (Mở terminal trong thư mục gốc và chạy lệnh)
 ```bash
-docker-compose up --build -d 
+docker-compose up -d --build  
 ```
 
 ## 🌐 Xem Giao diện Web (Ví dụ)
 
-- **Dashboard Nhà Quản lý:** http://localhost:3000/manager   
-- **Ứng dụng Người Dân:** http://localhost:3000/citizen   
-- **API Backend (Node.js):** http://localhost:3000/api/...
-- **API Cảnh báo/Báo cáo:** http://localhost:3000/api/reports
+- **Dashboard Nhà Quản lý:** http://localhost:3001/manager   
+- **Ứng dụng Người Dân:** http://localhost:3001/citizen   
+- **API Backend (Node.js):** http://localhost:8000/api/...
+- **API Cảnh báo/Báo cáo:** http://localhost:3004/api/...
 - **Orion-LD Context Broker:** http://localhost:1026/ngsi-ld/v1/entities  
 
 **Dừng hệ thống:**
@@ -150,7 +140,7 @@ Mọi đóng góp của các bạn đều được trân trọng, đừng ngần
 
 ## 📞 Liên hệ
 
-* **Phạm Qúy Nam:** phamquynam2004@gmail.com
+* **Phạm Quý Nam:** phamquynam2004@gmail.com
 * **Trịnh Gia Luật:** luattrinh2k4@gmail.com
 * **Ngô Văn Tấn:** ngovantannvt04@gmail.com
 

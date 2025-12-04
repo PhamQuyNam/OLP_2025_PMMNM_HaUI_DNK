@@ -19,8 +19,8 @@ Mọi thay đổi đáng chú ý của dự án **Viet Resilience Hub** sẽ đ�
 
   - **Interactive Map:** Tích hợp bản đồ số OpenStreetMap & Leaflet.
   - **Real-time GPS:** Tự động định vị vị trí người dùng và hiển thị trên bản đồ.
-  - **Weather Monitoring:** Hiển thị trạm đo mưa thực tế (chuẩn NGSI-LD) với icon động cảnh báo.
-  - **Crowdsourcing Report:** Gửi báo cáo sự cố thiên tai kèm vị trí GPS.
+  - **Weather Monitoring:** Hiển thị trạm đo mưa thực tế (chuẩn NGSI-LD).
+  - **Crowdsourcing Report:** Gửi phản ảnh sự cố thiên tai kèm vị trí GPS.
   - **Digital Guide:** Cẩm nang hướng dẫn kỹ năng sinh tồn.
 
 - **📊 Phân hệ Quản lý (Manager Dashboard)**
