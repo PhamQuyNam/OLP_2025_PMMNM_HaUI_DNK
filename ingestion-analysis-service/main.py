@@ -1,3 +1,7 @@
+# Copyright 2025 Haui.DNK
+# Licensed under the Apache License, Version 2.0
+# http://www.apache.org/licenses/LICENSE-2.0
+
 import time
 from config.settings import MONITORING_STATIONS
 from services.orion_service import wait_for_orion, update_rain_entity
