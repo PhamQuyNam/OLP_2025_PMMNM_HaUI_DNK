@@ -1,10 +1,10 @@
 <!--
-  Copyright 2025 Haui.DNK
+  Copyright 2025 HaUI.DNK
   Licensed under the Apache License, Version 2.0
   http://www.apache.org/licenses/LICENSE-2.0
 -->
 
-# HỆ THỐNG NỀN TĂNG DỮ LIỆU MỞ GIÚP CẢNH BÁO SỚM VÀ PHẢN ỨNG KHẨN CẤP THIÊN TAI (Bài dự thi OLP PMNM 2025)
+# VIET-RESILIENCE-HUB HỆ THỐNG NỀN TĂNG DỮ LIỆU MỞ GIÚP CẢNH BÁO SỚM VÀ PHẢN ỨNG KHẨN CẤP THIÊN TAI (Bài dự thi OLP PMNM 2025)
 
 **Đội:** HaUI-DNK
 
