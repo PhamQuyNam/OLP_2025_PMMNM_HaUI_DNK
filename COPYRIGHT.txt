@@ -1,0 +1,71 @@
+All Viet-Resilience-Hub code is Copyright 2025 by HaUI.DNK. See: https://github.com/PhamQuyNam/OLP_2025_PMMNM_HaUI_DNK.git
+
+This product is free software; you are permitted to redistribute it and/or modify it under the terms of the apache license as published by the apache software foundation; specifically, version 2.0 of the license, or (at your option) any later version that may follow.
+
+This program is distributed with the expectation that it will provide benefit, yet it comes without any warranty; this includes the implied warranty of merchantability or fitness for a particular purpose. please consult the apache license for further details.
+
+You should have received a copy of the apache license included with this program under the filename license; if not, please access: http://www.apache.org/licenses/LICENSE-2.0.
+
+Viet-Resilience-Hub is a software initiative developed by the HaUI.DNK team from the school of information and communication technology (SICT) - hanoi university of industry, for the purpose of participating in the open source software competition 2025.
+
+Viet-Resilience-Hub contains works subject to other copyright notices and is distributed according to the terms of those corresponding licenses, including:
+
+Name                            Version        License            Description                                                      Url
+================================================================================================================================================================================
+
+FRONTEND DEPENDENCIES (JavaScript/NuxtJS)
+================================================================================================================================================================================
+React                           19.2.0         MIT                JavaScript library for building user interfaces                 https://react.dev
+React DOM                       19.2.0         MIT                React package for working with the DOM                          https://react.dev
+Vite                            7.2.4          MIT                Next Generation Frontend Tooling                                https://vitejs.dev
+Tailwind CSS                    4.1.17         MIT                A utility-first CSS framework                                   https://tailwindcss.com
+Leaflet                         1.9.4          BSD-2-Clause       JavaScript library for mobile-friendly interactive maps         https://leafletjs.com
+React Leaflet                   5.0.0          MIT                React components for Leaflet maps                               https://react-leaflet.js.org
+Axios                           1.13.2         MIT                Promise based HTTP client for the browser and node.js           https://axios-http.com
+Recharts                        3.5.0          MIT                Redefined chart library built with React and D3                 https://recharts.org
+Lucide React                    0.554.0        ISC                Beautiful & consistent icon toolkit                             https://lucide.dev
+React Router DOM                7.9.6          MIT                Declarative routing for React web applications                  https://reactrouter.com
+React Toastify                  11.0.5         MIT                React notification made easy                                    https://fkhadra.github.io/react-toastify
+
+================================================================================================================================================================================
+INGESTION ANALYSIS SERVICE DEPENDENCIES (Python/FastAPI)
+================================================================================================================================================================================
+requests                        2.31.0         Apache-2.0         Thư viện HTTP đơn giản cho Python.                              https://requests.readthedocs.io
+pandas                          2.1.4          BSD-3-Clause       Cấu trúc dữ liệu cho phân tích và thống kê.                     https://pandas.pydata.org
+scikit-learn                    1.3.2          BSD-3-Clause       Thư viện học máy (Machine Learning) trong Python.               https://scikit-learn.org
+python-dotenv                   1.0.0          BSD-3-Clause       Quản lý biến môi trường từ tệp .env.                            https://github.com/theskumar/python-dotenv
+psycopg2-binary                 2.9.9          LGPL-3.0           Bộ điều hợp (adapter) PostgreSQL cho Python.                    https://www.psycopg.org
+fastapi                         0.104.1        MIT                Web framework hiệu năng cao để xây dựng API.                    https://fastapi.tiangolo.com
+uvicorn                         0.24.0         BSD-3-Clause       Máy chủ ASGI (ASGI server) cho Python.                          https://www.uvicorn.org
+pydantic                        2.5.3          MIT                Xác thực dữ liệu bằng cách sử dụng type hints của Python.       https://pydantic.dev
+
+================================================================================================================================================================================
+ALERT SERVICE DEPENDENCIES ()
+================================================================================================================================================================================
+
+================================================================================================================================================================================
+API GATEWAY DEPENDENCIES ()
+================================================================================================================================================================================
+
+================================================================================================================================================================================
+AUTH SERVICE DEPENDENCIES ()
+================================================================================================================================================================================
+
+================================================================================================================================================================================
+DATA SERVICE DEPENDENCIES ()
+================================================================================================================================================================================
+================================================================================================================================================================================
+REPORT SERVICE DEPENDENCIES ()
+================================================================================================================================================================================
+
+================================================================================================================================================================================
+SAFETY SERVICE DEPENDENCIES ()
+================================================================================================================================================================================
+
+================================================================================================================================================================================
+WEATHER REALTIME SERVICE DEPENDENCIES ()
+================================================================================================================================================================================
+
+================================================================================================================================================================================
+
+See copyright information at the header of source code files for additional details.
