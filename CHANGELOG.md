@@ -1,3 +1,8 @@
+<!--
+  Copyright 2025 Haui.DNK
+  Licensed under the Apache License, Version 2.0
+  http://www.apache.org/licenses/LICENSE-2.0
+-->
 # Lịch sử thay đổi (Changelog)
 
 Mọi thay đổi đáng chú ý của dự án **Viet Resilience Hub** sẽ được ghi lại tại tệp này.

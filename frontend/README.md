@@ -1,3 +1,8 @@
+<!--
+  Copyright 2025 Haui.DNK
+  Licensed under the Apache License, Version 2.0
+  http://www.apache.org/licenses/LICENSE-2.0
+-->
 # React + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.

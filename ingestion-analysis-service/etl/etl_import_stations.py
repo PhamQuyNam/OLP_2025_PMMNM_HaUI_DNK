@@ -1,3 +1,6 @@
+# Copyright 2025 Haui.DNK
+# Licensed under the Apache License, Version 2.0
+# http://www.apache.org/licenses/LICENSE-2.0
 import psycopg2
 from config.settings import DB_HOST, DB_NAME, DB_USER, DB_PASS, MONITORING_STATIONS
 
