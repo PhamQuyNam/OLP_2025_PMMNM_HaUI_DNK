@@ -1,44 +1,37 @@
-Lịch sử thay đổi (Changelog)
-Mọi thay đổi đáng chú ý của dự án Viet Resilience Hub sẽ được ghi lại tại tệp này.
+# Lịch sử thay đổi (Changelog)
 
-[v0.1.0] - 2025-12-04
+Mọi thay đổi đáng chú ý của dự án **Viet Resilience Hub** sẽ được ghi lại tại tệp này.
 
-Đã thêm (Added)
+## [v0.1.0] - 2025-12-04 (Phiên bản PoF OLP)
 
-1. Hệ thống Xác thực & Người dùng (Authentication)
-   JWT Authentication: Cơ chế Đăng ký và Đăng nhập bảo mật sử dụng JSON Web Token.
+Đây là bản phát hành đầu tiên
 
-Role-based Access Control (RBAC): Phân quyền chặt chẽ giữa Người dân (Citizen) và Nhà quản lý (Manager).
+### Đã thêm (Added)
 
-User Profile: Trang quản lý thông tin cá nhân, cho phép cập nhật số điện thoại và mật khẩu.
+- **🔐 Hệ thống Xác thực & Người dùng (Auth Service)**
 
-Protected Routes: Cơ chế bảo vệ đường dẫn, ngăn chặn truy cập trái phép.
+  - **JWT Authentication:** Đăng ký, Đăng nhập bảo mật.
+  - **Role-based Control:** Phân quyền chặt chẽ giữa Người dân (Citizen) và Nhà quản lý (Manager).
+  - **User Profile:** Xem và cập nhật thông tin cá nhân (SĐT, Mật khẩu).
+  - **Protected Routes:** Cơ chế bảo vệ đường dẫn, chặn truy cập trái phép.
 
-2. Phân hệ Người dân (Citizen)
-   Smart Map Interface: Tích hợp bản đồ số OpenStreetMap với thư viện Leaflet.
+- **🗺️ Phân hệ Người dân (Citizen)**
 
-Real-time Geolocation: Tự động định vị và hiển thị vị trí thực tế của người dùng trên bản đồ (GPS).
+  - **Interactive Map:** Tích hợp bản đồ số OpenStreetMap & Leaflet.
+  - **Real-time GPS:** Tự động định vị vị trí người dùng và hiển thị trên bản đồ.
+  - **Weather Monitoring:** Hiển thị trạm đo mưa thực tế (chuẩn NGSI-LD) với icon động cảnh báo.
+  - **Crowdsourcing Report:** Gửi báo cáo sự cố thiên tai kèm vị trí GPS.
+  - **Digital Guide:** Cẩm nang hướng dẫn kỹ năng sinh tồn.
 
-Weather Stations Layer: Hiển thị lớp dữ liệu các trạm đo mưa thời gian thực (chuẩn NGSI-LD) với icon động theo trạng thái (Xanh/Đỏ).
+- **📊 Phân hệ Quản lý (Manager Dashboard)**
 
-Crowdsourcing Reporting: Tính năng gửi báo cáo sự cố (Ngập lụt/Sạt lở) kèm tọa độ GPS và thông tin mô tả.
+  - **Overview Statistics:** Thống kê lượng mưa trung bình, số trạm cảnh báo.
+  - **Report Management:** Danh sách báo cáo từ cộng đồng, có SĐT liên hệ và tính năng xóa.
+  - **Real-time Map:** Giám sát đồng thời các trạm đo mưa và các điểm sự cố do dân báo.
+  - **Dynamic Charts:** Biểu đồ diễn biến mưa và so sánh lượng mưa (Recharts).
 
-Disaster Guide: Cẩm nang số hướng dẫn kỹ năng sinh tồn và ứng phó thiên tai.
-
-3. Phân hệ Quản lý (Manager Dashboard)
-   Overview Statistics: Các thẻ chỉ số thống kê thời gian thực (Lượng mưa trung bình, Số trạm cảnh báo, Số lượng báo cáo).
-
-Interactive Dashboard Map: Bản đồ giám sát trung tâm, hiển thị đồng thời Trạm đo mưa và Sự cố do người dân báo cáo.
-
-Real-time Charts: Biểu đồ diễn biến mưa và Biểu đồ so sánh lượng mưa giữa các trạm (Recharts).
-
-Report Management: Danh sách chi tiết các báo cáo từ cộng đồng với tính năng gọi điện nhanh và xóa báo cáo đã xử lý.
-
-4. Hạ tầng & Triển khai (Infrastructure)
-   Microservices Architecture: Cấu trúc dự án phân tách rõ ràng (Auth, Report, Weather Services).
-
-Dockerization: Đóng gói toàn bộ Frontend và Backend vào Docker Containers.
-
-Nginx Gateway: Cấu hình API Gateway (Port 8000) và Frontend Web Server (Port 3001) để định tuyến và phục vụ ứng dụng.
-
-Standardized API: Sử dụng Axios Client với cơ chế Interceptors và Proxy để tối ưu hóa kết nối.
+- **🏗️ Hạ tầng & Triển khai (Infrastructure)**
+  - **Microservices:** Kiến trúc tách biệt Auth, Report, Weather Services.
+  - **Dockerization:** Đóng gói 100% Frontend và Backend vào Docker.
+  - **API Gateway:** Sử dụng Nginx (Port 8000) để điều phối request.
+  - **Standardized API:** Cấu hình Axios Client và Proxy để tối ưu kết nối.
