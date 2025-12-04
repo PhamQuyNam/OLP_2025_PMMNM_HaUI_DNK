@@ -38,34 +38,64 @@ psycopg2-binary                 2.9.9          LGPL-3.0           Bộ điều h
 fastapi                         0.104.1        MIT                Web framework hiệu năng cao để xây dựng API.                    https://fastapi.tiangolo.com
 uvicorn                         0.24.0         BSD-3-Clause       Máy chủ ASGI (ASGI server) cho Python.                          https://www.uvicorn.org
 pydantic                        2.5.3          MIT                Xác thực dữ liệu bằng cách sử dụng type hints của Python.       https://pydantic.dev
-
 ================================================================================================================================================================================
 ALERT SERVICE DEPENDENCIES ()
 ================================================================================================================================================================================
-
+express                         4.18.2         MIT                Fast, unopinionated, minimalist web framework for node.js        https://github.com/expressjs/express
+pg                              8.11.3         MIT                Non-blocking PostgreSQL client for Node.js                       https://github.com/brianc/node-postgres
+axios                           1.6.2          MIT                Promise based HTTP client for the browser and node.js            https://github.com/axios/axios
+cors                            2.8.5          MIT                Node.js CORS middleware                                          https://github.com/expressjs/cors
+dotenv                          16.3.1         BSD-2-Clause       Loads environment variables from .env for nodejs projects        https://github.com/motdotla/dotenv
+swagger-jsdoc                   6.2.8          MIT                Generates swagger/openapi specification based on jsdoc comments  https://github.com/Surnet/swagger-jsdoc
 ================================================================================================================================================================================
 API GATEWAY DEPENDENCIES ()
 ================================================================================================================================================================================
-
+nginx                           latest         BSD-2-Clause       High performance web server and reverse proxy server             https://nginx.org/
 ================================================================================================================================================================================
 AUTH SERVICE DEPENDENCIES ()
 ================================================================================================================================================================================
-
+express                         4.18.2         MIT                Fast, unopinionated, minimalist web framework for node.js        https://github.com/expressjs/express
+pg                              8.11.3         MIT                Non-blocking PostgreSQL client for Node.js                       https://github.com/brianc/node-postgres
+bcryptjs                        2.4.3          MIT                Optimized bcrypt in JavaScript with zero dependencies            https://github.com/dcodeIO/bcrypt.js
+jsonwebtoken                    9.0.2          MIT                JsonWebToken implementation for node.js                          https://github.com/auth0/node-jsonwebtoken
+cors                            2.8.5          MIT                Node.js CORS middleware                                          https://github.com/expressjs/cors
+dotenv                          16.3.1         BSD-2-Clause       Loads environment variables from .env for nodejs projects        https://github.com/motdotla/dotenv
+swagger-jsdoc                   6.2.8          MIT                Generates swagger/openapi specification based on jsdoc comments  https://github.com/Surnet/swagger-jsdoc
 ================================================================================================================================================================================
 DATA SERVICE DEPENDENCIES ()
 ================================================================================================================================================================================
+express                         4.18.2         MIT                Fast, unopinionated, minimalist web framework for node.js        https://github.com/expressjs/express
+pg                              8.11.3         MIT                Non-blocking PostgreSQL client for Node.js                       https://github.com/brianc/node-postgres
+axios                           4.18.2         MIT                Promise based HTTP client for the browser and node.js            https://github.com/axios/axios
+cors                            2.8.5          MIT                Node.js CORS middleware                                          https://github.com/expressjs/cors
+dotenv                          16.3.1         BSD-2-Clause       Loads environment variables from .env for nodejs projects        https://github.com/motdotla/dotenv
+swagger-jsdoc                   6.2.8          MIT                Generates swagger/openapi specification based on jsdoc comments  https://github.com/Surnet/swagger-jsdoc
 ================================================================================================================================================================================
 REPORT SERVICE DEPENDENCIES ()
 ================================================================================================================================================================================
-
+express                         4.18.2         MIT                Fast, unopinionated, minimalist web framework for node.js        https://github.com/expressjs/express
+axios                           1.6.2          MIT                Promise based HTTP client for the browser and node.js            https://github.com/axios/axios
+cors                            2.8.5          MIT                Node.js CORS middleware                                          https://github.com/expressjs/cors
+dotenv                          16.3.1         BSD-2-Clause       Loads environment variables from .env for nodejs projects        https://github.com/motdotla/dotenv
+uuid                            9.0.1          MIT                RFC4122 (v1, v4, and v5) UUID generator                          https://github.com/uuidjs/uuid
+swagger-jsdoc                   6.2.8          MIT                Generates swagger/openapi specification based on jsdoc comments  https://github.com/Surnet/swagger-jsdoc
 ================================================================================================================================================================================
 SAFETY SERVICE DEPENDENCIES ()
 ================================================================================================================================================================================
-
+express                         4.18.2         MIT                Fast, unopinionated, minimalist web framework for node.js        https://github.com/expressjs/express
+pg                              8.11.3         MIT                Non-blocking PostgreSQL client for Node.js                       https://github.com/brianc/node-postgres
+axios                           1.6.2          MIT                Promise based HTTP client for the browser and node.js            https://github.com/axios/axios
+cors                            2.8.5          MIT                Node.js CORS middleware                                          https://github.com/expressjs/cors
+dotenv                          16.3.1         BSD-2-Clause       Loads environment variables from .env for nodejs projects        https://github.com/motdotla/dotenv
+swagger-jsdoc                   6.2.8          MIT                Generates swagger/openapi specification based on jsdoc comments  https://github.com/Surnet/swagger-jsdoc
 ================================================================================================================================================================================
 WEATHER REALTIME SERVICE DEPENDENCIES ()
 ================================================================================================================================================================================
-
+express                         4.18.2         MIT                Fast, unopinionated, minimalist web framework for node.js        https://github.com/expressjs/express
+axios                           1.6.2          MIT                Promise based HTTP client for the browser and node.js            https://github.com/axios/axios
+cors                            2.8.5          MIT                Node.js CORS middleware                                          https://github.com/expressjs/cors
+dotenv                          16.3.1         BSD-2-Clause       Loads environment variables from .env for nodejs projects        https://github.com/motdotla/dotenv
+swagger-jsdoc                   6.2.8          MIT                Generates swagger/openapi specification based on jsdoc comments  https://github.com/Surnet/swagger-jsdoc
 ================================================================================================================================================================================
 
 See copyright information at the header of source code files for additional details.
