@@ -1,5 +1,5 @@
 <!--
-  Copyright 2025 Haui.DNK
+  Copyright 2025 HaUI.DNK
   Licensed under the Apache License, Version 2.0
   http://www.apache.org/licenses/LICENSE-2.0
 -->
@@ -95,13 +95,13 @@ Bạn xác nhận rằng bạn có quyền cấp phép cho phần đóng góp đ
 
 Vui lòng thêm header ở đầu **mỗi file mã nguồn** mới (hoặc đảm bảo đã có). Thay bằng thông tin của dự án:
 
-**Năm:** 2025 **Chủ sở hữu:** Haui.DNK
+**Năm:** 2025 **Chủ sở hữu:** HaUI.DNK
 
 - **Java/Kotlin**
 
   ```java
   /*
-   * Copyright 2025 Haui.DNK
+   * Copyright 2025 HaUI.DNK
    *
    * Licensed under the Apache License, Version 2.0 (the "License");
    * you may not use this file except in compliance with the License.
@@ -121,7 +121,7 @@ Vui lòng thêm header ở đầu **mỗi file mã nguồn** mới (hoặc đả
 
   ```ts
   /**
-   * Copyright 2025 Haui.DNK
+   * Copyright 2025 HaUI.DNK
    *
    * Licensed under the Apache License, Version 2.0 (the "License");
    * http://www.apache.org/licenses/LICENSE-2.0
@@ -135,7 +135,7 @@ Vui lòng thêm header ở đầu **mỗi file mã nguồn** mới (hoặc đả
 
   ```css
   /*!
-   * Copyright 2025 Haui.DNK
+   * Copyright 2025 HaUI.DNK
    * Licensed under the Apache License, Version 2.0
    * http://www.apache.org/licenses/LICENSE-2.0
    */
@@ -145,7 +145,7 @@ Vui lòng thêm header ở đầu **mỗi file mã nguồn** mới (hoặc đả
 
   ```xml
   <!--
-    Copyright 2025 Haui.DNK
+    Copyright 2025 HaUI.DNK
     Licensed under the Apache License, Version 2.0
     http://www.apache.org/licenses/LICENSE-2.0
   -->
@@ -154,7 +154,7 @@ Vui lòng thêm header ở đầu **mỗi file mã nguồn** mới (hoặc đả
 - **YAML**
 
   ```yaml
-  # Copyright 2025 Haui.DNK
+  # Copyright 2025 HaUI.DNK
   # Licensed under the Apache License, Version 2.0
   # http://www.apache.org/licenses/LICENSE-2.0
   ```
@@ -162,7 +162,7 @@ Vui lòng thêm header ở đầu **mỗi file mã nguồn** mới (hoặc đả
 - **Markdown/MDX** (dùng comment HTML ở đầu file)
   ```md
   <!--
-    Copyright 2025 Haui.DNK
+    Copyright 2025 HaUI.DNK
     Licensed under the Apache License, Version 2.0
     http://www.apache.org/licenses/LICENSE-2.0
   -->
@@ -184,7 +184,7 @@ Có thể đặt ngay dòng đầu (trước/hoặc cùng với header).
 - File `NOTICE` ở thư mục gốc nên chứa attribution cơ bản, ví dụ:
   ```
   HaUI.DNK
-  Copyright (c) 2025 Haui.DNK
+  Copyright (c) 2025 HaUI.DNK
   This product includes software developed by the HaUI.DNK contributors.
   ```
 - Nếu bạn thêm nội dung cần ghi công (third-party notices), hãy bổ sung vào `NOTICE` theo yêu cầu giấy phép của bên thứ ba.
@@ -212,7 +212,7 @@ Chúng tôi cung cấp script **`tools/add_license_headers.py`** để tự đ�
 **Cách chạy:**
 
 ```bash
-python tools/add_license_headers.py   --root .   --year 2025   --owner "Haui.DNK"   --spdx
+python tools/add_license_headers.py   --root .   --year 2025   --owner "HaUI.DNK"   --spdx
 ```
 
 **Mặc định script sẽ:**
