@@ -1,3 +1,7 @@
+# Copyright 2025 Haui.DNK
+# Licensed under the Apache License, Version 2.0
+# http://www.apache.org/licenses/LICENSE-2.0
+
 services:
   gateway:
     build:
@@ -148,7 +152,18 @@ services:
     environment:
       - ORION_HOST=http://orion:1026
       - OPENWEATHER_API_KEY=${OPENWEATHER_API_KEY}
-
+  frontend:
+    build:
+      context: ./frontend  # Trỏ đúng vào thư mục chứa code FE
+      dockerfile: Dockerfile
+    container_name: frontend-app
+    restart: always
+    ports:
+      - "3001:80" # Map cổng 3001 máy thật vào cổng 80 container
+    networks:
+      - main-network
+    depends_on:
+      - gateway
 networks:
   main-network:
     driver: bridge

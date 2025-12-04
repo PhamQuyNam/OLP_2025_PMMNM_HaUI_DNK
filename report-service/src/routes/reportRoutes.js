@@ -1,6 +1,15 @@
-const express = require('express');
+/**
+ * Copyright 2025 Haui.DNK
+ *
+ * Licensed under the Apache License, Version 2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND.
+ */
+
+const express = require("express");
 const router = express.Router();
-const reportController = require('../controllers/reportController');
+const reportController = require("../controllers/reportController");
 
 /**
  * @swagger
@@ -65,7 +74,8 @@ const reportController = require('../controllers/reportController');
  *       500:
  *         description: Lỗi Server hoặc lỗi kết nối Orion
  */
-router.post('/send', reportController.createReport);
+
+router.post("/send", reportController.createReport);
 
 /**
  * @swagger
@@ -113,6 +123,32 @@ router.post('/send', reportController.createReport);
  *       500:
  *         description: Lỗi Server
  */
-router.get('/receive', reportController.getReports);
+
+router.get("/receive", reportController.getReports);
+
+/**
+ * @swagger
+ * /api/reports/{id}:
+ *   delete:
+ *     summary: Xóa một báo cáo
+ *     description: Xóa vĩnh viễn báo cáo khỏi hệ thống (Orion).
+ *     tags: [Reports]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID đầy đủ của báo cáo (VD:urn:ngsi-ld:CitizenReport:...)
+ *         example: "urn:ngsi-ld:CitizenReport:1234-5678"
+ *     responses:
+ *       200:
+ *         description: Xóa thành công
+ *       404:
+ *         description: Không tìm thấy báo cáo
+ *       500:
+ *         description: Lỗi Server
+ */
+router.delete("/:id", reportController.deleteReport);
 
 module.exports = router;
