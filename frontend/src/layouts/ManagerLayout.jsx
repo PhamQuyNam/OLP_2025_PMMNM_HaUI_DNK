@@ -1,9 +1,19 @@
+/**
+ * Copyright 2025 Haui.DNK
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ */
 import { Outlet, NavLink, Link, useNavigate } from "react-router-dom"; // Thêm useNavigate
 import {
   LayoutDashboard,
   Map as MapIcon,
   BellRing,
   Database,
+  FileText,
   Settings,
   LogOut,
   ShieldAlert,
@@ -53,9 +63,9 @@ const ManagerLayout = () => {
             end
           />
           <ManagerNavItem
-            to="/manager/map"
-            icon={MapIcon}
-            label="Bản đồ rủi ro"
+            to="/manager/reports" // Đổi đường dẫn
+            icon={FileText} // Đổi icon cho hợp
+            label="Danh sách Báo cáo" // Đổi tên
           />
           <ManagerNavItem
             to="/manager/incidents"
