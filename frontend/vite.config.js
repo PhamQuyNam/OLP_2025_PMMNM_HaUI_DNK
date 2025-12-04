@@ -3,14 +3,15 @@ import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
+  base: "/",
   plugins: [react(), tailwindcss()],
   server: {
     port: 3001,
     strictPort: true,
-    // 👇 THÊM ĐOẠN NÀY: Cấu hình Proxy
     proxy: {
+      // Chỉ giữ lại một quy tắc này thôi
       "/api": {
-        target: "http://localhost:8000", // Trỏ về Backend thật
+        target: "http://localhost:8000",
         changeOrigin: true,
         secure: false,
       },
