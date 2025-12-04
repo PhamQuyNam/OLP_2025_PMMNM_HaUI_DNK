@@ -39,16 +39,8 @@ Dự án được chia thành các module chuyên biệt:
 
 ```text
 ingestion-analysis-service/
-├── src/
-│   ├── config/           # Cấu hình ngưỡng cảnh báo (Thresholds)
-│   ├── services/         # Các module kết nối bên ngoài
-│   │   ├── weather_service.py      # Lấy dữ liệu mưa
-│   │   ├── environment_service.py  # Lấy độ ẩm đất
-│   │   ├── geo_service.py          # Tra cứu không gian PostGIS
-│   │   └── orion_service.py        # Đẩy dữ liệu sang Orion
-│   ├── logic/
-│   │   └── risk_analysis.py        # Thuật toán so sánh và ra quyết định
-│   └── main.py           # Vòng lặp chính (Main Loop)
+|
+├── config/           # Cấu hình ngưỡng cảnh báo (Thresholds)
 ├── etl                   # Các script chạy 1 lần (Setup)
 │   ├── etl_import_zones.py         # Nạp biên giới hành chính
 │   ├── etl_import_shelters.py      # Quét các điểm cứu trợ
@@ -56,7 +48,15 @@ ingestion-analysis-service/
 │   ├── etl_import_stations.py      # Nạp các trạm đo mưa trên thành phố
 │   ├── etl_station_profiling.py    # Nạp các tiêu chí đánh giá thiên tai tĩnh
 │   └── etl_real_history.py         # Khôi phục lịch sử quá khứ
+├── logic/
+│   └── risk_analysis.py        # Thuật toán so sánh và ra quyết định
+├── services/         # Các module kết nối bên ngoài
+│   ├── weather_service.py      # Lấy dữ liệu mưa
+│   ├── environment_service.py  # Lấy độ ẩm đất
+│   ├── geo_service.py          # Tra cứu không gian PostGIS
+│   └── orion_service.py        # Đẩy dữ liệu sang Orion
 ├── .env                  # Biến môi trường
 ├── Dockerfile            # Cấu hình Docker
+├── main.py           # Vòng lặp chính (Main Loop)
 └── requirements.txt      # Thư viện Python
 ```
