@@ -9,4 +9,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Sửa dòng này trỏ vào main.py
-CMD ["python", "main.py"]
+CMD ["sh", "-c", "export PYTHONPATH=$PYTHONPATH:/app && python /app/main.py"]

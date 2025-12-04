@@ -136,18 +136,33 @@ services:
       - POSTGRES_DB=${POSTGRES_DB}
 
   # 5. Ingestion & Analysis Service - Xử lý dữ liệu & Cảnh báo (Python)
-  ingestion:
+  ingestion-service: # Đổi tên service nếu cần, ví dụ: ingestion-service
     build:
       context: ./ingestion-analysis-service
       dockerfile: Dockerfile
     container_name: ingestion-service
-    depends_on:
-      - orion
+    ports:
+      - "3004:3000" # Host Port 3004 -> Container Port 3000
     networks:
       - main-network
+    depends_on:
+      - orion       # Chờ Orion khởi động
+      - postgis  # Chờ PostGIS khởi động (Sử dụng tên service chính xác của bạn)
     environment:
-      - ORION_HOST=http://orion:1026
-      - OPENWEATHER_API_KEY=${OPENWEATHER_API_KEY}
+      # Cấu hình Orion
+     - ORION_HOST=http://orion:1026
+     - OPENWEATHER_API_KEY=${OPENWEATHER_API_KEY}
+    # Cấu hình PostGIS (MANDATORY cho Ingestion Service)
+    # Host name phải là tên container (db-postgis) hoặc tên service (postgis).
+    # Ta sử dụng tên container/hostname đã được định nghĩa.
+     - POSTGRES_HOST=postgis 
+     - POSTGRES_DB=${POSTGRES_DB} 
+     - POSTGRES_USER=${POSTGRES_USER}
+     - POSTGRES_PASSWORD=${POSTGRES_PASSWORD} 
+    # Cấu hình Alert Service API
+     - ALERT_SERVICE_API=http://alert-service:3005/api/alerts/internal/receive 
+    # Cấu hình Port cho Uvicorn server nội bộ
+     - PORT=3000
 
 networks:
   main-network:
