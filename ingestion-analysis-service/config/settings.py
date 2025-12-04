@@ -59,6 +59,17 @@ MONITORING_STATIONS = [
     {"id": "urn:ngsi-ld:RainObserved:HT_24_ThachVan", "name": "Trạm 24: Thạch Văn", "lat": 18.3400, "lon": 105.9650, "desc": "Đồng ven biển"},
     {"id": "urn:ngsi-ld:RainObserved:HT_25_DongNamBien", "name": "Trạm 25: Ven biển Đông Nam", "lat": 18.3200, "lon": 105.9800,
      "desc": "Khu đê biển"},
+
+    {"id": "urn:ngsi-ld:RainObserved:HT_26_SonKim", "name": "Trạm 26: Sơn Kim", "lat": 18.4142, "lon": 105.2104,
+     "desc": "Xã Sơn Kim 1 – huyện Hương Sơn – vùng núi cao giáp Lào"},
+    {"id": "urn:ngsi-ld:RainObserved:HT_27_TaySon", "name": "Trạm 27: Tây Sơn", "lat": 18.3602, "lon": 105.2574,
+     "desc": "Vùng núi Tây Sơn, giáp biên giới Lào – rừng núi dày đặc"},
+    {"id": "urn:ngsi-ld:RainObserved:HT_28_RaoTre", "name": "Trạm 28: Rào Tre", "lat": 18.1435, "lon": 105.5982,
+     "desc": "Khu vực bản Rào Tre – rừng núi Trường Sơn, địa hình cao"},
+    {"id": "urn:ngsi-ld:RainObserved:HT_29_NganTrui", "name": "Trạm 29: Hồ Ngàn Trươi", "lat": 18.31560, "lon": 105.47230,
+     "desc": "Khu vực hồ Ngàn Trươi – đồi núi bao quanh"},
+    {"id": "urn:ngsi-ld:RainObserved:HT_30_DongVoiPhuc", "name": "Trạm 30: Động Voi Phục", "lat": 18.2653, "lon": 105.3879,
+     "desc": "Động Voi Phục – vùng núi cao Vũ Quang"},
 ]
 
 # Cấu hình Database PostGIS (Để tra cứu vùng nguy cơ)
