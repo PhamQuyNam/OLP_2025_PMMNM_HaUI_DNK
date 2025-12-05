@@ -36,14 +36,6 @@ const createSafetyTables = async () => {
             );
         `);
 
-        await pool.query(`
-            CREATE TABLE IF NOT EXISTS otp_codes (
-                email VARCHAR(255) NOT NULL,
-                otp VARCHAR(6) NOT NULL,
-                expires_at TIMESTAMP NOT NULL
-            );
-        `);
-
         console.log("✅ Safety Service: Tables ready.");
     } catch (err) {
         console.error("❌ Error creating safety tables:", err.message);

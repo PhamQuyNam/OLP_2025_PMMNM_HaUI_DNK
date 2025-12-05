@@ -63,6 +63,14 @@ const createTables = async () => {
             console.log("ℹ️ Tài khoản Admin (MANAGER) đã tồn tại. Bỏ qua bước tạo.");
         }
 
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS otp_codes (
+                email VARCHAR(255) NOT NULL,
+                otp VARCHAR(6) NOT NULL,
+                expires_at TIMESTAMP NOT NULL
+            );
+        `);
+
     } catch (err) {
         console.error("❌ Lỗi khi khởi tạo bảng:", err.message);
     }

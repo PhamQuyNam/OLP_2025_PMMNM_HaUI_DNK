@@ -10,13 +10,26 @@
 const pool = require('../config/db');
 const { sendEmailOTP } = require("../controllers/email");
 
-const requestSOS = async (req, res) => {
-    const { email } = req.body;
+// Hàm phụ trợ: Lấy email từ ID (Vì token có thể không chứa email)
+const getUserEmail = async (userId) => {
+    // Vì safety-service dùng chung DB với Auth, ta có thể query bảng users
+    const res = await pool.query("SELECT email FROM users WHERE id = $1", [userId]);
+    return res.rows[0]?.email;
+};
 
-    if (!email) return res.status(400).json({ message: "Thiếu email" });
+const requestSOS = async (req, res) => {
+    const userId = req.user.id;
 
     try {
+        // Tự động lấy email từ DB
+        const email = await getUserEmail(userId);
+
+        if (!email) return res.status(404).json({ message: "Không tìm thấy email người dùng" });
+
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+        // Xóa OTP cũ
+        await pool.query("DELETE FROM otp_codes WHERE email = $1", [email]);
 
         // Lưu OTP 2 phút
         await pool.query(`
@@ -31,7 +44,9 @@ const requestSOS = async (req, res) => {
             console.log("Email error:", mailErr);
         }
 
-        res.json({ message: "OTP Email đã gửi", otp_sent: "true" });
+        // Trả về email (đã che bớt) để người dùng biết kiểm tra hòm thư nào
+        const maskedEmail = email.replace(/(.{2})(.*)(@.*)/, "$1***$3");
+        res.json({ message: `OTP đã gửi đến ${maskedEmail}`, otp_sent: true });
 
     } catch (err) {
         console.error(err);
@@ -41,13 +56,16 @@ const requestSOS = async (req, res) => {
 
 // Xử lý tín hiệu SOS
 const handleSOS = async (req, res) => {
-    const { lat, lon, phone, email, message, userId, otp } = req.body;
+    const userId = req.user.id; // Lấy ID từ Token
+    const { lat, lon, phone, message, otp } = req.body;
 
     if (!lat || !lon) {
         return res.status(400).json({ message: "Thiếu tọa độ GPS" });
     }
 
     try {
+        const email = await getUserEmail(userId);
+        if (!email) return res.status(404).json({ message: "Tài khoản lỗi" });
          // Kiểm tra OTP
         const check = await pool.query(`
             SELECT * FROM otp_codes
@@ -68,7 +86,7 @@ const handleSOS = async (req, res) => {
             VALUES ($1, $2, $3, ST_SetSRID(ST_Point($4, $5), 4326), 'ACTIVE')
             RETURNING id;
         `;
-        await pool.query(insertQuery, [userId || 'anonymous', phone, message, lon, lat]);
+        await pool.query(insertQuery, [userId, phone, message, lon, lat]);
 
         // BƯỚC 2: Tìm các điểm an toàn trong bán kính 3km (3000m)
         // Sắp xếp theo khoảng cách gần nhất
