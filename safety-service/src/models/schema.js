@@ -26,13 +26,21 @@ const createSafetyTables = async () => {
         // 2. Bảng Tín hiệu SOS (Dynamic)
         await pool.query(`
             CREATE TABLE IF NOT EXISTS sos_signals (
-                id SERIAL PRIMARY KEY,
+                tatus VARCHAR(20) DEFAULT 'ACTIVE', -- ACTIVE, RESCUED
+                gid SERIAL PRIMARY KEY,
                 user_id VARCHAR(50), -- Có thể null nếu khách vãng lai
                 phone VARCHAR(20),
                 message TEXT,
-                status VARCHAR(20) DEFAULT 'ACTIVE', -- ACTIVE, RESCUED
-                geom GEOMETRY(Point, 4326),
+                seom GEOMETRY(Point, 4326),
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        `);
+
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS otp_codes (
+                email VARCHAR(255) NOT NULL,
+                otp VARCHAR(6) NOT NULL,
+                expires_at TIMESTAMP NOT NULL
             );
         `);
 
