@@ -23,7 +23,8 @@ services:
       - main-network
     env_file: .env
     depends_on:
-      - postgis
+      postgis:
+        condition: service_healthy
     environment:
       - PORT=3001
 
@@ -138,6 +139,12 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
+    # 👇 THÊM ĐOẠN NÀY
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   # 5. Ingestion & Analysis Service - Xử lý dữ liệu & Cảnh báo (Python)
   ingestion:
