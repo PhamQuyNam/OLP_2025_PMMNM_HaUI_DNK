@@ -1,9 +1,10 @@
 #!/bin/sh
 
-# === TÍCH HỢP LOGIC PYTHONPATH CŨ VÀO ENTRYPOINT (Rất quan trọng) ===
+# === TÍCH HỢP LOGIC PYTHONPATH CŨ VÀO ENTRYPOINT ===
+# Đảm bảo Python có thể tìm thấy các module ngang cấp (config, etl, services)
 export PYTHONPATH=$PYTHONPATH:/app 
 echo "✅ PYTHONPATH đã được thiết lập."
-# ====================================================================
+# ====================================================
 
 DB_HOST=$POSTGRES_HOST
 DB_PORT=5432
@@ -12,7 +13,9 @@ RETRY_INTERVAL=3
 
 echo "========================================================="
 echo "=== 1. CHỜ DATABASE (POSTGIS) SẴN SÀNG ==="
-# ... (Logic chờ DB không đổi) ...
+echo "========================================================="
+
+# Vòng lặp chờ PostGIS sẵn sàng (TCP Check)
 counter=0
 while ! nc -z $DB_HOST $DB_PORT && [ $counter -lt $MAX_RETRIES ]; do
   echo "⏳ Đợi PostGIS ($DB_HOST:$DB_PORT) khởi động... ($counter/$MAX_RETRIES)"
@@ -31,18 +34,15 @@ echo "========================================================="
 echo "=== 2. CHẠY CÁC TÁC VỤ ETL (IMPORT DỮ LIỆU TĨNH TỰ ĐỘNG) ==="
 echo "========================================================="
 
-# B2. Chạy ETL (Chèn dữ liệu)
+
 echo "➡️ B2: Chạy ETL: Import Waterways (Sông/Suối)"
-# FIX: SỬ DỤNG PYTHON MODULE EXECUTION
-python -m etl.etl_import_waterways
+python -m etl.etl_import_waterways # <-- Dùng -m
 
 echo "➡️ B3: Chạy ETL: Import Stations (Trạm Quan Trắc)"
-# FIX: SỬ DỤNG PYTHON MODULE EXECUTION
-python -m etl.etl_import_stations
+python -m etl.etl_import_stations # <-- Dùng -m
 
 echo "➡️ B4: Chạy ETL: Profiling (Tính toán Slope, TWI, ISR...)"
-# FIX: SỬ DỤNG PYTHON MODULE EXECUTION
-python -m etl.etl_station_profiling
+python -m etl.etl_station_profiling # <-- Dùng -m
 
 echo "✅ HOÀN TẤT ETL DỮ LIỆU TĨNH!"
 

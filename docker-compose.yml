@@ -69,7 +69,8 @@ services:
       - main-network
     env_file: .env
     depends_on:
-      - postgis
+      postgis:
+        condition: service_healthy
     environment:
       - PORT=3005
       - ORION_HOST=http://orion:1026
