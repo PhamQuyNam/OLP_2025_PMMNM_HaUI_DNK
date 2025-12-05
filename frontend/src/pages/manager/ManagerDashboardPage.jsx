@@ -1,15 +1,19 @@
+/**
+ * Copyright 2025 HaUI.DNK
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ */
 import { useEffect, useState } from "react";
 import {
   AlertTriangle,
   Droplets,
   BellRing,
-  Activity,
-  ArrowUpRight,
-  ArrowDownRight,
-  Filter,
-  MapPin,
-  Clock,
-  MoreHorizontal,
+  Activity as ActivityIcon,
+  CloudRain,
 } from "lucide-react";
 import {
   AreaChart,
@@ -25,9 +29,9 @@ import {
 } from "recharts";
 import axios from "axios";
 
-// Import Components & Services
 import DashboardMap from "../../components/manager/DashboardMap";
 import weatherService from "../../services/weatherService";
+import reportService from "../../services/reportService";
 
 const MOCK_HISTORY_RAIN = [
   { time: "01:00", mm: 2 },
@@ -40,15 +44,17 @@ const MOCK_HISTORY_RAIN = [
 
 const ManagerDashboardPage = () => {
   const [weatherStations, setWeatherStations] = useState([]);
+  const [reports, setReports] = useState([]);
   const [geoJsonData, setGeoJsonData] = useState(null);
 
   const [stats, setStats] = useState({
     avgRain: 0,
     warningCount: 0,
     maxRainStation: "---",
-    maxRainValue: 0, // Thêm state lưu giá trị mưa lớn nhất
+    maxRainValue: 0,
   });
 
+  // 1. API Thời tiết
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -59,16 +65,14 @@ const ManagerDashboardPage = () => {
           const totalRain = data.reduce((sum, s) => sum + s.rain, 0);
           const warnings = data.filter((s) => s.status !== "SAFE").length;
 
-          // Logic mới: Tìm trạm lớn nhất
           const maxStation = data.reduce(
             (prev, current) => (prev.rain > current.rain ? prev : current),
             { name: "---", rain: 0 }
           );
 
           setStats({
-            avgRain: (totalRain / data.length).toFixed(1),
+            avgRain: data.length > 0 ? (totalRain / data.length).toFixed(1) : 0,
             warningCount: warnings,
-            // 👇 LOGIC FIX: Nếu lượng mưa = 0 thì hiện "Không mưa"
             maxRainStation:
               maxStation.rain > 0 ? maxStation.name : "Trời tạnh ráo",
             maxRainValue: maxStation.rain,
@@ -84,7 +88,22 @@ const ManagerDashboardPage = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Lấy bản đồ ranh giới
+  // 2. API báo cáo
+  useEffect(() => {
+    const fetchReports = async () => {
+      try {
+        const data = await reportService.getAllReports();
+        if (Array.isArray(data)) setReports(data);
+      } catch (error) {
+        console.error("Lỗi lấy báo cáo:", error);
+      }
+    };
+    fetchReports();
+    const interval = setInterval(fetchReports, 10000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // 3. API Bản đồ
   useEffect(() => {
     const fetchBoundary = async () => {
       try {
@@ -109,8 +128,8 @@ const ManagerDashboardPage = () => {
   }, []);
 
   return (
-    <div className="space-y-6 text-slate-100 font-sans pb-10">
-      {/* === 1. THẺ CHỈ SỐ === */}
+    <div className="space-y-6 text-slate-100 font-sans pb-20">
+      {/* === THẺ CHỈ SỐ === */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           title="Lượng mưa TB"
@@ -122,31 +141,30 @@ const ManagerDashboardPage = () => {
           trendUp={true}
         />
         <StatCard
-          title="Điểm Cảnh báo"
+          title="Trạm đang mưa"
           value={stats.warningCount}
           unit="Trạm"
-          icon={AlertTriangle}
-          color={stats.warningCount > 0 ? "bg-red-500" : "bg-emerald-500"}
-          trend={stats.warningCount > 0 ? "Cần xử lý" : "An toàn"}
+          icon={CloudRain}
+          color={stats.warningCount > 0 ? "bg-amber-500" : "bg-emerald-500"}
+          trend={stats.warningCount > 0 ? "Đang mưa" : "Tạnh ráo"}
           trendUp={stats.warningCount > 0}
         />
         <StatCard
-          title="SOS Chờ xử lý"
+          title="SOS Khẩn cấp"
           value="0"
           unit="Tin"
           icon={BellRing}
           color="bg-orange-500"
-          trend="Ổn định"
+          trend="Đang chờ tích hợp"
           trendUp={false}
         />
-        {/* Thẻ Mưa lớn nhất: Hiện tên trạm hoặc thông báo tạnh ráo */}
         <StatCard
           title={
             stats.maxRainValue > 0 ? "Mưa lớn nhất tại" : "Tình hình chung"
           }
           value={stats.maxRainStation}
           unit={stats.maxRainValue > 0 ? `${stats.maxRainValue}mm` : ""}
-          icon={Activity}
+          icon={ActivityIcon}
           color={stats.maxRainValue > 0 ? "bg-cyan-500" : "bg-emerald-500"}
           trend="Theo dõi"
           trendUp={true}
@@ -154,19 +172,25 @@ const ManagerDashboardPage = () => {
         />
       </div>
 
-      {/* === 2. BẢN ĐỒ & BIỂU ĐỒ === */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[500px]">
-        <div className="lg:col-span-2 h-full min-h-[400px]">
-          <DashboardMap stations={weatherStations} geoJsonData={geoJsonData} />
+      {/* === BẢN ĐỒ + 2 BIỂU ĐỒ === */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* BẢN ĐỒ */}
+        <div className="lg:col-span-8 h-[350px] md:h-[400px] lg:h-[450px] xl:h-[480px]">
+          <DashboardMap
+            stations={weatherStations}
+            reports={reports}
+            geoJsonData={geoJsonData}
+          />
         </div>
 
-        <div className="flex flex-col gap-6 h-full">
-          {/* Biểu đồ 1: Diễn biến (Mock) */}
-          <div className="flex-1 bg-slate-800/50 border border-slate-700 p-5 rounded-2xl min-h-0 flex flex-col">
+        {/* 2 BIỂU ĐỒ */}
+        <div className="lg:col-span-4 flex flex-col gap-4 h-full">
+          {/* BIỂU ĐỒ 1 — CHIỀU CAO NHỎ LẠI */}
+          <div className="bg-slate-800/50 border border-slate-700 p-4 rounded-2xl flex flex-col h-[220px]">
             <h3 className="font-bold text-sm mb-2 text-slate-300">
-              Diễn biến Mưa (Dự báo)
+              Diễn biến Mưa
             </h3>
-            <div className="flex-1 w-full min-h-0">
+            <div className="flex-1 min-h-0">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={MOCK_HISTORY_RAIN}>
                   <defs>
@@ -192,8 +216,8 @@ const ManagerDashboardPage = () => {
                       backgroundColor: "#1e293b",
                       borderColor: "#334155",
                       color: "#fff",
+                      fontSize: "12px",
                     }}
-                    itemStyle={{ color: "#fff" }}
                   />
                   <Area
                     type="monotone"
@@ -207,71 +231,68 @@ const ManagerDashboardPage = () => {
             </div>
           </div>
 
-          {/* Biểu đồ 2: So sánh trạm (Real-time) */}
-          <div className="flex-1 bg-slate-800/50 border border-slate-700 p-5 rounded-2xl min-h-0 flex flex-col">
+          {/* BIỂU ĐỒ 2 — GIỚI HẠN CHIỀU CAO + SCROLL */}
+          <div className="bg-slate-800/50 border border-slate-700 p-4 rounded-2xl flex flex-col h-[260px]">
             <h3 className="font-bold text-sm mb-2 text-slate-300">
-              Mưa hiện tại theo Trạm (mm)
+              Mưa hiện tại (mm)
             </h3>
-            <div className="flex-1 w-full min-h-0">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={weatherStations}
-                  layout="vertical"
-                  margin={{ left: 0, right: 20 }}
-                >
-                  <XAxis type="number" hide />
-                  <YAxis
-                    dataKey="name"
-                    type="category"
-                    stroke="#94a3b8"
-                    width={130}
-                    fontSize={11}
-                    tickLine={false}
-                    axisLine={false}
-                    tickFormatter={(val) =>
-                      val.length > 20 ? val.substring(0, 20) + "..." : val
-                    }
-                  />
-                  <Tooltip
-                    cursor={{ fill: "transparent" }}
-                    contentStyle={{
-                      backgroundColor: "#1e293b",
-                      borderColor: "#334155",
-                      fontSize: "12px",
-                    }}
-                  />
 
-                  {/* 👇 SỬA LỖI 2: Thêm background để hiện vệt mờ khi giá trị = 0 */}
-                  <Bar
-                    dataKey="rain"
-                    radius={[0, 4, 4, 0]}
-                    barSize={12}
-                    background={{
-                      fill: "rgba(255, 255, 255, 0.05)",
-                      radius: [0, 4, 4, 0],
-                    }} // Vệt mờ nền
+            <div className="flex-1 overflow-y-auto custom-scrollbar">
+              <div style={{ height: 45 * 7 + "px" }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={weatherStations}
+                    layout="vertical"
+                    margin={{ left: 0, right: 10 }}
                   >
-                    {weatherStations.map((entry, index) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={entry.rain > 50 ? "#ef4444" : "#06b6d4"}
-                      />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
+                    <XAxis type="number" hide />
+                    <YAxis
+                      dataKey="name"
+                      type="category"
+                      stroke="#94a3b8"
+                      width={110}
+                      fontSize={11}
+                      tickLine={false}
+                      axisLine={false}
+                      tickFormatter={(val) =>
+                        val.length > 15 ? val.substring(0, 15) + "..." : val
+                      }
+                    />
+                    <Tooltip
+                      cursor={{ fill: "transparent" }}
+                      contentStyle={{
+                        backgroundColor: "#1e293b",
+                        borderColor: "#334155",
+                        fontSize: "12px",
+                      }}
+                    />
+                    <Bar
+                      dataKey="rain"
+                      radius={[0, 4, 4, 0]}
+                      barSize={10}
+                      background={{ fill: "rgba(255,255,255,0.05)" }}
+                    >
+                      {weatherStations.map((entry, index) => (
+                        <Cell
+                          key={index}
+                          fill={entry.rain > 50 ? "#ef4444" : "#06b6d4"}
+                        />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* === 3. BẢNG DỮ LIỆU === */}
-      {/* (Giữ nguyên phần bảng bên dưới không đổi) */}
+      {/* === BẢNG DỮ LIỆU === */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        <div className="lg:col-span-3 bg-slate-800/50 border border-slate-700 rounded-2xl overflow-hidden">
+        <div className="lg:col-span-3 bg-slate-800/50 border border-slate-700 rounded-2xl overflow-hidden flex flex-col h-[390px]">
           <div className="p-5 border-b border-slate-700 flex justify-between items-center">
             <div className="flex items-center gap-3">
-              <Activity className="text-emerald-500" size={20} />
+              <ActivityIcon className="text-emerald-500" size={20} />
               <h3 className="font-bold text-lg text-white">
                 Trạng thái Trạm đo mưa
               </h3>
@@ -281,15 +302,15 @@ const ManagerDashboardPage = () => {
             </div>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-slate-900/50 text-slate-400 uppercase text-xs">
+          <div className="flex-1 overflow-auto custom-scrollbar">
+            <table className="w-full text-left text-sm relative">
+              <thead className="bg-slate-900 text-slate-400 uppercase text-xs sticky top-0 z-10">
                 <tr>
-                  <th className="px-6 py-4 font-semibold">Tên trạm</th>
-                  <th className="px-6 py-4 font-semibold">Lượng mưa</th>
-                  <th className="px-6 py-4 font-semibold">Tọa độ</th>
-                  <th className="px-6 py-4 font-semibold">Trạng thái</th>
-                  <th className="px-6 py-4 font-semibold text-right">
+                  <th className="px-6 py-4 bg-slate-900">Tên trạm</th>
+                  <th className="px-6 py-4 bg-slate-900">Lượng mưa</th>
+                  <th className="px-6 py-4 bg-slate-900">Tọa độ</th>
+                  <th className="px-6 py-4 bg-slate-900">Trạng thái</th>
+                  <th className="px-6 py-4 text-right bg-slate-900">
                     Chi tiết
                   </th>
                 </tr>
@@ -297,13 +318,8 @@ const ManagerDashboardPage = () => {
               <tbody className="divide-y divide-slate-700">
                 {weatherStations.length > 0 ? (
                   weatherStations.map((station) => (
-                    <tr
-                      key={station.id}
-                      className="hover:bg-slate-700/30 transition-colors"
-                    >
-                      <td className="px-6 py-4 font-medium text-white">
-                        {station.name}
-                      </td>
+                    <tr key={station.id} className="hover:bg-slate-700/30">
+                      <td className="px-6 py-4">{station.name}</td>
                       <td className="px-6 py-4 text-blue-400 font-bold">
                         {station.rain} mm
                       </td>
@@ -312,7 +328,7 @@ const ManagerDashboardPage = () => {
                       </td>
                       <td className="px-6 py-4">
                         <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                          className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
                             station.status === "SAFE"
                               ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
                               : "bg-red-500/10 text-red-400 border border-red-500/20"
@@ -321,10 +337,8 @@ const ManagerDashboardPage = () => {
                           {station.status}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-right">
-                        <span className="text-slate-500 text-xs italic">
-                          {station.message}
-                        </span>
+                      <td className="px-6 py-4 text-right text-slate-500 text-xs italic">
+                        {station.message}
                       </td>
                     </tr>
                   ))
@@ -343,8 +357,9 @@ const ManagerDashboardPage = () => {
           </div>
         </div>
 
-        <div className="lg:col-span-1 space-y-6">
-          <div className="bg-slate-800/50 border border-slate-700 p-5 rounded-2xl">
+        {/* HƯỚNG DẪN CHỈ SỐ — THU NHỎ LẠI */}
+        <div className="lg:col-span-1 h-[260px]">
+          <div className="bg-slate-800/50 border border-slate-700 p-5 rounded-2xl h-full overflow-y-auto custom-scrollbar">
             <h3 className="font-bold text-sm text-slate-300 mb-4">
               Hướng dẫn Chỉ số
             </h3>
@@ -370,7 +385,7 @@ const ManagerDashboardPage = () => {
   );
 };
 
-// --- SUB-COMPONENTS (Giữ nguyên) ---
+// === COMPONENTS ===
 const StatCard = ({
   title,
   value,
@@ -381,32 +396,30 @@ const StatCard = ({
   trendUp,
   isLongText,
 }) => (
-  <div className="bg-slate-800/50 border border-slate-700 p-5 rounded-2xl flex flex-col justify-between hover:border-slate-600 transition-colors">
+  <div className="bg-slate-800/50 border border-slate-700 p-5 rounded-2xl flex flex-col h-full">
     <div className="flex justify-between items-start mb-4">
       <div className={`p-3 rounded-xl ${color} bg-opacity-20 text-white`}>
         <Icon size={24} />
       </div>
       <div
-        className={`flex items-center gap-1 text-xs font-bold ${
+        className={`text-xs font-bold ${
           trendUp ? "text-emerald-400" : "text-slate-400"
         }`}
       >
         {trend}
       </div>
     </div>
-    <div>
-      <p className="text-slate-400 text-sm font-medium">{title}</p>
-      <div className="flex items-baseline gap-2 mt-1">
-        <h4
-          className={`${
-            isLongText ? "text-lg md:text-xl truncate w-full" : "text-2xl"
-          } font-bold text-white`}
-          title={value}
-        >
-          {value}
-        </h4>
-        <span className="text-xs text-slate-500">{unit}</span>
-      </div>
+    <p className="text-slate-400 text-sm">{title}</p>
+    <div className="flex items-baseline gap-2 mt-1">
+      <h4
+        className={`${
+          isLongText ? "text-lg md:text-xl truncate" : "text-2xl"
+        } font-bold`}
+        title={value}
+      >
+        {value}
+      </h4>
+      <span className="text-xs text-slate-500">{unit}</span>
     </div>
   </div>
 );

@@ -1,3 +1,12 @@
+/**
+ * Copyright 2025 HaUI.DNK
+ *
+ * Licensed under the Apache License, Version 2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND.
+ */
+
 const express = require('express');
 const router = express.Router();
 const mapController = require('../controllers/mapController');
