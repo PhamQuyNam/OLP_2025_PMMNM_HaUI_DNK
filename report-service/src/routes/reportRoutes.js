@@ -151,4 +151,43 @@ router.get("/receive", reportController.getReports);
  */
 router.delete("/:id", reportController.deleteReport);
 
+/**
+ * @swagger
+ * /api/reports/{id}:
+ *   put:
+ *     summary: Cập nhật trạng thái báo cáo (Dành cho Manager)
+ *     description: Duyệt (VERIFIED) hoặc Từ chối (REJECTED) một báo cáo sự cố.
+ *     tags: [Reports]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: "ID báo cáo (VD: urn:ngsi-ld:CitizenReport:...)"
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - status
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 enum: [PENDING, VERIFIED, REJECTED]
+ *                 example: VERIFIED
+ *     responses:
+ *       200:
+ *         description: Cập nhật thành công
+ *       400:
+ *         description: Sai trạng thái
+ *       404:
+ *         description: Không tìm thấy báo cáo
+ *       500:
+ *         description: Lỗi Server
+ */
+router.put('/:id', reportController.updateReportStatus);
+
 module.exports = router;

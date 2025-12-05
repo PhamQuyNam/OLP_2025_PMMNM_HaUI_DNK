@@ -70,6 +70,47 @@ MONITORING_STATIONS = [
      "desc": "Khu vực hồ Ngàn Trươi – đồi núi bao quanh"},
     {"id": "urn:ngsi-ld:RainObserved:HT_30_DongVoiPhuc", "name": "Trạm 30: Động Voi Phục", "lat": 18.2653, "lon": 105.3879,
      "desc": "Động Voi Phục – vùng núi cao Vũ Quang"},
+
+    {"id":"urn:ngsi-ld:RainObserved:TN_01_TrungTam","name":"Trạm 01: Trung tâm TP Thái Nguyên","lat":21.5935,"lon":105.8487,"desc":"Khu trung tâm – quảng trường Võ Nguyên Giáp"},
+
+    {"id":"urn:ngsi-ld:RainObserved:TN_02_DaiHoc","name":"Trạm 02: Khu Đại học Thái Nguyên","lat":21.5753,"lon":105.8216,"desc":"Khu đại học – sinh viên đông"},
+
+    {"id":"urn:ngsi-ld:RainObserved:TN_03_GangThep","name":"Trạm 03: Gang Thép","lat":21.6020,"lon":105.8430,"desc":"Khu công nghiệp Gang Thép"},
+
+    {"id":"urn:ngsi-ld:RainObserved:TN_04_DuongTuMinh","name":"Trạm 04: Đường Dương Tự Minh","lat":21.6075,"lon":105.8240,"desc":"Khu đô thị phía Bắc"},
+
+    {"id":"urn:ngsi-ld:RainObserved:TN_05_SongCong1","name":"Trạm 05: Ven sông Cống","lat":21.5902,"lon":105.8612,"desc":"Khu vực ven sông – nguy cơ ngập"},
+
+    {"id":"urn:ngsi-ld:RainObserved:TN_06_HoNuiCoc","name":"Trạm 06: Hồ Núi Cốc","lat":21.6347,"lon":105.7205,"desc":"Hồ Núi Cốc – đồi núi thấp bao quanh"},
+
+    {"id":"urn:ngsi-ld:RainObserved:TN_07_VanLang","name":"Trạm 07: Văn Lang","lat":21.6591,"lon":105.7527,"desc":"Đồi núi rừng thông"},
+
+    {"id":"urn:ngsi-ld:RainObserved:TN_08_DinhHoa","name":"Trạm 08: Định Hóa","lat":21.7513,"lon":105.7189,"desc":"Vùng rừng núi hiểm trở"},
+
+    {"id":"urn:ngsi-ld:RainObserved:TN_09_PhuDinh","name":"Trạm 09: Phú Đình","lat":21.7030,"lon":105.7452,"desc":"Đồi núi xen kẽ nương rẫy"},
+
+    {"id":"urn:ngsi-ld:RainObserved:TN_10_BaoLinh","name":"Trạm 10: Bảo Linh","lat":21.7764,"lon":105.7759,"desc":"Vùng cao – mưa rừng mạnh"},
+
+    {"id":"urn:ngsi-ld:RainObserved:TN_11_DaiTu","name":"Trạm 11: Đại Từ","lat":21.6612,"lon":105.6836,"desc":"Khu vực trồng chè – đồi thấp"},
+
+    {"id":"urn:ngsi-ld:RainObserved:TN_12_TanLinh","name":"Trạm 12: Tân Linh","lat":21.6755,"lon":105.6501,"desc":"Đồi chè – khí hậu ẩm"},
+
+    {"id":"urn:ngsi-ld:RainObserved:TN_13_PhuLuong","name":"Trạm 13: Phú Lương","lat":21.8152,"lon":105.7574,"desc":"Vùng đồi núi Bắc Phú Lương"},
+
+    {"id":"urn:ngsi-ld:RainObserved:TN_14_YenLang","name":"Trạm 14: Yên Lãng","lat":21.7254,"lon":105.6890,"desc":"Đồi núi trung du"},
+
+    {"id":"urn:ngsi-ld:RainObserved:TN_15_LucBa","name":"Trạm 15: Lục Ba","lat":21.6305,"lon":105.6503,"desc":"Đồi cao – rừng keo"},
+
+    {"id":"urn:ngsi-ld:RainObserved:TN_16_PhoYen","name":"Trạm 16: Phổ Yên","lat":21.5103,"lon":105.8430,"desc":"Thị xã Phổ Yên – đô thị hóa mạnh"},
+
+    {"id":"urn:ngsi-ld:RainObserved:TN_17_Samsung","name":"Trạm 17: Khu công nghiệp Samsung","lat":21.5135,"lon":105.8772,"desc":"Khu công nghiệp lớn nhất tỉnh"},
+
+    {"id":"urn:ngsi-ld:RainObserved:TN_18_SongCong","name":"Trạm 18: TP Sông Công","lat":21.5459,"lon":105.8302,"desc":"Khu vực ven sông – risk ngập"},
+
+    {"id":"urn:ngsi-ld:RainObserved:TN_19_TanQuang","name":"Trạm 19: Tân Quang","lat":21.5292,"lon":105.8077,"desc":"Đô thị – dân cư đông"},
+
+    {"id":"urn:ngsi-ld:RainObserved:TN_20_BaXuyen","name":"Trạm 20: Bá Xuyên","lat":21.4862,"lon":105.8350,"desc":"Khu dân cư + công nghiệp"},
+
 ]
 
 # Cấu hình Database PostGIS (Để tra cứu vùng nguy cơ)
