@@ -10,6 +10,7 @@
 const express = require('express');
 const router = express.Router();
 const sosController = require('../controllers/sosController');
+const verifyToken = require('../auth/middleware');
 
 /**
  * @swagger
@@ -22,26 +23,16 @@ const sosController = require('../controllers/sosController');
  * @swagger
  * /api/safety/sos/request:
  *   post:
- *     summary: Gửi mã OTP xác thực trước khi gửi tín hiệu SOS
+ *     summary: Yêu cầu gửi mã OTP SOS (Cần đăng nhập)
  *     description: |
- *       API này sẽ gửi mã OTP đến email của người dùng.
- *       OTP được dùng để xác thực trước khi hệ thống chấp nhận tín hiệu SOS.
+ *       Hệ thống sẽ tự động lấy Email từ Token đăng nhập của người dùng và gửi OTP về đó.
+ *       Người dùng không cần nhập email thủ công.
  *     tags: [Safety]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - email
- *             properties:
- *               email:
- *                 type: string
- *                 example: "user@example.com"
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: OTP đã được gửi đến email
+ *         description: OTP đã được gửi thành công
  *         content:
  *           application/json:
  *             schema:
@@ -49,26 +40,31 @@ const sosController = require('../controllers/sosController');
  *               properties:
  *                 message:
  *                   type: string
- *                   example: "OTP đã được gửi"
- *                 expires_in:
- *                   type: number
- *                   example: 120
- *       400:
- *         description: Thiếu email hoặc định dạng không hợp lệ
+ *                   example: "OTP đã gửi đến d***@gmail.com"
+ *                 otp_sent:
+ *                   type: boolean
+ *                   example: true
+ *       401:
+ *         description: Chưa đăng nhập (Thiếu Token)
+ *       404:
+ *         description: Không tìm thấy email người dùng trong DB
  *       500:
- *         description: Lỗi hệ thống khi gửi OTP
+ *         description: Lỗi hệ thống khi gửi Email
  */
+router.post('/sos/request', verifyToken, sosController.requestSOS);
 
-router.post("/sos/request", sosController.requestSOS);
 
 /**
  * @swagger
  * /api/safety/sos:
  *   post:
- *     summary: Xác thực OTP và gửi tín hiệu SOS (Dành cho người dân)
+ *     summary: Xác thực OTP và Gửi tín hiệu SOS (Cần đăng nhập)
  *     description: |
- *       Người dùng phải nhập đúng mã OTP đã được gửi qua email để xác thực trước khi hệ thống chấp nhận tín hiệu SOS.
+ *       Người dùng gửi tọa độ và mã OTP vừa nhận được.
+ *       Hệ thống sẽ xác thực OTP, lưu tín hiệu cầu cứu và trả về các điểm an toàn gần nhất.
  *     tags: [Safety]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -78,37 +74,62 @@ router.post("/sos/request", sosController.requestSOS);
  *             required:
  *               - lat
  *               - lon
- *               - email
  *               - otp
  *             properties:
  *               lat:
  *                 type: number
+ *                 format: float
  *                 example: 18.3436
  *               lon:
  *                 type: number
+ *                 format: float
  *                 example: 105.9002
- *               email:
- *                 type: string
- *                 example: "user@example.com"
  *               otp:
  *                 type: string
  *                 example: "123456"
  *               message:
  *                 type: string
- *                 example: "Tôi bị mắc kẹt, nước dâng cao."
- *               userId:
+ *                 example: "Nước ngập quá đầu người, cần cano gấp!"
+ *               phone:
  *                 type: string
- *                 example: "user_123"
+ *                 example: "0912345678"
  *     responses:
  *       200:
- *         description: Xác thực OTP thành công và tín hiệu SOS đã được gửi
+ *         description: SOS thành công
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 your_location:
+ *                   type: object
+ *                   properties:
+ *                     lat:
+ *                       type: number
+ *                     lon:
+ *                       type: number
+ *                 nearest_safe_zones:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       name:
+ *                         type: string
+ *                       type:
+ *                         type: string
+ *                       distance:
+ *                         type: string
  *       400:
- *         description: Dữ liệu không hợp lệ hoặc OTP sai / hết hạn
+ *         description: OTP sai hoặc hết hạn
+ *       401:
+ *         description: Token không hợp lệ
  *       500:
- *         description: Lỗi máy chủ
+ *         description: Lỗi Server
  */
+router.post('/sos', verifyToken, sosController.handleSOS);
 
-router.post('/sos', sosController.handleSOS);
 
 /**
  * @swagger
