@@ -7,6 +7,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
+
 import { useEffect, useState } from "react";
 import {
   AlertTriangle,
@@ -29,10 +30,12 @@ import {
 } from "recharts";
 import axios from "axios";
 
+// Import Components & Services
 import DashboardMap from "../../components/manager/DashboardMap";
 import weatherService from "../../services/weatherService";
 import reportService from "../../services/reportService";
 
+// Dữ liệu giả cho biểu đồ Diễn biến (Vì chưa có API lịch sử mưa)
 const MOCK_HISTORY_RAIN = [
   { time: "01:00", mm: 2 },
   { time: "05:00", mm: 15 },
@@ -43,6 +46,7 @@ const MOCK_HISTORY_RAIN = [
 ];
 
 const ManagerDashboardPage = () => {
+  // --- 1. KHAI BÁO STATE ---
   const [weatherStations, setWeatherStations] = useState([]);
   const [reports, setReports] = useState([]);
   const [geoJsonData, setGeoJsonData] = useState(null);
@@ -54,7 +58,7 @@ const ManagerDashboardPage = () => {
     maxRainValue: 0,
   });
 
-  // 1. API Thời tiết
+  // --- 2. GỌI API THỜI TIẾT (Real-time) ---
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -62,9 +66,9 @@ const ManagerDashboardPage = () => {
         if (Array.isArray(data)) {
           setWeatherStations(data);
 
+          // Tính toán thống kê
           const totalRain = data.reduce((sum, s) => sum + s.rain, 0);
           const warnings = data.filter((s) => s.status !== "SAFE").length;
-
           const maxStation = data.reduce(
             (prev, current) => (prev.rain > current.rain ? prev : current),
             { name: "---", rain: 0 }
@@ -84,26 +88,28 @@ const ManagerDashboardPage = () => {
     };
 
     fetchData();
-    const interval = setInterval(fetchData, 30000);
+    const interval = setInterval(fetchData, 30000); // Cập nhật mỗi 30s
     return () => clearInterval(interval);
   }, []);
 
-  // 2. API báo cáo
+  // --- 3. GỌI API BÁO CÁO (Reports) ---
   useEffect(() => {
     const fetchReports = async () => {
       try {
         const data = await reportService.getAllReports();
-        if (Array.isArray(data)) setReports(data);
+        if (Array.isArray(data)) {
+          setReports(data);
+        }
       } catch (error) {
         console.error("Lỗi lấy báo cáo:", error);
       }
     };
     fetchReports();
-    const interval = setInterval(fetchReports, 10000);
+    const interval = setInterval(fetchReports, 10000); // Cập nhật mỗi 10s
     return () => clearInterval(interval);
   }, []);
 
-  // 3. API Bản đồ
+  // --- 4. GỌI API BẢN ĐỒ (Ranh giới) ---
   useEffect(() => {
     const fetchBoundary = async () => {
       try {
@@ -127,9 +133,13 @@ const ManagerDashboardPage = () => {
     fetchBoundary();
   }, []);
 
+  // --- 5. LOGIC LỌC DỮ LIỆU CHO BẢN ĐỒ ---
+  // Chỉ hiển thị những báo cáo có status là VERIFIED lên bản đồ chính
+  const verifiedReports = reports.filter((r) => r.status === "VERIFIED");
+
   return (
     <div className="space-y-6 text-slate-100 font-sans pb-20">
-      {/* === THẺ CHỈ SỐ === */}
+      {/* === 1. THẺ CHỈ SỐ === */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           title="Lượng mưa TB"
@@ -151,7 +161,7 @@ const ManagerDashboardPage = () => {
         />
         <StatCard
           title="SOS Khẩn cấp"
-          value="0"
+          value="0" // Giữ nguyên 0 chờ API SOS
           unit="Tin"
           icon={BellRing}
           color="bg-orange-500"
@@ -172,21 +182,21 @@ const ManagerDashboardPage = () => {
         />
       </div>
 
-      {/* === BẢN ĐỒ + 2 BIỂU ĐỒ === */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* BẢN ĐỒ */}
-        <div className="lg:col-span-8 h-[350px] md:h-[400px] lg:h-[450px] xl:h-[480px]">
+      {/* === 2. BẢN ĐỒ + 2 BIỂU ĐỒ (Cấu trúc Grid chuẩn để không vỡ) === */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[500px]">
+        {/* Bản đồ (Chiếm 8 phần) */}
+        <div className="lg:col-span-8 h-full min-h-0">
           <DashboardMap
             stations={weatherStations}
-            reports={reports}
+            reports={verifiedReports} // 👈 Chỉ truyền báo cáo ĐÃ DUYỆT
             geoJsonData={geoJsonData}
           />
         </div>
 
-        {/* 2 BIỂU ĐỒ */}
-        <div className="lg:col-span-4 flex flex-col gap-4 h-full">
-          {/* BIỂU ĐỒ 1 — CHIỀU CAO NHỎ LẠI */}
-          <div className="bg-slate-800/50 border border-slate-700 p-4 rounded-2xl flex flex-col h-[220px]">
+        {/* Cột phải (Chiếm 4 phần) */}
+        <div className="lg:col-span-4 flex flex-col gap-4 h-full min-h-0">
+          {/* Biểu đồ 1 */}
+          <div className="h-1/2 bg-slate-800/50 border border-slate-700 p-4 rounded-2xl flex flex-col min-h-0">
             <h3 className="font-bold text-sm mb-2 text-slate-300">
               Diễn biến Mưa
             </h3>
@@ -231,19 +241,23 @@ const ManagerDashboardPage = () => {
             </div>
           </div>
 
-          {/* BIỂU ĐỒ 2 — GIỚI HẠN CHIỀU CAO + SCROLL */}
-          <div className="bg-slate-800/50 border border-slate-700 p-4 rounded-2xl flex flex-col h-[260px]">
+          {/* Biểu đồ 2 (Có Scroll) */}
+          <div className="h-1/2 bg-slate-800/50 border border-slate-700 p-4 rounded-2xl flex flex-col min-h-0 overflow-hidden">
             <h3 className="font-bold text-sm mb-2 text-slate-300">
               Mưa hiện tại (mm)
             </h3>
-
-            <div className="flex-1 overflow-y-auto custom-scrollbar">
-              <div style={{ height: 45 * 7 + "px" }}>
+            <div className="flex-1 w-full overflow-y-auto custom-scrollbar pr-2">
+              <div
+                style={{
+                  height: Math.max(200, weatherStations.length * 45) + "px",
+                }}
+              >
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
                     data={weatherStations}
                     layout="vertical"
-                    margin={{ left: 0, right: 10 }}
+                    margin={{ left: 0, right: 10, top: 0, bottom: 0 }}
+                    barCategoryGap={8}
                   >
                     <XAxis type="number" hide />
                     <YAxis
@@ -270,11 +284,11 @@ const ManagerDashboardPage = () => {
                       dataKey="rain"
                       radius={[0, 4, 4, 0]}
                       barSize={10}
-                      background={{ fill: "rgba(255,255,255,0.05)" }}
+                      background={{ fill: "rgba(255, 255, 255, 0.05)" }}
                     >
                       {weatherStations.map((entry, index) => (
                         <Cell
-                          key={index}
+                          key={`cell-${index}`}
                           fill={entry.rain > 50 ? "#ef4444" : "#06b6d4"}
                         />
                       ))}
@@ -287,10 +301,11 @@ const ManagerDashboardPage = () => {
         </div>
       </div>
 
-      {/* === BẢNG DỮ LIỆU === */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        <div className="lg:col-span-3 bg-slate-800/50 border border-slate-700 rounded-2xl overflow-hidden flex flex-col h-[390px]">
-          <div className="p-5 border-b border-slate-700 flex justify-between items-center">
+      {/* === 3. BẢNG DỮ LIỆU + HƯỚNG DẪN === */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 h-[400px]">
+        {/* Bảng dữ liệu (Chiếm 3 phần) */}
+        <div className="lg:col-span-3 bg-slate-800/50 border border-slate-700 rounded-2xl overflow-hidden flex flex-col h-full">
+          <div className="p-5 border-b border-slate-700 flex justify-between items-center shrink-0">
             <div className="flex items-center gap-3">
               <ActivityIcon className="text-emerald-500" size={20} />
               <h3 className="font-bold text-lg text-white">
@@ -303,8 +318,8 @@ const ManagerDashboardPage = () => {
           </div>
 
           <div className="flex-1 overflow-auto custom-scrollbar">
-            <table className="w-full text-left text-sm relative">
-              <thead className="bg-slate-900 text-slate-400 uppercase text-xs sticky top-0 z-10">
+            <table className="w-full text-left text-sm relative border-collapse">
+              <thead className="bg-slate-900 text-slate-400 uppercase text-xs sticky top-0 z-10 shadow-lg ring-1 ring-slate-700/50">
                 <tr>
                   <th className="px-6 py-4 bg-slate-900">Tên trạm</th>
                   <th className="px-6 py-4 bg-slate-900">Lượng mưa</th>
@@ -318,8 +333,13 @@ const ManagerDashboardPage = () => {
               <tbody className="divide-y divide-slate-700">
                 {weatherStations.length > 0 ? (
                   weatherStations.map((station) => (
-                    <tr key={station.id} className="hover:bg-slate-700/30">
-                      <td className="px-6 py-4">{station.name}</td>
+                    <tr
+                      key={station.id}
+                      className="hover:bg-slate-700/30 transition-colors"
+                    >
+                      <td className="px-6 py-4 font-medium text-white">
+                        {station.name}
+                      </td>
                       <td className="px-6 py-4 text-blue-400 font-bold">
                         {station.rain} mm
                       </td>
@@ -357,8 +377,8 @@ const ManagerDashboardPage = () => {
           </div>
         </div>
 
-        {/* HƯỚNG DẪN CHỈ SỐ — THU NHỎ LẠI */}
-        <div className="lg:col-span-1 h-[260px]">
+        {/* Hướng dẫn chỉ số (Chiếm 1 phần) */}
+        <div className="lg:col-span-1 h-full">
           <div className="bg-slate-800/50 border border-slate-700 p-5 rounded-2xl h-full overflow-y-auto custom-scrollbar">
             <h3 className="font-bold text-sm text-slate-300 mb-4">
               Hướng dẫn Chỉ số
@@ -385,7 +405,7 @@ const ManagerDashboardPage = () => {
   );
 };
 
-// === COMPONENTS ===
+// === SUB-COMPONENTS ===
 const StatCard = ({
   title,
   value,
@@ -396,7 +416,7 @@ const StatCard = ({
   trendUp,
   isLongText,
 }) => (
-  <div className="bg-slate-800/50 border border-slate-700 p-5 rounded-2xl flex flex-col h-full">
+  <div className="bg-slate-800/50 border border-slate-700 p-5 rounded-2xl flex flex-col h-full hover:border-slate-600 transition-colors">
     <div className="flex justify-between items-start mb-4">
       <div className={`p-3 rounded-xl ${color} bg-opacity-20 text-white`}>
         <Icon size={24} />
@@ -413,8 +433,8 @@ const StatCard = ({
     <div className="flex items-baseline gap-2 mt-1">
       <h4
         className={`${
-          isLongText ? "text-lg md:text-xl truncate" : "text-2xl"
-        } font-bold`}
+          isLongText ? "text-lg md:text-xl truncate w-full" : "text-2xl"
+        } font-bold text-white`}
         title={value}
       >
         {value}
