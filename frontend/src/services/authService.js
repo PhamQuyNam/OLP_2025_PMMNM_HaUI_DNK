@@ -10,6 +10,9 @@
 import axiosClient from "./axiosClient";
 
 const authService = {
+  requestOtp(email) {
+    return axiosClient.post("/auth/request-otp", { email });
+  },
   // 1. Đăng ký
   // Link thực: http://localhost:8000/api/auth/register
   register(data) {
