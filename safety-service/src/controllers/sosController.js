@@ -1,3 +1,12 @@
+/**
+ * Copyright 2025 HaUI.DNK
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ */
 const pool = require('../config/db');
 
 // Xử lý tín hiệu SOS
@@ -17,7 +26,7 @@ const handleSOS = async (req, res) => {
         `;
         await pool.query(insertQuery, [userId || 'anonymous', phone, message, lon, lat]);
 
-        // BƯỚC 2: Tìm các điểm an toàn trong bán kính 10km (10000m)
+        // BƯỚC 2: Tìm các điểm an toàn trong bán kính 3km (3000m)
         // Sắp xếp theo khoảng cách gần nhất
         const findZoneQuery = `
             SELECT
@@ -32,7 +41,7 @@ const handleSOS = async (req, res) => {
             WHERE ST_DWithin(
                 geom,
                 ST_SetSRID(ST_Point($1, $2), 4326),
-                0.09 -- ~10km (1 độ = 111km)
+                0.027 -- ~3km (1 độ = 111km)
             )
             ORDER BY geom <-> ST_SetSRID(ST_Point($1, $2), 4326);
         `;

@@ -1,3 +1,7 @@
+# Copyright 2025 HaUI.DNK
+# Licensed under the Apache License, Version 2.0
+# http://www.apache.org/licenses/LICENSE-2.0
+
 import requests
 import json
 import psycopg2
@@ -38,7 +42,7 @@ def map_osm_type(tags):
     return 'SHELTER'
 
 
-def fetch_osm_shelters(lat, lon, radius=5000):
+def fetch_osm_shelters(lat, lon, radius=2000):
     # ... (Giữ nguyên logic gọi API Overpass) ...
     overpass_url = "http://overpass-api.de/api/interpreter"
 
