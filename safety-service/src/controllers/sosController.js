@@ -8,16 +8,60 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
 const pool = require('../config/db');
+const { sendEmailOTP } = require("../controllers/email");
+
+const requestSOS = async (req, res) => {
+    const { email } = req.body;
+
+    if (!email) return res.status(400).json({ message: "Thiếu email" });
+
+    try {
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+        // Lưu OTP 2 phút
+        await pool.query(`
+            INSERT INTO otp_codes (email, otp, expires_at)
+            VALUES ($1, $2, NOW() + INTERVAL '2 minutes')
+        `, [email, otp]);
+
+        // Gửi email
+        try {
+            await sendEmailOTP(email, otp);
+        } catch (mailErr) {
+            console.log("Email error:", mailErr);
+        }
+
+        res.json({ message: "OTP Email đã gửi", otp_sent: "true" });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Lỗi tạo OTP" });
+    }
+};
 
 // Xử lý tín hiệu SOS
 const handleSOS = async (req, res) => {
-    const { lat, lon, phone, message, userId } = req.body;
+    const { lat, lon, phone, email, message, userId, otp } = req.body;
 
     if (!lat || !lon) {
         return res.status(400).json({ message: "Thiếu tọa độ GPS" });
     }
 
     try {
+         // Kiểm tra OTP
+        const check = await pool.query(`
+            SELECT * FROM otp_codes
+            WHERE email = $1 AND otp = $2 AND expires_at > NOW()
+            LIMIT 1
+        `, [email, otp]);
+
+        if (check.rows.length === 0) {
+            return res.status(400).json({ message: "OTP sai hoặc đã hết hạn" });
+        }
+
+        // Xóa OTP sau xác thực
+        await pool.query(`DELETE FROM otp_codes WHERE email = $1`, [email]);
+
         // BƯỚC 1: Lưu tín hiệu SOS vào Database (Để Manager biết)
         const insertQuery = `
             INSERT INTO sos_signals (user_id, phone, message, geom, status)
@@ -102,4 +146,4 @@ const resolveSOS = async (req, res) => {
     }
 };
 
-module.exports = { handleSOS, getActiveSOS, resolveSOS };
+module.exports = { handleSOS, getActiveSOS, resolveSOS, requestSOS };
