@@ -10,10 +10,10 @@ const transporter = nodemailer.createTransport({
 
 const sendEmailOTP = async (to, otp) => {
     const mailOptions = {
-        from: `"Hệ thống SOS" <${process.env.EMAIL_USER}>`,
+        from: `"Hệ thống xác thực" <${process.env.EMAIL_USER}>`,
         to,
-        subject: "Mã xác thực SOS",
-        text: `Mã xác thực SOS của bạn là: ${otp}. Hiệu lực 2 phút.`,
+        subject: "Mã xác thực OTP",
+        text: `Mã xác thực OTP của bạn là: ${otp}. Hiệu lực 2 phút.`,
         html: `<h3>Mã xác thực đăng ký</h3>
                <p>Mã OTP của bạn là: <b style="font-size: 24px; color: blue;">${otp}</b></p>
                <p>Mã này có hiệu lực trong <b>2 phút</b>.</p>`
