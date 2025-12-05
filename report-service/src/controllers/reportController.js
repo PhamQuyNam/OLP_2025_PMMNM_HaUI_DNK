@@ -111,4 +111,62 @@ const deleteReport = async (req, res) => {
     }
 };
 
-module.exports = { createReport, getReports, deleteReport };
+const updateReportStatus = async (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    // 1. Validate dữ liệu đầu vào
+    const validStatuses = ['PENDING', 'VERIFIED', 'REJECTED'];
+    if (!status || !validStatuses.includes(status)) {
+        return res.status(400).json({
+            message: "Trạng thái không hợp lệ. Chỉ chấp nhận: PENDING, VERIFIED, REJECTED"
+        });
+    }
+
+    try {
+        // 2. Gọi Orion để cập nhật thuộc tính 'status'
+        // Dùng API PATCH: /ngsi-ld/v1/entities/{entityId}/attrs/{attrName}
+        const orionUrl = `${process.env.ORION_HOST}/ngsi-ld/v1/entities/${id}/attrs/status`;
+
+        // Payload chuẩn NGSI-LD cho việc update Property
+        const updatePayload = {
+            type: "Property",
+            value: status
+        };
+
+        await axios.patch(orionUrl, updatePayload, {
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        // 3. Lấy lại dữ liệu chi tiết để trả về (cho đúng format yêu cầu)
+        // Gọi lại Orion lấy entity đó ra
+        const getUrl = `${process.env.ORION_HOST}/ngsi-ld/v1/entities/${id}?options=keyValues`;
+        const response = await axios.get(getUrl);
+        const item = response.data;
+
+        // Format dữ liệu trả về
+        const result = {
+            id: item.id,
+            type: item.reportType,
+            desc: item.description,
+            status: item.status,
+            phone: item.reporterPhone,
+            time: item.reportTime,
+            lat: item.location?.coordinates[1],
+            lon: item.location?.coordinates[0]
+        };
+
+        res.json(result);
+
+    } catch (error) {
+        console.error("Lỗi cập nhật report:", error.message);
+
+        if (error.response && error.response.status === 404) {
+            return res.status(404).json({ message: "Báo cáo không tồn tại" });
+        }
+
+        res.status(500).json({ message: "Lỗi hệ thống khi cập nhật trạng thái" });
+    }
+};
+
+module.exports = { createReport, getReports, deleteReport, updateReportStatus };
