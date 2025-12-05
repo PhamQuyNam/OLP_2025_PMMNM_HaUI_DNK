@@ -15,6 +15,8 @@ services:
     depends_on:
       - auth-service
       - orion
+      - alert-service # <-- FIX: THÊM PHỤ THUỘC VÀO ALERT SERVICE
+      - ingestion-service
 
   auth-service:
     build: ./auth-service
@@ -35,7 +37,8 @@ services:
       - main-network
     env_file: .env
     depends_on:
-      - postgis
+      postgis:
+        condition: service_healthy 
     environment:
       - PORT=3002
 
@@ -87,17 +90,12 @@ services:
     networks:
       - main-network
     environment:
-      # Cấu hình danh sách các file JSON từ các service con
-      # URL phải dùng tên container (nội bộ docker)
-        URLS: "[
-        { url: 'http://localhost:8000/api/auth/api-docs.json', name: '1. Auth Service' },
-        { url: 'http://localhost:8000/api/map/api-docs.json', name: '2. Map API (Data Service)' },
-        { url: 'http://localhost:8000/api/weather/api-docs.json', name: '3. Weather Service' },
-        { url: 'http://localhost:8000/api/reports/api-docs.json', name: '4. Report Service' },
-        { url: 'http://localhost:8000/api/alerts/api-docs.json', name: '5. Alert Service' },
-        { url: 'http://localhost:8000/api/safety/api-docs.json', name: '6. Safety Service' },
-        ]"
-
+      URLS: '[{"url":"http://auth-service:8000/api-docs.json","name":"1. Auth Service"},
+              {"url":"http://map-service:8000/api-docs.json","name":"2. Map API (Data Service)"},
+              {"url":"http://weather-service:8000/api-docs.json","name":"3. Weather Service"},
+              {"url":"http://reports-service:8000/api-docs.json","name":"4. Report Service"},
+              {"url":"http://alerts-service:8000/api-docs.json","name":"5. Alert Service"},
+              {"url":"http://safety-service:8000/api-docs.json","name":"6. Safety Service"}]'
   # 1. MongoDB - Cơ sở dữ liệu cho Orion Context Broker
   mongo:
     image: mongo:4.4
@@ -157,8 +155,12 @@ services:
     networks:
       - main-network
     depends_on:
-      - orion       # Chờ Orion khởi động
-      - postgis  # Chờ PostGIS khởi động (Sử dụng tên service chính xác của bạn)
+      orion:
+        condition: service_started
+      data-service: 
+        condition: service_started 
+      postgis:
+        condition: service_healthy
     environment:
       # Cấu hình Orion
      - ORION_HOST=http://orion:1026
