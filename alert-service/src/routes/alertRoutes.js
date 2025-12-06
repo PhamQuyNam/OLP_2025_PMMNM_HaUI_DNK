@@ -10,6 +10,12 @@
 const express = require('express');
 const router = express.Router();
 const alertController = require('../controllers/alertController');
+// const alertRoutes = require('./routes/alertRoutes'); // Giả sử tên file là alerts.js
+
+// // 🔴 LỖI 404 XẢY RA KHI DÒNG NÀY KHÔNG KHỚP VỚI ĐƯỜNG DẪN MÀ PYTHON GỌI (/api/alerts)
+
+// // ✅ DÒNG CẦN THIẾT ĐỂ KHẮC PHỤC LỖI:
+// app.use('/api/alerts', alertRoutes);
 
 /**
  * @swagger

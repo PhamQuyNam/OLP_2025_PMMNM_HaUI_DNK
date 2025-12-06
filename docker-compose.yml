@@ -13,10 +13,15 @@ services:
     networks:
       - main-network
     depends_on:
-      - auth-service
-      - orion
-      - alert-service # <-- FIX: THÊM PHỤ THUỘC VÀO ALERT SERVICE
-      - ingestion-service
+      alert-service:
+        condition: service_started 
+      auth-service:
+        condition: service_started
+      data-service:
+        condition: service_started
+      orion:
+        condition: service_started
+      
 
   auth-service:
     build: ./auth-service
@@ -179,7 +184,7 @@ services:
      - POSTGRES_USER=${POSTGRES_USER}
      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD} 
     # Cấu hình Alert Service API
-     - ALERT_SERVICE_API=http://alert-service:3005/api/alerts/internal/receive 
+     - ALERT_SERVICE_API=http://alert-service:3005
     # Cấu hình Port cho Uvicorn server nội bộ
      - PORT=3000
 
