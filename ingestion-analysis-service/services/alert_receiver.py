@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 ALERT_SERVICE_URL = os.environ.get("ALERT_SERVICE_API", "http://alert-service:3005") 
 
 # Đường dẫn API đã được xác định là chính xác theo Swagger
-RECEIVE_ENDPOINT = f"{ALERT_SERVICE_URL}/api/alerts/internal/receive"
+RECEIVE_ENDPOINT = f"{ALERT_SERVICE_URL}/internal/receive"
 
 def send_alert_to_receiver(station_data: dict):
     """

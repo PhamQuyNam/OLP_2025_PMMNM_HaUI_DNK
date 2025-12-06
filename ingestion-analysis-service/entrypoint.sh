@@ -43,7 +43,6 @@ python -m etl.etl_import_stations # <-- Dùng -m
 
 echo "➡️ B4: Chạy ETL: Profiling (Tính toán Slope, TWI, ISR...)"
 python -m etl.etl_station_profiling # <-- Dùng -m
-
 echo "✅ HOÀN TẤT ETL DỮ LIỆU TĨNH!"
 
 echo "========================================================="
