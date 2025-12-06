@@ -17,7 +17,7 @@ const swaggerSpecs = require('./config/swagger');
 const app = express();
 app.use(cors());
 app.use(express.json());
-app.use('/api/alerts', alertRoutes);
+app.use('/', alertRoutes);
 
 app.get('/api-docs.json', (req, res) => {
     res.setHeader('Content-Type', 'application/json');
