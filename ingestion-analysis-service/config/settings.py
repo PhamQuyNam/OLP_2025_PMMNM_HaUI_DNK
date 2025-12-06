@@ -111,6 +111,28 @@ MONITORING_STATIONS = [
 
     {"id":"urn:ngsi-ld:RainObserved:TN_20_BaXuyen","name":"Trạm 20: Bá Xuyên","lat":21.4862,"lon":105.8350,"desc":"Khu dân cư + công nghiệp"},
 
+    {"id":"urn:ngsi-ld:RainObserved:HCM_01_Quan1","name":"Trạm 1: Quận 1","lat":10.7798,"lon":106.6990,"desc":"Khu trung tâm Q1"},
+    {"id":"urn:ngsi-ld:RainObserved:HCM_02_Quan4","name":"Trạm 2: Quận 4","lat":10.7520,"lon":106.7130,"desc":"Khu Quận 4 – ven sông"},
+    {"id":"urn:ngsi-ld:RainObserved:HCM_03_Quan5","name":"Trạm 3: Quận 5","lat":10.7481,"lon":106.6663,"desc":"Khu Chợ Lớn – Quận 5"},
+    {"id":"urn:ngsi-ld:RainObserved:HCM_04_Quan7","name":"Trạm 4: Quận 7","lat":10.7320,"lon":106.7210,"desc":"Khu đô thị Phú Mỹ Hưng"},
+    {"id":"urn:ngsi-ld:RainObserved:HCM_05_Quan9","name":"Trạm 5: TP Thủ Đức – Q9","lat":10.8459,"lon":106.8283,"desc":"Khu công nghệ cao Q9"},
+    {"id":"urn:ngsi-ld:RainObserved:HCM_06_QuanThuDuc","name":"Trạm 6: TP Thủ Đức – Q.Thủ Đức","lat":10.8693,"lon":106.7585,"desc":"Khu làng ĐH Thủ Đức"},
+    {"id":"urn:ngsi-ld:RainObserved:HCM_07_Quan12","name":"Trạm 7: Quận 12","lat":10.8682,"lon":106.6297,"desc":"Khu An Sương – Q12"},
+    {"id":"urn:ngsi-ld:RainObserved:HCM_08_GoVap","name":"Trạm 8: Gò Vấp","lat":10.8412,"lon":106.6624,"desc":"Khu Lotte Mart Gò Vấp"},
+    {"id":"urn:ngsi-ld:RainObserved:HCM_09_BinhThanh","name":"Trạm 9: Bình Thạnh","lat":10.8089,"lon":106.7094,"desc":"Khu Thanh Đa – Bình Thạnh"},
+    {"id":"urn:ngsi-ld:RainObserved:HCM_10_PhuNhuan","name":"Trạm 10: Phú Nhuận","lat":10.8008,"lon":106.6803,"desc":"Khu Phan Xích Long – Phú Nhuận"},
+
+    {"id":"urn:ngsi-ld:RainObserved:HCM_11_TanBinh","name":"Trạm 11: Tân Bình","lat":10.8000,"lon":106.6350,"desc":"Khu sân bay Tân Sơn Nhất"},
+    {"id":"urn:ngsi-ld:RainObserved:HCM_12_SonKy","name":"Trạm 12: Sơn Kỳ (Tân Phú Tây)","lat":10.7840,"lon":106.6060,"desc":"Khu Sơn Kỳ – Tây Tân Phú"},
+    {"id":"urn:ngsi-ld:RainObserved:HCM_13_BinhTan","name":"Trạm 13: Bình Tân","lat":10.7650,"lon":106.6030,"desc":"Khu Aeon Mall Bình Tân"},
+    {"id":"urn:ngsi-ld:RainObserved:HCM_14_BinhChanh","name":"Trạm 14: Bình Chánh","lat":10.7400,"lon":106.5600,"desc":"Khu Tân Kiên – Bình Chánh"},
+    {"id":"urn:ngsi-ld:RainObserved:HCM_15_HocMon","name":"Trạm 15: Hóc Môn","lat":10.8850,"lon":106.5900,"desc":"Khu trung tâm Hóc Môn"},
+    {"id":"urn:ngsi-ld:RainObserved:HCM_16_CuChi","name":"Trạm 16: Củ Chi","lat":10.9730,"lon":106.4950,"desc":"Khu địa đạo Củ Chi"},
+    {"id":"urn:ngsi-ld:RainObserved:HCM_17_NhaBe","name":"Trạm 17: Nhà Bè","lat":10.6920,"lon":106.7350,"desc":"Khu Phú Xuân – Nhà Bè"},
+    {"id":"urn:ngsi-ld:RainObserved:HCM_18_CanGio","name":"Trạm 18: Cần Giờ","lat":10.5260,"lon":106.7910,"desc":"Khu rừng ngập mặn Cần Giờ"},
+    {"id":"urn:ngsi-ld:RainObserved:HCM_19_ThuDucLinhTrung","name":"Trạm 19: Thủ Đức – Linh Trung","lat":10.8750,"lon":106.7730,"desc":"Khu Linh Trung – Thủ Đức"},
+    {"id":"urn:ngsi-ld:RainObserved:HCM_20_Quan10","name":"Trạm 20: Quận 10","lat":10.7703,"lon":106.6683,"desc":"Khu cư xá Bắc Hải – Q10"},
+
 ]
 
 # Cấu hình Database PostGIS (Để tra cứu vùng nguy cơ)
