@@ -60,6 +60,7 @@ const alertController = require('../controllers/alertController');
  */
 router.get('/', alertController.getPublicAlerts);
 
+
 /**
  * @swagger
  * /api/alerts/internal/receive:
@@ -105,6 +106,10 @@ router.get('/', alertController.getPublicAlerts);
  *                       type: number
  *                     lon:
  *                       type: number
+ *               estimated_toa_hours:
+ *                 type: number
+ *                 description: Thời gian dự kiến lũ/chảy tràn đến dân cư (giờ)
+ *                 example: 3.2
  *     responses:
  *       200:
  *         description: Đã tiếp nhận hoặc cập nhật cảnh báo thành công
@@ -112,6 +117,7 @@ router.get('/', alertController.getPublicAlerts);
  *         description: Lỗi lưu Database
  */
 router.post('/internal/receive', alertController.receiveAlert);
+
 
 /**
  * @swagger
@@ -142,6 +148,7 @@ router.post('/internal/receive', alertController.receiveAlert);
  *         description: Lỗi Server
  */
 router.get('/pending', alertController.getPendingAlerts);
+
 
 /**
  * @swagger
@@ -177,7 +184,7 @@ router.get('/pending', alertController.getPendingAlerts);
  *                 example: "Nguyen Van A"
  *     responses:
  *       200:
- *         description: Đã xử lý thành công (Nếu Approve thì đã gửi SMS và đẩy lên Map)
+ *         description: Đã xử lý thành công
  *       400:
  *         description: Trạng thái không hợp lệ
  *       404:
@@ -186,5 +193,6 @@ router.get('/pending', alertController.getPendingAlerts);
  *         description: Lỗi Server
  */
 router.patch('/:id/review', alertController.approveAlert);
+
 
 module.exports = router;

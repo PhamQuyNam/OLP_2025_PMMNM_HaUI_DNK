@@ -66,6 +66,7 @@ const createTables = async () => {
                 -- Nhóm Địa hình
                 elevation FLOAT DEFAULT 0,      -- Độ cao (m)
                 slope FLOAT DEFAULT 0,          -- Độ dốc (%)
+                twi FLOAT DEFAULT 0,            -- <-- BỔ SUNG: Chỉ số Độ ẩm Địa hình (TWI)
 
                 -- Nhóm Thủy văn
                 dist_to_river FLOAT DEFAULT 0,  -- Khoảng cách đến sông (m)
