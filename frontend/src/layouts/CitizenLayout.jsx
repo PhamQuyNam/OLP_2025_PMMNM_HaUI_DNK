@@ -10,6 +10,7 @@
 import { useState, useRef, useEffect } from "react"; // Thêm hook
 import { Outlet, NavLink, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext"; // Import AuthContext
+import SOSModal from "../components/citizen/SOSModal";
 import {
   Map,
   Bell,
@@ -25,7 +26,7 @@ const CitizenLayout = () => {
   const { user, logout } = useAuth(); // Lấy thông tin user và hàm logout
   const [isMenuOpen, setIsMenuOpen] = useState(false); // State đóng mở menu
   const menuRef = useRef(null); // Ref để phát hiện click ra ngoài
-
+  const [isSosOpen, setIsSosOpen] = useState(false);
   // Logic: Click ra ngoài thì đóng menu
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -39,6 +40,7 @@ const CitizenLayout = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans pb-20 md:pb-0">
+      <SOSModal isOpen={isSosOpen} onClose={() => setIsSosOpen(false)} />
       {/* === HEADER === */}
       <header className="fixed top-0 w-full z-40 bg-white/90 backdrop-blur-md border-b border-slate-200 px-4 md:px-8 py-3 flex items-center justify-between shadow-sm transition-all">
         <div className="flex items-center gap-4 md:gap-8">
@@ -72,7 +74,10 @@ const CitizenLayout = () => {
           />
 
           {/* Nút SOS Desktop */}
-          <button className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-full font-bold shadow-lg shadow-red-200 flex items-center gap-2 transition-transform hover:scale-105 ml-4">
+          <button
+            onClick={() => setIsSosOpen(true)} // <-- Gắn sự kiện mở Modal
+            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-full font-bold shadow-lg shadow-red-200 flex items-center gap-2 transition-transform hover:scale-105 ml-4 animate-pulse"
+          >
             <ShieldAlert size={18} /> SOS Khẩn cấp
           </button>
 
@@ -158,7 +163,10 @@ const CitizenLayout = () => {
 
           {/* Nút SOS */}
           <div className="relative -top-5">
-            <button className="w-14 h-14 bg-gradient-to-br from-red-500 to-red-600 rounded-full shadow-xl shadow-red-500/40 flex items-center justify-center border-4 border-slate-50 text-white animate-bounce-slow active:scale-95 transition-transform">
+            <button
+              onClick={() => setIsSosOpen(true)} // <-- Gắn sự kiện mở Modal
+              className="w-14 h-14 bg-gradient-to-br from-red-500 to-red-600 rounded-full shadow-xl shadow-red-500/40 flex items-center justify-center border-4 border-slate-50 text-white animate-bounce-slow active:scale-95 transition-transform"
+            >
               <span className="font-black text-xs tracking-tighter">SOS</span>
             </button>
           </div>

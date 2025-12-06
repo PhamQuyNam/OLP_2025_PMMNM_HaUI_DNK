@@ -7,14 +7,14 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
-const pool = require('../config/db');
+const pool = require("../config/db");
 
 const createSafetyTables = async () => {
-    try {
-        await pool.query("CREATE EXTENSION IF NOT EXISTS postgis;");
+  try {
+    await pool.query("CREATE EXTENSION IF NOT EXISTS postgis;");
 
-        // 1. Bảng Điểm Cứu Trợ An Toàn (Static)
-        await pool.query(`
+    // 1. Bảng Điểm Cứu Trợ An Toàn (Static)
+    await pool.query(`
             CREATE TABLE IF NOT EXISTS safe_zones (
                 id SERIAL PRIMARY KEY,
                 name VARCHAR(100),
@@ -23,23 +23,23 @@ const createSafetyTables = async () => {
             );
         `);
 
-        // 2. Bảng Tín hiệu SOS (Dynamic)
-        await pool.query(`
+    // 2. Bảng Tín hiệu SOS (Dynamic)
+    await pool.query(`
             CREATE TABLE IF NOT EXISTS sos_signals (
-                tatus VARCHAR(20) DEFAULT 'ACTIVE', -- ACTIVE, RESCUED
-                gid SERIAL PRIMARY KEY,
-                user_id VARCHAR(50), -- Có thể null nếu khách vãng lai
+                id SERIAL PRIMARY KEY,
+                user_id VARCHAR(50),
                 phone VARCHAR(20),
                 message TEXT,
-                seom GEOMETRY(Point, 4326),
+                status VARCHAR(20) DEFAULT 'ACTIVE', -- ACTIVE, RESCUED
+                geom GEOMETRY(Point, 4326),
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
         `);
 
-        console.log("✅ Safety Service: Tables ready.");
-    } catch (err) {
-        console.error("❌ Error creating safety tables:", err.message);
-    }
+    console.log("✅ Safety Service: Tables ready.");
+  } catch (err) {
+    console.error("❌ Error creating safety tables:", err.message);
+  }
 };
 
 module.exports = { createSafetyTables };
