@@ -29,13 +29,15 @@ import {
   Cell,
 } from "recharts";
 import axios from "axios";
+import { toast } from "react-toastify"; // Import Toast
 
 // Import Components & Services
 import DashboardMap from "../../components/manager/DashboardMap";
 import weatherService from "../../services/weatherService";
 import reportService from "../../services/reportService";
+import safetyService from "../../services/safetyService"; // Import Safety Service
 
-// Dữ liệu giả cho biểu đồ Diễn biến (Vì chưa có API lịch sử mưa)
+// Dữ liệu giả cho biểu đồ Diễn biến
 const MOCK_HISTORY_RAIN = [
   { time: "01:00", mm: 2 },
   { time: "05:00", mm: 15 },
@@ -49,6 +51,7 @@ const ManagerDashboardPage = () => {
   // --- 1. KHAI BÁO STATE ---
   const [weatherStations, setWeatherStations] = useState([]);
   const [reports, setReports] = useState([]);
+  const [sosSignals, setSosSignals] = useState([]); // State chứa SOS
   const [geoJsonData, setGeoJsonData] = useState(null);
 
   const [stats, setStats] = useState({
@@ -109,7 +112,25 @@ const ManagerDashboardPage = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // --- 4. GỌI API BẢN ĐỒ (Ranh giới) ---
+  // --- 4. GỌI API SOS (Safety Service) ---
+  useEffect(() => {
+    const fetchSos = async () => {
+      try {
+        const data = await safetyService.getActiveSOS();
+        if (Array.isArray(data)) {
+          setSosSignals(data);
+        }
+      } catch (error) {
+        console.error("Lỗi tải SOS:", error);
+      }
+    };
+
+    fetchSos();
+    const interval = setInterval(fetchSos, 5000); // Quét SOS liên tục 5s (Ưu tiên cao)
+    return () => clearInterval(interval);
+  }, []);
+
+  // --- 5. GỌI API BẢN ĐỒ (Ranh giới) ---
   useEffect(() => {
     const fetchBoundary = async () => {
       try {
@@ -133,8 +154,23 @@ const ManagerDashboardPage = () => {
     fetchBoundary();
   }, []);
 
-  // --- 5. LOGIC LỌC DỮ LIỆU CHO BẢN ĐỒ ---
-  // Chỉ hiển thị những báo cáo có status là VERIFIED lên bản đồ chính
+  // --- 6. HÀM XỬ LÝ: XÁC NHẬN ĐÃ CỨU HỘ ---
+  const handleResolveSos = async (id) => {
+    if (!window.confirm("Xác nhận đã giải cứu nạn nhân này thành công?"))
+      return;
+
+    try {
+      await safetyService.resolveSOS(id);
+      // Optimistic UI Update: Xóa ngay khỏi list hiển thị
+      setSosSignals((prev) => prev.filter((s) => s.id !== id));
+      toast.success("Đã cập nhật trạng thái: GIẢI CỨU THÀNH CÔNG!");
+    } catch (error) {
+      console.error(error);
+      toast.error("Lỗi khi cập nhật trạng thái.");
+    }
+  };
+
+  // --- 7. LOGIC LỌC DỮ LIỆU ---
   const verifiedReports = reports.filter((r) => r.status === "VERIFIED");
 
   return (
@@ -159,15 +195,21 @@ const ManagerDashboardPage = () => {
           trend={stats.warningCount > 0 ? "Đang mưa" : "Tạnh ráo"}
           trendUp={stats.warningCount > 0}
         />
+
+        {/* CARD SOS KHẨN CẤP (Cập nhật số lượng thật) */}
         <StatCard
           title="SOS Khẩn cấp"
-          value="0" // Giữ nguyên 0 chờ API SOS
-          unit="Tin"
+          value={sosSignals.length}
+          unit="Ca"
           icon={BellRing}
-          color="bg-orange-500"
-          trend="Đang chờ tích hợp"
+          // Nếu có SOS -> Màu đỏ nhấp nháy, Không có -> Màu cam tĩnh
+          color={
+            sosSignals.length > 0 ? "bg-red-600 animate-pulse" : "bg-orange-500"
+          }
+          trend={sosSignals.length > 0 ? "CẦN ỨNG CỨU NGAY" : "Bình thường"}
           trendUp={false}
         />
+
         <StatCard
           title={
             stats.maxRainValue > 0 ? "Mưa lớn nhất tại" : "Tình hình chung"
@@ -182,20 +224,23 @@ const ManagerDashboardPage = () => {
         />
       </div>
 
-      {/* === 2. BẢN ĐỒ + 2 BIỂU ĐỒ (Cấu trúc Grid chuẩn để không vỡ) === */}
+      {/* === 2. BẢN ĐỒ + 2 BIỂU ĐỒ === */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[500px]">
         {/* Bản đồ (Chiếm 8 phần) */}
         <div className="lg:col-span-8 h-full min-h-0">
           <DashboardMap
             stations={weatherStations}
-            reports={verifiedReports} // 👈 Chỉ truyền báo cáo ĐÃ DUYỆT
+            reports={verifiedReports}
             geoJsonData={geoJsonData}
+            // 👇 Props mới cho SOS
+            sosSignals={sosSignals}
+            onResolveSos={handleResolveSos}
           />
         </div>
 
         {/* Cột phải (Chiếm 4 phần) */}
         <div className="lg:col-span-4 flex flex-col gap-4 h-full min-h-0">
-          {/* Biểu đồ 1 */}
+          {/* Biểu đồ 1: Diễn biến Mưa */}
           <div className="h-1/2 bg-slate-800/50 border border-slate-700 p-4 rounded-2xl flex flex-col min-h-0">
             <h3 className="font-bold text-sm mb-2 text-slate-300">
               Diễn biến Mưa
@@ -241,7 +286,7 @@ const ManagerDashboardPage = () => {
             </div>
           </div>
 
-          {/* Biểu đồ 2 (Có Scroll) */}
+          {/* Biểu đồ 2: Mưa hiện tại (Scroll) */}
           <div className="h-1/2 bg-slate-800/50 border border-slate-700 p-4 rounded-2xl flex flex-col min-h-0 overflow-hidden">
             <h3 className="font-bold text-sm mb-2 text-slate-300">
               Mưa hiện tại (mm)
@@ -303,7 +348,7 @@ const ManagerDashboardPage = () => {
 
       {/* === 3. BẢNG DỮ LIỆU + HƯỚNG DẪN === */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 h-[400px]">
-        {/* Bảng dữ liệu (Chiếm 3 phần) */}
+        {/* Bảng dữ liệu */}
         <div className="lg:col-span-3 bg-slate-800/50 border border-slate-700 rounded-2xl overflow-hidden flex flex-col h-full">
           <div className="p-5 border-b border-slate-700 flex justify-between items-center shrink-0">
             <div className="flex items-center gap-3">
@@ -377,7 +422,7 @@ const ManagerDashboardPage = () => {
           </div>
         </div>
 
-        {/* Hướng dẫn chỉ số (Chiếm 1 phần) */}
+        {/* Hướng dẫn chỉ số */}
         <div className="lg:col-span-1 h-full">
           <div className="bg-slate-800/50 border border-slate-700 p-5 rounded-2xl h-full overflow-y-auto custom-scrollbar">
             <h3 className="font-bold text-sm text-slate-300 mb-4">
