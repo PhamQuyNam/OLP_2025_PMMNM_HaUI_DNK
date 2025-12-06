@@ -165,4 +165,37 @@ router.get('/sos/active', sosController.getActiveSOS);
 
 router.patch('/sos/:id/resolve', sosController.resolveSOS);
 
+/**
+ * @swagger
+ * /api/safety/sos/all:
+ *   get:
+ *     summary: Lấy toàn bộ lịch sử tín hiệu SOS (Dành cho Manager)
+ *     description: Trả về tất cả các tín hiệu cứu hộ (bao gồm cả ACTIVE và RESCUED) để phục vụ thống kê báo cáo.
+ *     tags: [Safety]
+ *     responses:
+ *       200:
+ *         description: Danh sách đầy đủ
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: integer
+ *                   status:
+ *                     type: string
+ *                     enum: [ACTIVE, RESCUED]
+ *                   phone:
+ *                     type: string
+ *                   lat:
+ *                     type: number
+ *                   lon:
+ *                     type: number
+ *       500:
+ *         description: Lỗi Server
+ */
+router.get('/sos/all', sosController.getAllSOS);
+
 module.exports = router;
