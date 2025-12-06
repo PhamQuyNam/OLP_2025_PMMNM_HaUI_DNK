@@ -30,7 +30,7 @@ import {
 } from "recharts";
 import axios from "axios";
 import { toast } from "react-toastify"; // Import Toast
-
+import { useLocation } from "react-router-dom";
 // Import Components & Services
 import DashboardMap from "../../components/manager/DashboardMap";
 import weatherService from "../../services/weatherService";
@@ -53,7 +53,8 @@ const ManagerDashboardPage = () => {
   const [reports, setReports] = useState([]);
   const [sosSignals, setSosSignals] = useState([]); // State chứa SOS
   const [geoJsonData, setGeoJsonData] = useState(null);
-
+  const location = useLocation(); // Lấy thông tin điều hướng
+  const [flyToCoords, setFlyToCoords] = useState(null); // State để điều khiển map bay
   const [stats, setStats] = useState({
     avgRain: 0,
     warningCount: 0,
@@ -153,7 +154,19 @@ const ManagerDashboardPage = () => {
     };
     fetchBoundary();
   }, []);
+  useEffect(() => {
+    // Kiểm tra xem có dữ liệu focusLocation được gửi tới không
+    if (location.state?.focusLocation) {
+      const coords = location.state.focusLocation;
+      console.log("Nhận lệnh bay tới:", coords);
 
+      // Set tọa độ để Map bay tới
+      setFlyToCoords(coords);
+
+      // (Tùy chọn) Xóa state sau khi dùng để tránh F5 lại bay tiếp
+      window.history.replaceState({}, document.title);
+    }
+  }, [location]);
   // --- 6. HÀM XỬ LÝ: XÁC NHẬN ĐÃ CỨU HỘ ---
   const handleResolveSos = async (id) => {
     if (!window.confirm("Xác nhận đã giải cứu nạn nhân này thành công?"))
@@ -235,6 +248,7 @@ const ManagerDashboardPage = () => {
             // 👇 Props mới cho SOS
             sosSignals={sosSignals}
             onResolveSos={handleResolveSos}
+            flyToLocation={flyToCoords}
           />
         </div>
 
