@@ -24,7 +24,7 @@ app.get('/api-docs.json', (req, res) => {
     res.send(swaggerSpecs);
 });
 
-app.use('/', alertRoutes);
+
 
 const PORT = process.env.PORT || 3005; // Chạy cổng 3005
 

@@ -12,54 +12,77 @@ const axios = require('axios');
 ORION_HOST = process.env.ORION_HOST || 'http://orion:1026'
 
 const receiveAlert = async (req, res) => {
-    const { station_name, risk_type, level, rain_value, description, impacted_points } = req.body;
+    // 1. 🟢 BỔ SUNG estimated_toa_hours VÀO PHẦN NHẬN DỮ LIỆU TỪ PYTHON
+    const { 
+        station_name, 
+        risk_type, 
+        level, 
+        rain_value, 
+        description, 
+        impacted_points, 
+        estimated_toa_hours // 👈 ĐÃ THÊM
+    } = req.body;
 
     try {
         // 1. KIỂM TRA TRÙNG LẶP (De-duplication Logic)
-        // Tìm xem trạm này, loại rủi ro này, có cái nào đang "sống" trong 2 tiếng qua không?
         const checkDuplicateQuery = `
             SELECT id, alert_level, rain_value FROM active_alerts
             WHERE station_name = $1
             AND risk_type = $2
-            AND status IN ('PENDING', 'APPROVED') -- Chỉ chặn nếu nó đang chờ hoặc đang hiện hành
-            AND created_at >= NOW() - INTERVAL '1 HOURS' -- Trong vòng 1 tiếng (Khoảng "spam")
+            AND status IN ('PENDING', 'APPROVED')
+            AND created_at >= NOW() - INTERVAL '1 HOURS'
         `;
-
         const existing = await pool.query(checkDuplicateQuery, [station_name, risk_type]);
 
         // 2. XỬ LÝ LOGIC TRÙNG LẶP
         if (existing.rows.length > 0) {
             const oldAlert = existing.rows[0];
 
-            // TRƯỜNG HỢP A: Mức độ nguy hiểm TĂNG LÊN (Ví dụ: HIGH -> CRITICAL)
-            // Thì ta CẬP NHẬT cảnh báo cũ để Manager chú ý, nhưng không tạo dòng mới.
+            // TRƯỜNG HỢP A: Mức độ nguy hiểm TĂNG LÊN
             if (level === 'CRITICAL' && oldAlert.alert_level !== 'CRITICAL') {
                 const updateQuery = `
                     UPDATE active_alerts
-                    SET alert_level = $1, rain_value = $2, description = $3, created_at = NOW(), status = 'PENDING'
-                    WHERE id = $4
+                    SET alert_level = $1, rain_value = $2, description = $3, 
+                    estimated_toa_hours = $4, created_at = NOW(), status = 'PENDING' 
+                    WHERE id = $5
                 `;
-                // Reset status về PENDING để Manager phải duyệt lại mức độ nghiêm trọng mới
-                await pool.query(updateQuery, [level, rain_value, description, oldAlert.id]);
+                // ⚠️ CHÚ Ý: Các tham số đã được sắp xếp lại
+                await pool.query(updateQuery, [
+                    level, 
+                    rain_value, 
+                    description, 
+                    estimated_toa_hours, 
+                    oldAlert.id          
+                ]);
                 return res.json({ message: "Đã nâng cấp mức độ cảnh báo cũ (Level Up)." });
             }
 
-            // TRƯỜNG HỢP B: Mức độ vẫn thế (Hoặc giảm đi) -> BỎ QUA (SPAM SUPPRESSION)
-            // Chỉ cập nhật nhẹ lượng mưa mới nhất vào DB để theo dõi, không đổi trạng thái
+            // TRƯỜNG HỢP B: BỎ QUA (Chỉ cập nhật lượng mưa/TOA mới nhất)
             const updateRainQuery = `
-                UPDATE active_alerts SET rain_value = $1 WHERE id = $2
+                UPDATE active_alerts 
+                SET rain_value = $1, estimated_toa_hours = $2 
+                WHERE id = $3
             `;
-            await pool.query(updateRainQuery, [rain_value, oldAlert.id]);
+            await pool.query(updateRainQuery, [rain_value, estimated_toa_hours, oldAlert.id]); // 👈 THÊM estimated_toa_hours
 
-            return res.json({ message: "Cảnh báo trùng lặp. Đã cập nhật số liệu mưa mới, không tạo alert mới." });
+            return res.json({ message: "Cảnh báo trùng lặp. Đã cập nhật số liệu mới, không tạo alert mới." });
         }
 
         // 3. NẾU KHÔNG TRÙNG -> TẠO MỚI NHƯ BÌNH THƯỜNG
         const insertQuery = `
-            INSERT INTO active_alerts (station_name, risk_type, alert_level, rain_value, description, impacted_points)
-            VALUES ($1, $2, $3, $4, $5, $6) RETURNING id;
+            INSERT INTO active_alerts 
+            (station_name, risk_type, alert_level, rain_value, description, impacted_points, estimated_toa_hours) 
+            VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id; 
         `;
-        await pool.query(insertQuery, [station_name, risk_type, level, rain_value, description, JSON.stringify(impacted_points)]);
+        await pool.query(insertQuery, [
+            station_name, 
+            risk_type, 
+            level, 
+            rain_value, 
+            description, 
+            JSON.stringify(impacted_points),
+            estimated_toa_hours // 👈 THAM SỐ $7
+        ]);
 
         res.json({ message: "Đã tiếp nhận cảnh báo mới, chờ duyệt." });
 

@@ -70,22 +70,17 @@ def calculate_toa(slope_perc, distance_km):
 
 # --- 3. HÀM GỬI CẢNH BÁO (ĐÃ ĐIỀU CHỈNH) ---
 def trigger_alert(alert_data):
-    # ⚠️ Payload TƯƠNG THÍCH với API của Node.js Alert Service (/api/alerts/internal/receive)
+    # ⚠️ Payload TƯƠNG THÍCH với API của Node.js Alert Service
     payload = {
-        # Tên trạm (required)
         "station_name": alert_data.get('station_name'),
-        # Loại rủi ro (required, enum: FLOOD/LANDSLIDE)
         "risk_type": alert_data.get('risk_type'), 
-        # Mức độ (required, enum: MEDIUM/HIGH/CRITICAL)
         "level": alert_data.get('level'), 
-        # Giá trị mưa (required)
-        "rain_value": alert_data.get('rain_24h'), # Dùng mưa 24h làm giá trị chính
-        # Mô tả (optional)
+        "rain_value": alert_data.get('rain_24h'),
         "description": alert_data.get('description'), 
-        # Danh sách điểm bị ảnh hưởng (optional)
-        "impacted_points": alert_data.get('impacted_points') 
+        "impacted_points": alert_data.get('impacted_points'),
         
-        # ⚠️ BỎ CÁC TRƯỜNG KHÔNG CẦN THIẾT: title, rain_1h, flood_score, context_data, toa
+        # 🟢 THÊM estimated_toa_hours VÀO PAYLOAD GỬI ĐI
+        "estimated_toa_hours": alert_data.get('estimated_toa_hours') 
     }
     
     try:
