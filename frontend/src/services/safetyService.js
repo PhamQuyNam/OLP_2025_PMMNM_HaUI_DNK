@@ -17,6 +17,9 @@ const safetyService = {
   getActiveSOS() {
     return axiosClient.get("/safety/sos/active");
   },
+  getAllSOS() {
+    return axiosClient.get("/safety/sos/all");
+  },
   // PATCH: /safety/sos/:id/resolve
   resolveSOS(id) {
     return axiosClient.patch(`/safety/sos/${id}/resolve`, {

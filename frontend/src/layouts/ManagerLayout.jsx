@@ -68,9 +68,9 @@ const ManagerLayout = () => {
             label="Danh sách Báo cáo" // Đổi tên
           />
           <ManagerNavItem
-            to="/manager/incidents"
+            to="/manager/sos"
             icon={BellRing}
-            label="Sự cố & Cảnh báo"
+            label="Quản lý Cứu hộ"
           />
 
           <p className="px-3 text-xs font-bold text-slate-500 uppercase tracking-wider mt-6 mb-2">
