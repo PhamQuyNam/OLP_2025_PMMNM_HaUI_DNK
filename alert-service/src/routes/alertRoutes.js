@@ -44,6 +44,10 @@ const alertController = require('../controllers/alertController');
  *                     enum: [MEDIUM, HIGH, CRITICAL]
  *                   description:
  *                     type: string
+ *                   estimated_toa_hours:
+ *                     type: number
+ *                     format: float
+ *                     example: 2.5
  *                   impacted_points:
  *                     type: array
  *                     items:
@@ -66,7 +70,7 @@ router.get('/', alertController.getPublicAlerts);
  * /api/alerts/internal/receive:
  *   post:
  *     summary: Nhận cảnh báo từ hệ thống phân tích (Internal Only)
- *     description: API này dành riêng cho Python Analysis Service gọi sang. Không dành cho người dùng.
+ *     description: API này dành riêng cho Python Analysis Service gọi sang.
  *     tags: [Alerts]
  *     requestBody:
  *       required: true
@@ -82,7 +86,6 @@ router.get('/', alertController.getPublicAlerts);
  *             properties:
  *               station_name:
  *                 type: string
- *                 example: "Trạm Hương Sơn"
  *               risk_type:
  *                 type: string
  *                 enum: [LANDSLIDE, FLOOD]
@@ -91,12 +94,14 @@ router.get('/', alertController.getPublicAlerts);
  *                 enum: [MEDIUM, HIGH, CRITICAL]
  *               rain_value:
  *                 type: number
- *                 example: 120.5
+ *               estimated_toa_hours:
+ *                 type: number
+ *                 format: float
+ *                 example: 1.5
  *               description:
  *                 type: string
  *               impacted_points:
  *                 type: array
- *                 description: Danh sách các điểm bị ảnh hưởng
  *                 items:
  *                   type: object
  *                   properties:
@@ -106,10 +111,6 @@ router.get('/', alertController.getPublicAlerts);
  *                       type: number
  *                     lon:
  *                       type: number
- *               estimated_toa_hours:
- *                 type: number
- *                 description: Thời gian dự kiến lũ/chảy tràn đến dân cư (giờ)
- *                 example: 3.2
  *     responses:
  *       200:
  *         description: Đã tiếp nhận hoặc cập nhật cảnh báo thành công
@@ -141,6 +142,13 @@ router.post('/internal/receive', alertController.receiveAlert);
  *                     type: integer
  *                   station_name:
  *                     type: string
+ *                   alert_level:
+ *                     type: string
+ *                   rain_value:
+ *                     type: number
+ *                   estimated_toa_hours:
+ *                     type: number
+ *                     format: float
  *                   created_at:
  *                     type: string
  *                     format: date-time
@@ -178,7 +186,6 @@ router.get('/pending', alertController.getPendingAlerts);
  *               status:
  *                 type: string
  *                 enum: [APPROVED, REJECTED]
- *                 description: APPROVED để phát cảnh báo, REJECTED để hủy.
  *               managerName:
  *                 type: string
  *                 example: "Nguyen Van A"

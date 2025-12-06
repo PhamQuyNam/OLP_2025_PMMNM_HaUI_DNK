@@ -15,7 +15,7 @@ from services.alert_receiver import send_alert_to_receiver
 # Loại bỏ: from services.weather_service import fetch_realtime_data (Không cần)
 
 # Cấu hình
-ALERT_SERVICE_API = os.getenv('ALERT_SERVICE_API', 'http://alert-service:3005/api/alerts/internal/receive')
+ALERT_SERVICE_API = os.getenv('ALERT_SERVICE_API', 'http://alert-service:3005/internal/receive')
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 THRESHOLDS_FILE = os.path.join(BASE_DIR, 'config', 'thresholds.json')
 
@@ -166,8 +166,10 @@ def analyze_rain_risk(rain_data, lat, lon, station_name, station_id):
     if final_score >= MAX_TOTAL_SCORE * 0.8:
         final_level = "CRITICAL"
     elif final_score >= MAX_TOTAL_SCORE * 0.6:
+        final_level = "VERY HIGH"
+    elif final_score >= MAX_TOTAL_SCORE * 0.4:
         final_level = "HIGH"
-    elif final_score >= MAX_TOTAL_SCORE * 0.3:
+    elif final_score >= MAX_TOTAL_SCORE * 0.2:
         final_level = "MEDIUM"
     else:
         final_level = "LOW"
