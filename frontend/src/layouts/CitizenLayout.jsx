@@ -41,21 +41,20 @@ const CitizenLayout = () => {
     <div className="min-h-screen bg-slate-50 font-sans pb-20 md:pb-0">
       {/* === HEADER === */}
       <header className="fixed top-0 w-full z-40 bg-white/90 backdrop-blur-md border-b border-slate-200 px-4 md:px-8 py-3 flex items-center justify-between shadow-sm transition-all">
-        {/* Logo & Brand */}
-        <Link
-          to="/"
-          className="flex items-center gap-2 hover:opacity-80 transition-opacity"
-        >
-          <div className="bg-primary/10 p-1.5 rounded-lg">
-            <ShieldAlert className="text-primary w-6 h-6" />
-          </div>
-          <h1 className="font-bold text-slate-800 text-lg hidden md:block">
-            Viet Resilience Hub
-          </h1>
-          <h1 className="font-bold text-slate-800 text-lg md:hidden">
-            VRH Citizen
-          </h1>
-        </Link>
+        <div className="flex items-center gap-4 md:gap-8">
+          {/* --- NÚT VỀ TRANG CHỦ (Mới thêm vào) --- */}
+          <Link
+            to="/"
+            className="flex items-center gap-2 px-3 py-1.5 text-sm font-bold text-slate-600 border border-slate-200 rounded-lg hover:text-red-600 hover:bg-red-50 hover:border-red-200 transition-all duration-300 group bg-white shadow-sm"
+          >
+            <span>Trang chủ</span>
+            {/* Icon LogOut: Mũi tên đi ra */}
+            <LogOut
+              size={16}
+              className="transition-transform group-hover:translate-x-1"
+            />
+          </Link>
+        </div>
 
         {/* === MENU DESKTOP === */}
         <div className="hidden md:flex items-center gap-6">
