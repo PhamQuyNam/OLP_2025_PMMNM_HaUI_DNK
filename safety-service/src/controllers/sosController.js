@@ -164,4 +164,28 @@ const resolveSOS = async (req, res) => {
     }
 };
 
-module.exports = { handleSOS, getActiveSOS, resolveSOS, requestSOS };
+// 4. [MỚI] Manager lấy TOÀN BỘ lịch sử SOS (Cả đang chờ và đã cứu)
+const getAllSOS = async (req, res) => {
+    try {
+        const query = `
+            SELECT
+                id,
+                user_id,
+                phone,
+                message,
+                status,       -- ACTIVE hoặc RESCUED
+                created_at,
+                ST_X(geom) as lon,
+                ST_Y(geom) as lat
+            FROM sos_signals
+            ORDER BY created_at DESC; -- Mới nhất lên đầu
+        `;
+        const result = await pool.query(query);
+        res.json(result.rows);
+    } catch (err) {
+        console.error("Lỗi lấy lịch sử SOS:", err);
+        res.status(500).json({ error: "Lỗi lấy dữ liệu SOS" });
+    }
+};
+
+module.exports = { handleSOS, getActiveSOS, resolveSOS, requestSOS, getAllSOS };
