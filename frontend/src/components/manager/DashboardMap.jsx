@@ -22,7 +22,15 @@ import {
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
-import { CloudRain, AlertTriangle, Phone, Clock } from "lucide-react";
+import {
+  CloudRain,
+  AlertTriangle,
+  Phone,
+  Clock,
+  MapPin,
+  CheckCircle,
+  ShieldAlert,
+} from "lucide-react";
 
 // Fix icon marker mặc định của Leaflet
 import icon from "leaflet/dist/images/marker-icon.png";
@@ -38,7 +46,22 @@ let DefaultIcon = L.icon({
 L.Marker.prototype.options.icon = DefaultIcon;
 
 const CENTER = [18.3436, 105.9002];
-
+// 👇 1. TẠO ICON SOS (RADAR EFFECT)
+const createSosIcon = () => {
+  return new L.DivIcon({
+    className: "bg-transparent",
+    html: `
+      <div class="relative flex items-center justify-center w-full h-full">
+        <div class="absolute w-16 h-16 bg-red-600/50 rounded-full animate-ping opacity-75"></div>
+        <div class="absolute w-8 h-8 bg-red-600/80 rounded-full animate-pulse shadow-[0_0_20px_rgba(220,38,38,1)]"></div>
+        <div class="relative z-10 w-5 h-5 bg-red-700 border-2 border-white rounded-full shadow-lg"></div>
+      </div>
+    `,
+    iconSize: [40, 40],
+    iconAnchor: [20, 20],
+    popupAnchor: [0, -20],
+  });
+};
 // --- 1. ICON TRẠM ĐO MƯA (Giữ nguyên) ---
 const createStationIcon = (color) => {
   let cssColor = "bg-emerald-500";
@@ -117,6 +140,8 @@ const MapController = ({ geoJsonData, flyToLocation }) => {
 const DashboardMap = ({
   stations = [],
   reports = [],
+  sosSignals = [], // Danh sách SOS
+  onResolveSos, // Hàm xử lý khi bấm nút "Đã cứu"
   geoJsonData,
   flyToLocation,
 }) => {
@@ -203,6 +228,65 @@ const DashboardMap = ({
                       <div className="text-[10px] font-normal text-slate-500 normal-case mt-1">
                         {report.desc || report.description}
                       </div>
+                    </div>
+                  </Popup>
+                </Marker>
+              ))}
+            </LayerGroup>
+          </LayersControl.Overlay>
+          {/* 👇 3. LAYER MỚI: TÍN HIỆU SOS (LUÔN CHECKED) */}
+          <LayersControl.Overlay checked name="🆘 Tín hiệu Cầu cứu (SOS)">
+            <LayerGroup>
+              {sosSignals.map((sos) => (
+                <Marker
+                  key={sos.id}
+                  position={[sos.lat, sos.lon]}
+                  icon={createSosIcon()}
+                  zIndexOffset={1000} // Luôn nổi lên trên cùng
+                >
+                  <Popup className="custom-popup-sos">
+                    {/* UI Popup Khẩn cấp */}
+                    <div className="min-w-[220px] font-sans">
+                      <div className="bg-red-600 -mx-4 -mt-3 p-3 flex items-center gap-2 text-white mb-3 rounded-t-lg">
+                        <div className="bg-white/20 p-1.5 rounded-full animate-pulse">
+                          <ShieldAlert size={16} />
+                        </div>
+                        <span className="font-bold text-sm uppercase tracking-wider">
+                          CẦU CỨU KHẨN CẤP
+                        </span>
+                      </div>
+
+                      <div className="space-y-2 mb-4">
+                        <div className="text-base font-bold text-slate-800 border-l-4 border-red-500 pl-2">
+                          "{sos.message}"
+                        </div>
+
+                        <div className="flex items-center gap-2 text-sm text-slate-600">
+                          <Phone size={14} className="text-red-500" />
+                          <a
+                            href={`tel:${sos.phone}`}
+                            className="font-bold hover:underline hover:text-red-600"
+                          >
+                            {sos.phone}
+                          </a>
+                        </div>
+
+                        <div className="flex items-center gap-2 text-xs text-slate-400">
+                          <Clock size={12} />
+                          <span>
+                            {new Date(sos.created_at).toLocaleString("vi-VN")}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Nút Xử lý ngay trong Popup */}
+                      <button
+                        onClick={() => onResolveSos(sos.id)}
+                        className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-lg text-xs flex items-center justify-center gap-2 shadow-md transition-all active:scale-95"
+                      >
+                        <CheckCircle size={14} />
+                        XÁC NHẬN ĐÃ CỨU
+                      </button>
                     </div>
                   </Popup>
                 </Marker>

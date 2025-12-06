@@ -9,7 +9,7 @@ services:
       dockerfile: Dockerfile
     container_name: api-gateway
     ports:
-      - "8000:80"  # Map cổng 8000 của máy bạn vào cổng 80 của Nginx
+      - "8000:80" # Map cổng 8000 của máy bạn vào cổng 80 của Nginx
     networks:
       - main-network
     depends_on:
@@ -81,7 +81,7 @@ services:
   safety-service:
     build: ./safety-service
     container_name: safety-service
-    networks: [ main-network ]
+    networks: [main-network]
     env_file: .env
     depends_on:
       postgis:
@@ -170,7 +170,7 @@ services:
 
   frontend:
     build:
-      context: ./frontend  # Trỏ đúng vào thư mục chứa code FE
+      context: ./frontend # Trỏ đúng vào thư mục chứa code FE
       dockerfile: Dockerfile
     container_name: frontend-app
     restart: always
