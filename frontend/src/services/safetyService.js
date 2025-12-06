@@ -13,6 +13,16 @@ const safetyService = {
     // data = { lat, lon, otp, message, phone }
     return axiosClient.post("/safety/sos", data);
   },
+  // GET: /safety/sos/active
+  getActiveSOS() {
+    return axiosClient.get("/safety/sos/active");
+  },
+  // PATCH: /safety/sos/:id/resolve
+  resolveSOS(id) {
+    return axiosClient.patch(`/safety/sos/${id}/resolve`, {
+      message: "Đã xác nhận cứu hộ thành công!",
+    });
+  },
 };
 
 export default safetyService;
