@@ -9,6 +9,7 @@
  */
 
 import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import {
   MapContainer,
   TileLayer,
@@ -19,6 +20,7 @@ import {
   LayersControl,
   LayerGroup,
   useMap,
+  Polyline,
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
@@ -138,12 +140,50 @@ const createReportIcon = (type) => {
     popupAnchor: [0, -34],
   });
 };
+const RoutingController = ({ userLocation, destination }) => {
+  const map = useMap();
 
+  useEffect(() => {
+    if (userLocation && destination) {
+      // Tính toán khung hình bao trọn cả 2 điểm (User & Đích)
+      const bounds = L.latLngBounds([userLocation, destination]);
+
+      // Zoom map để vừa khít 2 điểm này (padding để không bị sát lề)
+      map.fitBounds(bounds, { padding: [50, 50] });
+    }
+  }, [userLocation, destination, map]);
+
+  if (!userLocation || !destination) return null;
+
+  // Vẽ đường nét đứt màu xanh nối 2 điểm
+  return (
+    <Polyline
+      positions={[userLocation, destination]}
+      pathOptions={{
+        color: "#0ea5e9",
+        weight: 4,
+        dashArray: "10, 10",
+        opacity: 0.8,
+      }}
+    />
+  );
+};
 const CitizenHomePage = () => {
   const [geoJsonData, setGeoJsonData] = useState(null);
   const [weatherStations, setWeatherStations] = useState([]);
   const [reports, setReports] = useState([]);
+  const location = useLocation();
+  const { userLocation } = useAuth();
+  const [destination, setDestination] = useState(null);
+  useEffect(() => {
+    if (location.state?.destination) {
+      console.log("Nhận lệnh chỉ đường tới:", location.state.destination);
+      setDestination(location.state.destination);
 
+      // Clear state để tránh F5 lại bị
+      window.history.replaceState({}, document.title);
+    }
+  }, [location]);
   useEffect(() => {
     const fetchBoundary = async () => {
       try {
@@ -210,7 +250,35 @@ const CitizenHomePage = () => {
         zoomControl={false}
       >
         <LocationMarker />
-
+        <RoutingController
+          userLocation={userLocation}
+          destination={destination}
+        />
+        {destination && (
+          <Marker
+            position={destination}
+            icon={
+              new L.DivIcon({
+                className: "bg-transparent",
+                html: `<div class="relative">
+                      <div class="absolute -inset-3 bg-emerald-500/30 rounded-full animate-ping"></div>
+                      <div class="w-8 h-8 bg-emerald-500 border-2 border-white rounded-full flex items-center justify-center text-white shadow-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"/><circle cx="12" cy="10" r="3"/></svg>
+                      </div>
+                    </div>`,
+                iconSize: [32, 32],
+                iconAnchor: [16, 32],
+                popupAnchor: [0, -32],
+              })
+            }
+          >
+            <Popup autoClose={false} closeOnClick={false}>
+              <div className="text-center font-bold text-emerald-600">
+                ĐIỂM AN TOÀN <br /> (Di chuyển đến đây)
+              </div>
+            </Popup>
+          </Marker>
+        )}
         <LayersControl position="topright">
           <LayersControl.BaseLayer checked name="Bản đồ Tiêu chuẩn">
             <TileLayer

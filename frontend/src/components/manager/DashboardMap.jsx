@@ -119,18 +119,27 @@ const createReportIcon = (type) => {
 const MapController = ({ geoJsonData, flyToLocation }) => {
   const map = useMap();
 
-  // Zoom ranh giới ban đầu
+  // Logic 1: Xử lý Zoom toàn cảnh ranh giới
   useEffect(() => {
-    if (geoJsonData) {
-      const geoJsonLayer = L.geoJSON(geoJsonData);
-      map.fitBounds(geoJsonLayer.getBounds(), { padding: [20, 20] });
+    if (geoJsonData && !flyToLocation) {
+      try {
+        const geoJsonLayer = L.geoJSON(geoJsonData);
+        if (geoJsonLayer.getLayers().length > 0) {
+          map.fitBounds(geoJsonLayer.getBounds(), { padding: [20, 20] });
+        }
+      } catch (e) {
+        console.error("Lỗi parse GeoJSON:", e);
+      }
     }
-  }, [geoJsonData, map]);
+  }, [geoJsonData, map, flyToLocation]);
 
-  // Bay đến vị trí khi click
+  // Logic 2: Xử lý Bay đến điểm SOS (Ưu tiên cao nhất)
   useEffect(() => {
     if (flyToLocation) {
-      map.flyTo(flyToLocation, 16, { duration: 1.5 });
+      map.flyTo(flyToLocation, 16, {
+        duration: 2,
+        easeLinearity: 0.25,
+      });
     }
   }, [flyToLocation, map]);
 
