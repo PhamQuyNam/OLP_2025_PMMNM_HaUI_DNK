@@ -91,12 +91,17 @@ services:
     networks:
       - main-network
     environment:
-      URLS: '[{"url":"http://auth-service:8000/api-docs.json","name":"1. Auth Service"},
-              {"url":"http://map-service:8000/api-docs.json","name":"2. Map API (Data Service)"},
-              {"url":"http://weather-service:8000/api-docs.json","name":"3. Weather Service"},
-              {"url":"http://reports-service:8000/api-docs.json","name":"4. Report Service"},
-              {"url":"http://alerts-service:8000/api-docs.json","name":"5. Alert Service"},
-              {"url":"http://safety-service:8000/api-docs.json","name":"6. Safety Service"}]'
+      # Cấu hình danh sách các file JSON từ các service con
+      # URL phải dùng tên container (nội bộ docker)
+        URLS: > 
+          [
+            { "url": "http://localhost:8000/api/auth/api-docs.json", "name": "1. Auth Service" },
+            { "url": "http://localhost:8000/api/map/api-docs.json", "name": "2. Map API (Data Service) "},
+            { "url": "http://localhost:8000/api/weather/api-docs.json", "name": "3. Weather Service" },
+            { "url": "http://localhost:8000/api/reports/api-docs.json", "name": "4. Report Service" },
+            { "url": "http://localhost:8000/api/alerts/api-docs.json", "name": "5. Alert Service" },
+            { "url": "http://localhost:8000/api/safety/api-docs.json", "name": "6. Safety Service" }
+          ]
   # 1. MongoDB - Cơ sở dữ liệu cho Orion Context Broker
   mongo:
     image: mongo:4.4
