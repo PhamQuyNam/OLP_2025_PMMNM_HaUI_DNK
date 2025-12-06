@@ -21,8 +21,6 @@ services:
         condition: service_started
       orion:
         condition: service_started
-      
-
 
   auth-service:
     build: ./auth-service
@@ -44,10 +42,7 @@ services:
     env_file: .env
     depends_on:
       postgis:
-        condition: service_healthy 
-
-
-
+        condition: service_healthy
     environment:
       - PORT=3002
 
@@ -80,7 +75,6 @@ services:
     depends_on:
       postgis:
         condition: service_healthy
-
     environment:
       - PORT=3005
       - ORION_HOST=http://orion:1026
@@ -194,7 +188,6 @@ services:
      - ALERT_SERVICE_API=http://alert-service:3005
     # Cấu hình Port cho Uvicorn server nội bộ
      - PORT=3000
-
 
   frontend:
     build:
