@@ -22,17 +22,24 @@ def wait_for_orion():
         time.sleep(5)
 
 
-def update_rain_entity(station_info, rain_value):
+def update_rain_entity(station_info, rain_data): # <--- SỬA CHỮ KÝ HÀM
     """
     station_info: Dict chứa {id, name, lat, lon}
+    rain_data: Dict chứa {'current_rain_1h', 'rain_24h_acc'}
     """
     station_id = station_info['id']
+    observed_time = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ') # <-- Sử dụng datetime
 
     payload_patch = {
-        "rainVolume": {
+        "rainVolume1h": { 
             "type": "Property",
-            "value": rain_value,
-            "observedAt": datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
+            "value": rain_data.get('current_rain_1h', 0.0), 
+            "observedAt": observed_time
+        },
+        "rainVolume24h": { # Thêm thuộc tính mới
+            "type": "Property",
+            "value": rain_data.get('rain_24h_acc', 0.0), 
+            "observedAt": observed_time
         }
     }
 
@@ -41,23 +48,32 @@ def update_rain_entity(station_info, rain_value):
         resp = requests.patch(url, json=payload_patch, headers={'Content-Type': 'application/json'})
 
         if resp.status_code == 204:
-            print(f"🚀 [{station_info['name']}] Cập nhật mưa: {rain_value:.1f}mm")
+            # FIX: Cập nhật Log hiển thị
+            print(f"🚀 [{station_info['name']}] Cập nhật mưa: 1h={rain_data.get('current_rain_1h'):.1f}mm, 24h={rain_data.get('rain_24h_acc'):.1f}mm")
         elif resp.status_code == 404:
-            _create_entity(station_info, rain_value)  # Gọi hàm tạo mới
+            _create_entity(station_info, rain_data)
     except Exception as e:
         print(f"❌ Lỗi kết nối Orion ({station_info['name']}): {e}")
 
 
-def _create_entity(station_info, rain_value):
+def _create_entity(station_info, rain_data): # <--- SỬA CHỮ KÝ HÀM
     print(f"⚠️ Đang tạo trạm mới: {station_info['name']}...")
+    observed_time = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
+
     new_entity = {
         "id": station_info['id'],
         "type": "RainObserved",
-        "name": {"type": "Property", "value": station_info['name']}, # Thêm tên trạm cho dễ nhìn
-        "rainVolume": {
-            "type": "Property", "value": rain_value,
-            "observedAt": datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
+        "name": {"type": "Property", "value": station_info['name']},
+        
+        "rainVolume1h": {
+            "type": "Property", "value": rain_data.get('current_rain_1h', 0.0),
+            "observedAt": observed_time
         },
+        "rainVolume24h": { # Bổ sung 24h
+            "type": "Property", "value": rain_data.get('rain_24h_acc', 0.0),
+            "observedAt": observed_time
+        },
+        
         "location": {
             "type": "GeoProperty",
             "value": { "type": "Point", "coordinates": [station_info['lon'], station_info['lat']] }
