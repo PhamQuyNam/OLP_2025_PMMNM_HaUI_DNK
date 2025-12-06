@@ -10,12 +10,24 @@ import {
 } from "lucide-react";
 import { toast } from "react-toastify";
 import safetyService from "../../services/safetyService";
-
+import { useNavigate } from "react-router-dom";
 const ManagerSosPage = () => {
   const [sosList, setSosList] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState("ALL"); // Các trạng thái: ALL, ACTIVE, RESCUED
+  const navigate = useNavigate();
 
+  // Thêm hàm xử lý khi bấm vào vị trí
+  const handleLocateOnMap = (sos) => {
+    // Chuyển hướng về trang Dashboard (/manager)
+    // Và gửi kèm "state" chứa thông tin cần focus
+    navigate("/manager", {
+      state: {
+        focusLocation: [sos.lat, sos.lon],
+        focusId: sos.id,
+      },
+    });
+  };
   // Hàm tải dữ liệu lịch sử
   const fetchHistory = async () => {
     try {
@@ -195,22 +207,19 @@ const ManagerSosPage = () => {
                     </td>
 
                     {/* Cột 3: Nội dung & Vị trí */}
-                    <td className="px-6 py-4">
-                      <div className="bg-slate-900/50 p-3 rounded-lg border border-slate-700/50">
-                        <p className="text-white font-medium italic mb-2">
-                          "{sos.message}"
-                        </p>
-                        <a
-                          href={`https://www.google.com/maps/search/?api=1&query=${sos.lat},${sos.lon}`}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="inline-flex items-center gap-1.5 text-[10px] uppercase font-bold text-sky-400 hover:text-sky-300 transition-colors"
-                        >
-                          <MapPin size={12} />
-                          {Number(sos.lat).toFixed(5)},{" "}
-                          {Number(sos.lon).toFixed(5)}
-                        </a>
-                      </div>
+                    <td className="px-6 py-4 text-center">
+                      <button
+                        onClick={() => handleLocateOnMap(sos)}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 rounded-lg text-[10px] uppercase font-bold text-sky-400 hover:text-white hover:bg-sky-600 border border-slate-700 hover:border-sky-500 transition-all shadow-sm active:scale-95 group"
+                        title="Xem trên bản đồ tác chiến"
+                      >
+                        <MapPin
+                          size={12}
+                          className="group-hover:animate-bounce"
+                        />
+                        {Number(sos.lat).toFixed(5)},{" "}
+                        {Number(sos.lon).toFixed(5)}
+                      </button>
                     </td>
 
                     {/* Cột 4: Trạng thái (Đỏ/Xanh) */}
