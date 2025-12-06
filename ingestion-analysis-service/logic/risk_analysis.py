@@ -169,8 +169,6 @@ def analyze_rain_risk(rain_data, lat, lon, station_name, station_id):
         final_level = "VERY HIGH"
     elif final_score >= MAX_TOTAL_SCORE * 0.4:
         final_level = "HIGH"
-    elif final_score >= MAX_TOTAL_SCORE * 0.2:
-        final_level = "MEDIUM"
     else:
         final_level = "LOW"
     
