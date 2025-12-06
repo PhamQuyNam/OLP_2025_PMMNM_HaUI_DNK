@@ -11,6 +11,7 @@ import random
 # --- SỬA LỖI: Thay thế import fetch_static_data bằng get_static_metrics ---
 from services.geo_service import check_location_risk, get_impacted_points, get_nearest_waterway, get_static_metrics
 from services.environment_service import get_soil_moisture
+from services.alert_receiver import send_alert_to_receiver
 # Loại bỏ: from services.weather_service import fetch_realtime_data (Không cần)
 
 # Cấu hình
@@ -67,25 +68,32 @@ def calculate_toa(slope_perc, distance_km):
     return round(toa_minutes / 60.0, 1) # Trả về giờ
 
 
-# --- 3. HÀM GỬI CẢNH BÁO ---
+# --- 3. HÀM GỬI CẢNH BÁO (ĐÃ ĐIỀU CHỈNH) ---
 def trigger_alert(alert_data):
+    # ⚠️ Payload TƯƠNG THÍCH với API của Node.js Alert Service (/api/alerts/internal/receive)
     payload = {
-        "title": alert_data.get('title'),
-        "level": alert_data.get('level'),
-        "description": alert_data.get('description'),
+        # Tên trạm (required)
         "station_name": alert_data.get('station_name'),
-        "rain_value_1h": alert_data.get('rain_1h'),
-        "rain_value_24h": alert_data.get('rain_24h'),
-        "risk_type": alert_data.get('risk_type'),
-        "flood_risk_score": alert_data.get('flood_score'),
-        "landslide_risk_score": alert_data.get('landslide_score'),
-        "context_data": alert_data.get('context_data'),
-        "impacted_points": alert_data.get('impacted_points')
+        # Loại rủi ro (required, enum: FLOOD/LANDSLIDE)
+        "risk_type": alert_data.get('risk_type'), 
+        # Mức độ (required, enum: MEDIUM/HIGH/CRITICAL)
+        "level": alert_data.get('level'), 
+        # Giá trị mưa (required)
+        "rain_value": alert_data.get('rain_24h'), # Dùng mưa 24h làm giá trị chính
+        # Mô tả (optional)
+        "description": alert_data.get('description'), 
+        # Danh sách điểm bị ảnh hưởng (optional)
+        "impacted_points": alert_data.get('impacted_points') 
+        
+        # ⚠️ BỎ CÁC TRƯỜNG KHÔNG CẦN THIẾT: title, rain_1h, flood_score, context_data, toa
     }
     
     try:
-        requests.post(ALERT_SERVICE_API, json=payload, timeout=5)
-        print(f"⚡ [ALERT SENT] {alert_data['title']} (Level: {alert_data['level']})")
+        # ⚠️ GỌI HÀM GỬI CẢNH BÁO TỪ MODULE alert_receiver
+        # Bạn đã import send_alert_to_receiver, hãy sử dụng nó!
+        send_alert_to_receiver(payload)
+        
+        print(f"⚡ [ALERT SENT] {alert_data['title']} (Level: {alert_data['level']}) - Đã gửi qua alert_receiver.")
     except Exception as e:
         print(f"❌ Lỗi gửi cảnh báo: {e}")
 
@@ -93,125 +101,12 @@ def trigger_alert(alert_data):
 # --- 4. LOGIC PHÂN TÍCH CHÍNH (analyze_rain_risk) ---
 # FIX: Đã sửa tên hàm và tham số đầu vào cho analyze_rain_risk
 #==============hàm test======================================
-# def analyze_rain_risk(rain_data, lat, lon, station_name, station_id):
-#     config = load_thresholds()
-#     if not config: return
-
-#     # Lấy hồ sơ tĩnh của trạm
-#     static_metrics = get_static_metrics(station_id) 
-#     if not static_metrics: 
-#         print(f"❌ [{station_name}] Không tìm thấy hồ sơ tĩnh cho trạm.")
-#         return
-
-#     # Thu thập dữ liệu ĐỘNG
-#     rain_1h = rain_data.get('current_rain_1h', 0.0)
-#     rain_24h = rain_data.get('rain_24h_acc', 0.0)
-#     soil_moisture = get_soil_moisture(lat, lon) 
-    
-#     # Thu thập dữ liệu TĨNH
-#     elevation = static_metrics.get('elevation', 0.0)
-#     slope = static_metrics.get('slope', 0.0)
-#     twi = static_metrics.get('twi', 0.0)
-#     water_distance = static_metrics.get('water_distance', 9999.0)
-#     isr = static_metrics.get('isr', 0.0)
-
-#     # # LỌC SƠ BỘ: ĐÃ TẠM THỜI VÔ HIỆU HÓA ĐỂ BUỘC TẠO CẢNH BÁO (DEBUG/TEST MODE)
-#     # moderate_val = config.get('rainfall', {}).get('moderate', 10.0)
-#     # if rain_1h < moderate_val and rain_24h < 50: 
-#     #     print(f"✅ [{station_name}] Mưa nhẹ, không cần phân tích chi tiết.")
-#     #     return
-        
-#     print(f"🔍 [{station_name}] Mưa 1h={rain_1h:.1f}mm/h, 24h={rain_24h:.1f}mm -> Đang phân tích đa chiều...")
-
-
-#     # A. Phân tích Lũ lụt (Flood)
-#     # ... (phần logic tính điểm bên dưới không đổi) ...
-    
-#     flood_scores = []
-#     f_conf = config['flood_criteria']
-    
-#     # 1. Chấm điểm các tiêu chí Lũ lụt (7 tiêu chí)
-#     flood_scores.append(get_risk_score(rain_24h, f_conf['rain_24h']))
-#     flood_scores.append(get_risk_score(rain_1h, f_conf['rain_1h']))
-#     flood_scores.append(get_risk_score(elevation, f_conf['elevation']))
-#     flood_scores.append(get_risk_score(slope, f_conf['slope']))
-#     flood_scores.append(get_risk_score(twi, f_conf['twi'])) 
-#     flood_scores.append(get_risk_score(water_distance, f_conf['water_distance']))
-#     flood_scores.append(get_risk_score(isr, f_conf['isr']))
-    
-#     flood_score_total = sum(flood_scores)
-    
-    
-#     # B. Phân tích Sạt lở (Landslide)
-#     landslide_scores = []
-#     l_conf = config['landslide_criteria']
-    
-#     # 1. Chấm điểm tiêu chí Sạt lở (4 tiêu chí: Slope, Rain 24h, Elevation, TWI)
-#     landslide_scores.append(get_risk_score(rain_24h, l_conf['rain_24h']))
-#     landslide_scores.append(get_risk_score(elevation, l_conf['elevation']))
-#     landslide_scores.append(get_risk_score(slope, l_conf['slope']))
-#     landslide_scores.append(get_risk_score(twi, l_conf['twi'])) 
-    
-#     landslide_score_total = sum(landslide_scores)
-
-#     # C. RA QUYẾT ĐỊNH CUỐI CÙNG (Dựa trên tổng điểm)
-    
-#     final_score = max(flood_score_total, landslide_score_total)
-#     MAX_TOTAL_SCORE = f_conf.get('MAX_SCORE', 21)
-    
-    
-#     if final_score >= MAX_TOTAL_SCORE * 0.8:
-#         final_level = "CRITICAL"
-#     elif final_score >= MAX_TOTAL_SCORE * 0.6:
-#         final_level = "HIGH"
-#     elif final_score >= MAX_TOTAL_SCORE * 0.3:
-#         final_level = "MEDIUM"
-#     else:
-#         final_level = "LOW"
-    
-#     if final_level != "LOW":
-#         # Xác định loại thiên tai chính
-#         disaster_type = "FLOOD" if flood_score_total >= landslide_score_total else "LANDSLIDE"
-        
-#         # Tính toán ToA 
-#         dist_km = static_metrics.get('water_distance', 1000) / 1000.0
-#         slope_perc = static_metrics.get('slope', 1.0)
-#         toa = calculate_toa(slope_perc, dist_km)
-        
-#         # Lấy thông tin xung yếu
-#         impacted_points = get_impacted_points(lat, lon, radius_km=5)
-
-#         # Mô tả
-#         desc_text = f"Nguy cơ {final_level} {disaster_type} cao do tích lũy điểm rủi ro ({final_score} điểm)."
-#         desc_text += f" Mưa 24h: {rain_24h}mm. Địa hình dốc: {slope_perc}%."
-
-#         # Tạo payload cảnh báo chi tiết
-#         alert_payload = {
-#             "title": f"🚨 CẢNH BÁO {disaster_type}: {station_name}",
-#             "level": final_level,
-#             "description": desc_text,
-#             "station_name": station_name,
-#             "rain_1h": rain_1h,
-#             "rain_24h": rain_24h,
-#             "risk_type": disaster_type,
-#             "flood_score": flood_score_total,
-#             "landslide_score": landslide_score_total,
-#             "context_data": {"elevation": elevation, "twi": twi, "isr": isr, "soil_moisture": soil_moisture, "slope": slope},
-#             "impacted_points": impacted_points,
-#             "estimated_toa_hours": toa
-#         }
-        
-#         trigger_alert(alert_payload)
-#     else:
-#         print(f"👍 [{station_name}] Nguy cơ Thấp (Lũ: {flood_score_total}, Sạt lở: {landslide_score_total}).")
-
-#==============================================================================
 def analyze_rain_risk(rain_data, lat, lon, station_name, station_id):
     config = load_thresholds()
     if not config: return
 
     # Lấy hồ sơ tĩnh của trạm
-    static_metrics = get_static_metrics(station_id) # <-- GỌI HÀM ĐÃ SỬA
+    static_metrics = get_static_metrics(station_id) 
     if not static_metrics: 
         print(f"❌ [{station_name}] Không tìm thấy hồ sơ tĩnh cho trạm.")
         return
@@ -228,15 +123,18 @@ def analyze_rain_risk(rain_data, lat, lon, station_name, station_id):
     water_distance = static_metrics.get('water_distance', 9999.0)
     isr = static_metrics.get('isr', 0.0)
 
-    # Lọc sơ bộ 
-    if rain_1h < config.get('rainfall', {}).get('moderate', 10.0) and rain_24h < 50: 
-        print(f"✅ [{station_name}] Mưa nhẹ, không cần phân tích chi tiết.")
-        return
+    # # LỌC SƠ BỘ: ĐÃ TẠM THỜI VÔ HIỆU HÓA ĐỂ BUỘC TẠO CẢNH BÁO (DEBUG/TEST MODE)
+    # moderate_val = config.get('rainfall', {}).get('moderate', 10.0)
+    # if rain_1h < moderate_val and rain_24h < 50: 
+    #     print(f"✅ [{station_name}] Mưa nhẹ, không cần phân tích chi tiết.")
+    #     return
         
     print(f"🔍 [{station_name}] Mưa 1h={rain_1h:.1f}mm/h, 24h={rain_24h:.1f}mm -> Đang phân tích đa chiều...")
 
 
     # A. Phân tích Lũ lụt (Flood)
+    # ... (phần logic tính điểm bên dưới không đổi) ...
+    
     flood_scores = []
     f_conf = config['flood_criteria']
     
@@ -314,3 +212,113 @@ def analyze_rain_risk(rain_data, lat, lon, station_name, station_id):
         trigger_alert(alert_payload)
     else:
         print(f"👍 [{station_name}] Nguy cơ Thấp (Lũ: {flood_score_total}, Sạt lở: {landslide_score_total}).")
+
+#==============================================================================
+# def analyze_rain_risk(rain_data, lat, lon, station_name, station_id):
+#     config = load_thresholds()
+#     if not config: return
+
+#     # Lấy hồ sơ tĩnh của trạm
+#     static_metrics = get_static_metrics(station_id) # <-- GỌI HÀM ĐÃ SỬA
+#     if not static_metrics: 
+#         print(f"❌ [{station_name}] Không tìm thấy hồ sơ tĩnh cho trạm.")
+#         return
+
+#     # Thu thập dữ liệu ĐỘNG
+#     rain_1h = rain_data.get('current_rain_1h', 0.0)
+#     rain_24h = rain_data.get('rain_24h_acc', 0.0)
+#     soil_moisture = get_soil_moisture(lat, lon) 
+    
+#     # Thu thập dữ liệu TĨNH
+#     elevation = static_metrics.get('elevation', 0.0)
+#     slope = static_metrics.get('slope', 0.0)
+#     twi = static_metrics.get('twi', 0.0)
+#     water_distance = static_metrics.get('water_distance', 9999.0)
+#     isr = static_metrics.get('isr', 0.0)
+
+#     # Lọc sơ bộ 
+#     if rain_1h < config.get('rainfall', {}).get('moderate', 10.0) and rain_24h < 50: 
+#         print(f"✅ [{station_name}] Mưa nhẹ, không cần phân tích chi tiết.")
+#         return
+        
+#     print(f"🔍 [{station_name}] Mưa 1h={rain_1h:.1f}mm/h, 24h={rain_24h:.1f}mm -> Đang phân tích đa chiều...")
+
+
+#     # A. Phân tích Lũ lụt (Flood)
+#     flood_scores = []
+#     f_conf = config['flood_criteria']
+    
+#     # 1. Chấm điểm các tiêu chí Lũ lụt (7 tiêu chí)
+#     flood_scores.append(get_risk_score(rain_24h, f_conf['rain_24h']))
+#     flood_scores.append(get_risk_score(rain_1h, f_conf['rain_1h']))
+#     flood_scores.append(get_risk_score(elevation, f_conf['elevation']))
+#     flood_scores.append(get_risk_score(slope, f_conf['slope']))
+#     flood_scores.append(get_risk_score(twi, f_conf['twi'])) 
+#     flood_scores.append(get_risk_score(water_distance, f_conf['water_distance']))
+#     flood_scores.append(get_risk_score(isr, f_conf['isr']))
+    
+#     flood_score_total = sum(flood_scores)
+    
+    
+#     # B. Phân tích Sạt lở (Landslide)
+#     landslide_scores = []
+#     l_conf = config['landslide_criteria']
+    
+#     # 1. Chấm điểm tiêu chí Sạt lở (4 tiêu chí: Slope, Rain 24h, Elevation, TWI)
+#     landslide_scores.append(get_risk_score(rain_24h, l_conf['rain_24h']))
+#     landslide_scores.append(get_risk_score(elevation, l_conf['elevation']))
+#     landslide_scores.append(get_risk_score(slope, l_conf['slope']))
+#     landslide_scores.append(get_risk_score(twi, l_conf['twi'])) 
+    
+#     landslide_score_total = sum(landslide_scores)
+
+#     # C. RA QUYẾT ĐỊNH CUỐI CÙNG (Dựa trên tổng điểm)
+    
+#     final_score = max(flood_score_total, landslide_score_total)
+#     MAX_TOTAL_SCORE = f_conf.get('MAX_SCORE', 21)
+    
+    
+#     if final_score >= MAX_TOTAL_SCORE * 0.8:
+#         final_level = "CRITICAL"
+#     elif final_score >= MAX_TOTAL_SCORE * 0.6:
+#         final_level = "HIGH"
+#     elif final_score >= MAX_TOTAL_SCORE * 0.3:
+#         final_level = "MEDIUM"
+#     else:
+#         final_level = "LOW"
+    
+#     if final_level != "LOW":
+#         # Xác định loại thiên tai chính
+#         disaster_type = "FLOOD" if flood_score_total >= landslide_score_total else "LANDSLIDE"
+        
+#         # Tính toán ToA 
+#         dist_km = static_metrics.get('water_distance', 1000) / 1000.0
+#         slope_perc = static_metrics.get('slope', 1.0)
+#         toa = calculate_toa(slope_perc, dist_km)
+        
+#         # Lấy thông tin xung yếu
+#         impacted_points = get_impacted_points(lat, lon, radius_km=5)
+
+#         # Mô tả
+#         desc_text = f"Nguy cơ {final_level} {disaster_type} cao do tích lũy điểm rủi ro ({final_score} điểm)."
+#         desc_text += f" Mưa 24h: {rain_24h}mm. Địa hình dốc: {slope_perc}%."
+
+#         # Tạo payload cảnh báo chi tiết
+#         alert_payload = {
+#             "title": f"🚨 CẢNH BÁO {disaster_type}: {station_name}",
+#             "level": final_level,
+#             "description": desc_text,
+#             "station_name": station_name,
+#             "rain_1h": rain_1h,
+#             "rain_24h": rain_24h,
+#             "risk_type": disaster_type,
+#             "flood_score": flood_score_total,
+#             "landslide_score": landslide_score_total,
+#             "context_data": {"elevation": elevation, "twi": twi, "isr": isr, "soil_moisture": soil_moisture, "slope": slope},
+#             "impacted_points": impacted_points,
+#             "estimated_toa_hours": toa
+#         }
+        
+#         trigger_alert(alert_payload)
+#     else:
+#         print(f"👍 [{station_name}] Nguy cơ Thấp (Lũ: {flood_score_total}, Sạt lở: {landslide_score_total}).")
