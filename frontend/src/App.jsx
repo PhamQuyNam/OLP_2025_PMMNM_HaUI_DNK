@@ -26,6 +26,7 @@ import ProtectedRoute from "./components/auth/ProtectedRoute";
 import UnauthorizedPage from "./pages/auth/UnauthorizedPage";
 import ManagerReportsPage from "./pages/manager/ManagerReportsPage";
 import ManagerSosPage from "./pages/manager/ManagerSosPage";
+import ManagerAlertsPage from "./pages/manager/ManagerAlertsPage";
 // Placeholder
 const CitizenAlerts = () => (
   <h1 className="text-center mt-20">Danh sách Cảnh báo (Coming Soon)</h1>
@@ -63,6 +64,7 @@ function App() {
             <Route index element={<ManagerDashboardPage />} />
             <Route path="reports" element={<ManagerReportsPage />} />
             <Route path="sos" element={<ManagerSosPage />} />
+            <Route path="alerts" element={<ManagerAlertsPage />} />
             <Route
               path="data"
               element={
