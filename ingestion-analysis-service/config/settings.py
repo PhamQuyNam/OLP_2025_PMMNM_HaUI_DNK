@@ -71,45 +71,46 @@ MONITORING_STATIONS = [
     {"id": "urn:ngsi-ld:RainObserved:HT_30_DongVoiPhuc", "name": "Trạm 30: Động Voi Phục", "lat": 18.2653, "lon": 105.3879,
      "desc": "Động Voi Phục – vùng núi cao Vũ Quang"},
 
-    {"id":"urn:ngsi-ld:RainObserved:TN_01_TrungTam","name":"Trạm 01: Trung tâm TP Thái Nguyên","lat":21.5935,"lon":105.8487,"desc":"Khu trung tâm – quảng trường Võ Nguyên Giáp"},
-
-    {"id":"urn:ngsi-ld:RainObserved:TN_02_DaiHoc","name":"Trạm 02: Khu Đại học Thái Nguyên","lat":21.5753,"lon":105.8216,"desc":"Khu đại học – sinh viên đông"},
-
-    {"id":"urn:ngsi-ld:RainObserved:TN_03_GangThep","name":"Trạm 03: Gang Thép","lat":21.6020,"lon":105.8430,"desc":"Khu công nghiệp Gang Thép"},
-
-    {"id":"urn:ngsi-ld:RainObserved:TN_04_DuongTuMinh","name":"Trạm 04: Đường Dương Tự Minh","lat":21.6075,"lon":105.8240,"desc":"Khu đô thị phía Bắc"},
-
-    {"id":"urn:ngsi-ld:RainObserved:TN_05_SongCong1","name":"Trạm 05: Ven sông Cống","lat":21.5902,"lon":105.8612,"desc":"Khu vực ven sông – nguy cơ ngập"},
-
-    {"id":"urn:ngsi-ld:RainObserved:TN_06_HoNuiCoc","name":"Trạm 06: Hồ Núi Cốc","lat":21.6347,"lon":105.7205,"desc":"Hồ Núi Cốc – đồi núi thấp bao quanh"},
-
-    {"id":"urn:ngsi-ld:RainObserved:TN_07_VanLang","name":"Trạm 07: Văn Lang","lat":21.6591,"lon":105.7527,"desc":"Đồi núi rừng thông"},
-
-    {"id":"urn:ngsi-ld:RainObserved:TN_08_DinhHoa","name":"Trạm 08: Định Hóa","lat":21.7513,"lon":105.7189,"desc":"Vùng rừng núi hiểm trở"},
-
-    {"id":"urn:ngsi-ld:RainObserved:TN_09_PhuDinh","name":"Trạm 09: Phú Đình","lat":21.7030,"lon":105.7452,"desc":"Đồi núi xen kẽ nương rẫy"},
-
-    {"id":"urn:ngsi-ld:RainObserved:TN_10_BaoLinh","name":"Trạm 10: Bảo Linh","lat":21.7764,"lon":105.7759,"desc":"Vùng cao – mưa rừng mạnh"},
-
-    {"id":"urn:ngsi-ld:RainObserved:TN_11_DaiTu","name":"Trạm 11: Đại Từ","lat":21.6612,"lon":105.6836,"desc":"Khu vực trồng chè – đồi thấp"},
-
-    {"id":"urn:ngsi-ld:RainObserved:TN_12_TanLinh","name":"Trạm 12: Tân Linh","lat":21.6755,"lon":105.6501,"desc":"Đồi chè – khí hậu ẩm"},
-
-    {"id":"urn:ngsi-ld:RainObserved:TN_13_PhuLuong","name":"Trạm 13: Phú Lương","lat":21.8152,"lon":105.7574,"desc":"Vùng đồi núi Bắc Phú Lương"},
-
-    {"id":"urn:ngsi-ld:RainObserved:TN_14_YenLang","name":"Trạm 14: Yên Lãng","lat":21.7254,"lon":105.6890,"desc":"Đồi núi trung du"},
-
-    {"id":"urn:ngsi-ld:RainObserved:TN_15_LucBa","name":"Trạm 15: Lục Ba","lat":21.6305,"lon":105.6503,"desc":"Đồi cao – rừng keo"},
-
-    {"id":"urn:ngsi-ld:RainObserved:TN_16_PhoYen","name":"Trạm 16: Phổ Yên","lat":21.5103,"lon":105.8430,"desc":"Thị xã Phổ Yên – đô thị hóa mạnh"},
-
-    {"id":"urn:ngsi-ld:RainObserved:TN_17_Samsung","name":"Trạm 17: Khu công nghiệp Samsung","lat":21.5135,"lon":105.8772,"desc":"Khu công nghiệp lớn nhất tỉnh"},
-
-    {"id":"urn:ngsi-ld:RainObserved:TN_18_SongCong","name":"Trạm 18: TP Sông Công","lat":21.5459,"lon":105.8302,"desc":"Khu vực ven sông – risk ngập"},
-
-    {"id":"urn:ngsi-ld:RainObserved:TN_19_TanQuang","name":"Trạm 19: Tân Quang","lat":21.5292,"lon":105.8077,"desc":"Đô thị – dân cư đông"},
-
-    {"id":"urn:ngsi-ld:RainObserved:TN_20_BaXuyen","name":"Trạm 20: Bá Xuyên","lat":21.4862,"lon":105.8350,"desc":"Khu dân cư + công nghiệp"},
+    {"id": "urn:ngsi-ld:RainObserved:TN_01_TrungTam", "name": "Trạm 01: Trung tâm TP Thái Nguyên", "lat": 21.58700,
+     "lon": 105.84000, "desc": "Quảng trường / trung tâm hành chính"},
+    {"id": "urn:ngsi-ld:RainObserved:TN_02_TayBac", "name": "Trạm 02: Tây Bắc TP", "lat": 21.60400, "lon": 105.82400,
+     "desc": "Khu Tây Bắc, ven dân cư"},
+    {"id": "urn:ngsi-ld:RainObserved:TN_03_Bac", "name": "Trạm 03: Bắc Thành Phố", "lat": 21.61800, "lon": 105.84200,
+     "desc": "Khu ngoại ô bắc, giáp đê sông"},
+    {"id": "urn:ngsi-ld:RainObserved:TN_04_DongBac", "name": "Trạm 04: Đông Bắc", "lat": 21.60250, "lon": 105.86000,
+     "desc": "Vùng Đông Bắc thành phố"},
+    {"id": "urn:ngsi-ld:RainObserved:TN_05_Dong", "name": "Trạm 05: Đông Thành Phố", "lat": 21.58650, "lon": 105.87000,
+     "desc": "Khu ven đô phía Đông"},
+    {"id": "urn:ngsi-ld:RainObserved:TN_06_DongNam", "name": "Trạm 06: Đông Nam", "lat": 21.56850, "lon": 105.86200,
+     "desc": "Vùng Đông Nam, gần khu dân cư ven sông"},
+    {"id": "urn:ngsi-ld:RainObserved:TN_07_Nam", "name": "Trạm 07: Nam Thành Phố", "lat": 21.55200, "lon": 105.84500,
+     "desc": "Phía Nam thành phố, vùng thấp trũng"},
+    {"id": "urn:ngsi-ld:RainObserved:TN_08_TayNam", "name": "Trạm 08: Tây Nam", "lat": 21.54800, "lon": 105.82800,
+     "desc": "Khu Tây Nam, ngoại ô"},
+    {"id": "urn:ngsi-ld:RainObserved:TN_09_Tay", "name": "Trạm 09: Tây Thành Phố", "lat": 21.56050, "lon": 105.80800,
+     "desc": "Vùng gần cửa ngõ phía Tây"},
+    {"id": "urn:ngsi-ld:RainObserved:TN_10_HoNuiCoc_N", "name": "Trạm 10: Hồ Núi Cốc Bắc", "lat": 21.64200,
+     "lon": 105.73600, "desc": "Phía Bắc Hồ Núi Cốc (ven hồ)"},
+    {"id": "urn:ngsi-ld:RainObserved:TN_11_HoNuiCoc_S", "name": "Trạm 11: Hồ Núi Cốc Nam", "lat": 21.61800,
+     "lon": 105.71200, "desc": "Phía Nam / Tây hồ Núi Cốc"},
+    {"id": "urn:ngsi-ld:RainObserved:TN_12_CongNghiep", "name": "Trạm 12: Khu công nghiệp phía Bắc", "lat": 21.62400,
+     "lon": 105.86300, "desc": "Khu công nghiệp / logistics"},
+    {"id": "urn:ngsi-ld:RainObserved:TN_13_GiaoThong", "name": "Trạm 13: Cửa ngõ giao thông Bắc", "lat": 21.63700,
+     "lon": 105.84600, "desc": "Gần trục đường cao tốc / cửa ngõ"},
+    {"id": "urn:ngsi-ld:RainObserved:TN_14_VienDao", "name": "Trạm 14: Viên đào & công viên", "lat": 21.57850,
+     "lon": 105.85350, "desc": "Công viên, khu dân cư ven lòng sông"},
+    {"id": "urn:ngsi-ld:RainObserved:TN_15_HocVu", "name": "Trạm 15: Khu học thuật / ĐH", "lat": 21.57300,
+     "lon": 105.82000, "desc": "Vùng trường học / khu sinh viên"},
+    {"id": "urn:ngsi-ld:RainObserved:TN_16_PhuongDien", "name": "Trạm 16: Phường Điền", "lat": 21.59150,
+     "lon": 105.80900, "desc": "Khu dân cư đông, phía Tây trung tâm"},
+    {"id": "urn:ngsi-ld:RainObserved:TN_17_HangRao", "name": "Trạm 17: Hàng rào đô thị Bắc", "lat": 21.61450,
+     "lon": 105.88000, "desc": "Vùng rìa đô thị, giáp nông nghiệp"},
+    {"id": "urn:ngsi-ld:RainObserved:TN_18_KeBo", "name": "Trạm 18: Kè Bờ sông", "lat": 21.59700, "lon": 105.87250,
+     "desc": "Khu kè bờ sông/đê, giám sát thoát nước"},
+    {"id": "urn:ngsi-ld:RainObserved:TN_19_TamPhu", "name": "Trạm 19: Tam Phú – Ven đô", "lat": 21.56600,
+     "lon": 105.83700, "desc": "Vùng ven, giáp khu công nghiệp nhỏ"},
+    {"id": "urn:ngsi-ld:RainObserved:TN_20_ChienThang", "name": "Trạm 20: Khu Chợ & Chợ dân sinh", "lat": 21.58780,
+     "lon": 105.82680, "desc": "Khu chợ lớn / thương mại ven trung tâm"},
 
     {"id":"urn:ngsi-ld:RainObserved:HCM_01_Quan1","name":"Trạm 1: Quận 1","lat":10.7798,"lon":106.6990,"desc":"Khu trung tâm Q1"},
     {"id":"urn:ngsi-ld:RainObserved:HCM_02_Quan4","name":"Trạm 2: Quận 4","lat":10.7520,"lon":106.7130,"desc":"Khu Quận 4 – ven sông"},

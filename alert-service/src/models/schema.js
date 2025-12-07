@@ -21,7 +21,6 @@ const createAlertTables = async () => {
                 rain_value FLOAT,           -- Mưa 1h hiện tại
                 rain_24h FLOAT DEFAULT 0,   -- <--- MỚI: Mưa tích lũy 24h
                 description TEXT,
-                impacted_points JSONB,
                 estimated_toa_hours FLOAT,
 
                 context_data JSONB DEFAULT '{}', -- <--- MỚI: Chứa slope, twi, scores...
@@ -41,7 +40,6 @@ const createAlertTables = async () => {
                 rain_value FLOAT,
                 rain_24h FLOAT DEFAULT 0,   -- <--- MỚI
                 description TEXT,
-                impacted_points JSONB,
                 estimated_toa_hours FLOAT,
 
                 context_data JSONB DEFAULT '{}', -- <--- MỚI
