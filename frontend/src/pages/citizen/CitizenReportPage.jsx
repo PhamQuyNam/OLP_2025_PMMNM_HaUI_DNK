@@ -56,7 +56,6 @@ const CitizenReportPage = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Gửi báo cáo
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -72,7 +71,7 @@ const CitizenReportPage = () => {
       // Gọi API
       await reportService.createReport(formData);
 
-      toast.success("Gửi báo cáo thành công! Cảm ơn đóng góp của bạn.");
+      toast.success("Gửi phản ánh thành công! Cảm ơn đóng góp của bạn.");
 
       // Chuyển hướng về trang chủ để xem bản đồ
       navigate("/citizen");
@@ -93,7 +92,7 @@ const CitizenReportPage = () => {
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
             <AlertTriangle className="text-orange-500" />
-            Gửi Báo Cáo Sự Cố
+            Gửi Phản Ánh Sự Cố
           </h1>
           <p className="text-slate-500 text-sm mt-1">
             Thông tin của bạn giúp cộng đồng phòng tránh rủi ro.
@@ -247,7 +246,7 @@ const CitizenReportPage = () => {
               <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
             ) : (
               <>
-                <Send size={20} /> Gửi Báo Cáo
+                <Send size={20} /> Gửi Phản Ánh
               </>
             )}
           </button>

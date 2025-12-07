@@ -65,7 +65,7 @@ const CitizenLayout = () => {
           <DesktopNavLink
             to="/citizen/report"
             icon={FileText}
-            label="Gửi Báo cáo"
+            label="Gửi phản ánh"
           />
           <DesktopNavLink
             to="/citizen/guide"
@@ -171,7 +171,11 @@ const CitizenLayout = () => {
             </button>
           </div>
 
-          <MobileNavItem to="/citizen/report" icon={FileText} label="Báo cáo" />
+          <MobileNavItem
+            to="/citizen/report"
+            icon={FileText}
+            label="Phản ánh"
+          />
           <MobileNavItem to="/citizen/guide" icon={BookOpen} label="Cẩm nang" />
         </div>
       </nav>

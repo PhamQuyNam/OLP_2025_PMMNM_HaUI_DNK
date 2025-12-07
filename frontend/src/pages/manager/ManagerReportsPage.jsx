@@ -74,7 +74,7 @@ const ManagerReportsPage = () => {
     <div className="text-slate-100 font-sans pb-10">
       {/* Header giữ nguyên */}
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Danh sách Báo cáo Cộng đồng</h1>
+        <h1 className="text-2xl font-bold">Danh sách Phản ánh từ Cộng đồng</h1>
         <button className="px-4 py-2 bg-slate-800 rounded-lg text-sm font-medium hover:bg-slate-700 flex items-center gap-2">
           <Filter size={16} /> Lọc trạng thái
         </button>
@@ -107,7 +107,7 @@ const ManagerReportsPage = () => {
                     colSpan="6"
                     className="text-center py-8 text-slate-500 italic"
                   >
-                    Chưa có báo cáo nào.
+                    Chưa có phản ánh nào.
                   </td>
                 </tr>
               ) : (
