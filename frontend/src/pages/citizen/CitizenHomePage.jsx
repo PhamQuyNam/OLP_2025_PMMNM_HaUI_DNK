@@ -38,6 +38,7 @@ import { useAuth } from "../../context/AuthContext";
 import weatherService from "../../services/weatherService";
 import reportService from "../../services/reportService";
 import alertService from "../../services/alertService"; // Import Alert Service
+import { STATIC_STATIONS } from "../../constants/stations";
 
 // Fix icon marker
 import icon from "leaflet/dist/images/marker-icon.png";
@@ -406,27 +407,39 @@ const CitizenHomePage = () => {
             />
           </LayersControl.BaseLayer>
 
-          {/* VÙNG CẢNH BÁO NGUY HIỂM (CÓ FIX LOGIC TÌM TỌA ĐỘ) */}
           <LayersControl.Overlay checked name="⚠️ Vùng Cảnh báo Thiên tai">
             <LayerGroup>
               {activeAlerts.map((alert) => {
-                // 👇 LOGIC TÌM TỌA ĐỘ (HYBRID)
+                // --- LOGIC TÌM TỌA ĐỘ THÔNG MINH (3 LỚP) ---
                 let lat = alert.lat;
                 let lon = alert.lon;
 
+                // LỚP 1: Nếu API thiếu, tìm trong danh sách Real-time (weatherStations)
                 if (!lat || !lon) {
-                  // Fallback: Tìm trong danh sách trạm thời tiết
-                  const matchedStation = weatherStations.find(
+                  const matchedLive = weatherStations.find(
                     (s) =>
                       s.name === alert.station_name || s.id === alert.station_id
                   );
-                  if (matchedStation) {
-                    lat = matchedStation.lat;
-                    lon = matchedStation.lon;
+                  if (matchedLive) {
+                    lat = matchedLive.lat;
+                    lon = matchedLive.lon;
+                    // console.log(`Found coordinates for ${alert.station_name} in Live Data`);
                   }
                 }
 
-                // Nếu vẫn không có tọa độ -> Bỏ qua
+                // LỚP 2: Nếu vẫn chưa thấy, tìm trong danh sách Cố định (STATIC_STATIONS)
+                if (!lat || !lon) {
+                  const matchedStatic = STATIC_STATIONS.find(
+                    (s) => s.name === alert.station_name
+                  );
+                  if (matchedStatic) {
+                    lat = matchedStatic.lat;
+                    lon = matchedStatic.lon;
+                    // console.log(`Found coordinates for ${alert.station_name} in Static File`);
+                  }
+                }
+
+                // Nếu sau tất cả nỗ lực vẫn không có tọa độ -> Bỏ qua
                 if (!lat || !lon) return null;
 
                 return (
