@@ -17,7 +17,8 @@ import {
   Settings,
   LogOut,
   ShieldAlert,
-  Home, // Thêm icon Home
+  Home,
+  Megaphone,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext"; // 1. Import AuthContext
 
@@ -71,6 +72,11 @@ const ManagerLayout = () => {
             to="/manager/sos"
             icon={BellRing}
             label="Quản lý Cứu hộ"
+          />
+          <ManagerNavItem
+            to="/manager/alerts"
+            icon={Megaphone}
+            label="Phê duyệt Cảnh báo"
           />
 
           <p className="px-3 text-xs font-bold text-slate-500 uppercase tracking-wider mt-6 mb-2">
