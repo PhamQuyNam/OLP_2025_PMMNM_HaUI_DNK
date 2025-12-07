@@ -198,4 +198,55 @@ router.get('/pending', alertController.getPendingAlerts);
  */
 router.patch('/:id/review', alertController.approveAlert);
 
+/**
+ * @swagger
+ * /api/alerts/history:
+ *   get:
+ *     summary: Lấy lịch sử cảnh báo đã xử lý (Dành cho Manager)
+ *     description: Xem danh sách các cảnh báo đã được duyệt hoặc từ chối trong quá khứ.
+ *     tags: [Alerts]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [APPROVED, REJECTED]
+ *         description: Lọc theo trạng thái (bỏ trống để lấy tất cả)
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 100
+ *         description: Số lượng bản ghi tối đa
+ *     responses:
+ *       200:
+ *         description: Danh sách lịch sử đã xử lý
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: integer
+ *                   station_name:
+ *                     type: string
+ *                   status:
+ *                     type: string
+ *                     enum: [APPROVED, REJECTED]
+ *                   approved_by:
+ *                     type: string
+ *                   rain_value:
+ *                     type: number
+ *                   created_at:
+ *                     type: string
+ *                     format: date-time
+ *       500:
+ *         description: Lỗi Server
+ */
+router.get('/history', alertController.getHistoryAlerts);
+
 module.exports = router;
