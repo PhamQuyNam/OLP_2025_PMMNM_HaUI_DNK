@@ -80,6 +80,15 @@ const receiveAlert = async (req, res) => {
             await pool.query("DELETE FROM active_alerts WHERE station_name = $1", [station_name]);
             await pool.query("DELETE FROM alert_archive WHERE station_name = $1", [station_name]);
             await deleteFromOrion(station_name);
+            //  BẮN SOCKET BÁO FRONTEND GỠ BỎ
+            // Sự kiện: 'alert:resolved'
+            // Dữ liệu gửi đi: Tên trạm (để Frontend biết mà xóa đúng cái thẻ đó)
+            console.log(`📡 Emit Socket: alert:resolved -> ${station_name}`);
+            req.io.emit('alert:resolved', {
+                station_name: station_name,
+                status: 'SAFE',
+                message: 'Khu vực đã trở lại bình thường.'
+            });
             return res.json({ message: "Đã gỡ bỏ cảnh báo (Trạng thái bình thường)." });
         }
 
