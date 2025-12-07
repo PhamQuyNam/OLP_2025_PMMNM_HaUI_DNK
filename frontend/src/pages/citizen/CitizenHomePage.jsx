@@ -39,10 +39,11 @@ import weatherService from "../../services/weatherService";
 import reportService from "../../services/reportService";
 import alertService from "../../services/alertService"; // Import Alert Service
 import { STATIC_STATIONS } from "../../constants/stations";
-
+import { useSocket } from "../../context/SocketContext";
 // Fix icon marker
 import icon from "leaflet/dist/images/marker-icon.png";
 import iconShadow from "leaflet/dist/images/marker-shadow.png";
+import { toast } from "react-toastify";
 
 let DefaultIcon = L.icon({
   iconUrl: icon,
@@ -232,6 +233,65 @@ const CitizenHomePage = () => {
   const [reports, setReports] = useState([]);
   const [activeAlerts, setActiveAlerts] = useState([]);
   const [destination, setDestination] = useState(null);
+  const socket = useSocket();
+  const alertsRef = useRef(activeAlerts);
+
+  useEffect(() => {
+    alertsRef.current = activeAlerts;
+  }, [activeAlerts]);
+
+  // 👇 LOGIC SOCKET ĐÃ SỬA (FIX LỖI DOUBLE TOAST)
+  useEffect(() => {
+    if (!socket) return;
+
+    // 1. Nghe tin báo động MỚI
+    socket.on("alert:broadcast", (newAlert) => {
+      console.log("🚨 CẢNH BÁO TỚI:", newAlert);
+
+      // Kiểm tra trong Ref xem đã có chưa (Tránh spam toast khi F5)
+      const isExist = alertsRef.current.some(
+        (a) => a.station_name === newAlert.station_name
+      );
+
+      if (!isExist) {
+        toast.error(
+          `CẢNH BÁO: ${newAlert.station_name} - ${newAlert.alert_level}`
+        );
+      }
+
+      setActiveAlerts((prev) => {
+        const unique = prev.filter(
+          (a) => a.station_name !== newAlert.station_name
+        );
+        return [newAlert, ...unique];
+      });
+    });
+
+    // 2. Nghe tin HẾT báo động
+    socket.on("alert:resolved", (data) => {
+      // Kiểm tra trong Ref xem trạm này CÓ ĐANG bị đỏ không?
+      const exists = alertsRef.current.find(
+        (a) => a.station_name === data.station_name
+      );
+
+      if (exists) {
+        // Chỉ hiện thông báo NẾU thực sự trạm đó đang bị cảnh báo
+        // Vì lệnh toast nằm ngoài setActiveAlerts -> Nó chỉ chạy 1 lần
+        toast.success(`An toàn: ${data.station_name} đã bình thường.`);
+        console.log(`✅ Đã gỡ cảnh báo cho: ${data.station_name}`);
+
+        // Cập nhật State để xóa vòng tròn
+        setActiveAlerts((prev) =>
+          prev.filter((a) => a.station_name !== data.station_name)
+        );
+      }
+    });
+
+    return () => {
+      socket.off("alert:broadcast");
+      socket.off("alert:resolved");
+    };
+  }, [socket]); // Bỏ activeAlerts ra khỏi dependency để tránh re-render liên tục
 
   useEffect(() => {
     if (location.state?.destination) {

@@ -17,11 +17,27 @@ import {
 } from "lucide-react";
 import { toast } from "react-toastify";
 import alertService from "../../services/alertService";
+import { useSocket } from "../../context/SocketContext";
 
 const ManagerAlertsPage = () => {
   const [pendingList, setPendingList] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const socket = useSocket();
 
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.on("alert:new_pending", (newAlert) => {
+      console.log("🔔 Có cảnh báo mới cần duyệt:", newAlert);
+      toast.info(`⚠️ Cảnh báo mới: ${newAlert.station_name}`);
+
+      // Thêm ngay vào đầu danh sách
+      setPendingList((prev) => [newAlert, ...prev]);
+    });
+
+    // Cleanup listener khi rời trang
+    return () => socket.off("alert:new_pending");
+  }, [socket]);
   // Load danh sách
   const fetchPending = async () => {
     try {
