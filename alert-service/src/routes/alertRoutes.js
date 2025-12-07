@@ -56,17 +56,6 @@ const alertController = require('../controllers/alertController');
  *                   context_data:
  *                     type: object
  *                     description: Các chỉ số phân tích (Slope, TWI, Scores...)
- *                   impacted_points:
- *                     type: array
- *                     items:
- *                       type: object
- *                       properties:
- *                         name:
- *                           type: string
- *                         lat:
- *                           type: number
- *                         lon:
- *                           type: number
  *       500:
  *         description: Lỗi Server
  */
@@ -116,17 +105,6 @@ router.get('/citizen', alertController.getPublicAlerts);
  *                 format: float
  *               description:
  *                 type: string
- *               impacted_points:
- *                 type: array
- *                 items:
- *                   type: object
- *                   properties:
- *                     name:
- *                       type: string
- *                     lat:
- *                       type: number
- *                     lon:
- *                       type: number
  *     responses:
  *       200:
  *         description: Đã tiếp nhận hoặc cập nhật cảnh báo thành công
@@ -219,6 +197,5 @@ router.get('/pending', alertController.getPendingAlerts);
  *         description: Lỗi Server
  */
 router.patch('/:id/review', alertController.approveAlert);
-
 
 module.exports = router;
