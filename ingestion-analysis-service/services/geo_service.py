@@ -33,36 +33,6 @@ def check_location_risk(lat, lon):
         print(f"❌ Lỗi tra cứu Vùng (Risk Zone): {e}")
         return None
 
-
-# ---------------------------------------------------------
-# HÀM 2: Tra cứu ĐIỂM XUNG YẾU (Vulnerable Points)
-# ---------------------------------------------------------
-def get_impacted_points(lat, lon, radius_km=10):
-    """
-    Hỏi PostGIS: Trong bán kính R (km) có những điểm quan trọng nào?
-    """
-    try:
-        conn = psycopg2.connect(host=DB_HOST, database=DB_NAME, user=DB_USER, password=DB_PASS)
-        cur = conn.cursor()
-        radius_deg = radius_km / 111.0
-        query = """
-            SELECT name, type, risk_type, ST_X(geom) as lon, ST_Y(geom) as lat
-            FROM vulnerable_points 
-            WHERE ST_DWithin(geom, ST_SetSRID(ST_Point(%s, %s), 4326), %s);
-        """
-        cur.execute(query, (lon, lat, radius_deg))
-        rows = cur.fetchall()
-        points = [
-            {"name": r[0], "type": r[1], "risk": r[2], "lon": float(r[3]), "lat": float(r[4])}
-            for r in rows
-        ]
-        cur.close()
-        conn.close()
-        return points
-    except Exception as e:
-        print(f"❌ Lỗi tra cứu Điểm xung yếu: {e}")
-        return []
-
 # ---------------------------------------------------------
 # HÀM 3: Tìm Sông gần nhất
 # ---------------------------------------------------------

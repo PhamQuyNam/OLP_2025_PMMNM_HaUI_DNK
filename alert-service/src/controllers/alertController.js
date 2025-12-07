@@ -39,7 +39,6 @@ const pushToOrion = async (alertData) => {
         "severity": { "type": "Property", "value": alertData.alert_level },
         "description": { "type": "Property", "value": alertData.description },
         "alertDate": { "type": "Property", "value": new Date().toISOString() },
-        "impactedPoints": { "type": "Property", "value": alertData.impacted_points },
         "estimatedToa": { "type": "Property", "value": alertData.estimated_toa_hours },
         "rain24h": { "type": "Property", "value": alertData.rain_24h },
         "analysisData": { "type": "Property", "value": alertData.context_data },
@@ -68,7 +67,7 @@ const pushToOrion = async (alertData) => {
 const receiveAlert = async (req, res) => {
     const {
         station_name, risk_type, level, rain_value,
-        description, impacted_points, estimated_toa_hours,
+        description, estimated_toa_hours,
         rain_24h, flood_score, landslide_score, context_data
     } = req.body;
 
@@ -128,8 +127,8 @@ const receiveAlert = async (req, res) => {
         // 3. TẠO CẢNH BÁO MỚI (Luôn là PENDING để Manager duyệt)
         const insertQuery = `
             INSERT INTO active_alerts
-            (station_name, risk_type, alert_level, rain_value, description, impacted_points, estimated_toa_hours, status, rain_24h, context_data)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, 'PENDING', $8, $9) RETURNING id;
+            (station_name, risk_type, alert_level, rain_value, description, estimated_toa_hours, status, rain_24h, context_data)
+            VALUES ($1, $2, $3, $4, $5, $6, 'PENDING', $7, $8) RETURNING id;
         `;
         // Đã sửa lại đúng số lượng tham số ($1 -> $9)
         await pool.query(insertQuery, [
@@ -138,7 +137,6 @@ const receiveAlert = async (req, res) => {
             level,
             rain_value,
             description,
-            JSON.stringify(impacted_points),
             estimated_toa_hours,
             rain_24h,
             JSON.stringify(fullContextData)
@@ -180,8 +178,8 @@ const approveAlert = async (req, res) => {
         // Đã bổ sung rain_24h và context_data vào câu lệnh INSERT
         const insertArchive = `
             INSERT INTO alert_archive
-            (station_name, risk_type, alert_level, rain_value, description, impacted_points, estimated_toa_hours, approved_by, original_created_at, status, rain_24h, context_data)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'APPROVED', $10, $11)
+            (station_name, risk_type, alert_level, rain_value, description, estimated_toa_hours, approved_by, original_created_at, status, rain_24h, context_data)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'APPROVED', $9, $10)
         `;
 
         // Chú ý: alert.impacted_points và context_data lấy ra từ DB là Object,
@@ -189,7 +187,7 @@ const approveAlert = async (req, res) => {
         // bản mới thường tự hiểu. Để chắc ăn ta cứ stringify.
         await client.query(insertArchive, [
             alert.station_name, alert.risk_type, alert.alert_level, alert.rain_value,
-            alert.description, JSON.stringify(alert.impacted_points), alert.estimated_toa_hours,
+            alert.description, alert.estimated_toa_hours,
             managerName, alert.created_at,
             alert.rain_24h, JSON.stringify(alert.context_data)
         ]);

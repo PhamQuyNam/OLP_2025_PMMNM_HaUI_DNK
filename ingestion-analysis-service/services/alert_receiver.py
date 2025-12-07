@@ -22,7 +22,6 @@ def send_alert_to_receiver(station_data: dict):
         "risk_type": station_data.get("risk_type"), 
         "level": station_data.get("level"),
         "description": station_data.get("description", "Dự báo rủi ro."),
-        "impacted_points": station_data.get("impacted_points", []),
         "rain_value": station_data.get("rain_1h", 0),
         # Node.js chờ "rain_24h" -> Ta đưa rain_24h vào đây (Mới)
         "rain_24h": station_data.get("rain_24h", 0),
