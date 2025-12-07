@@ -65,7 +65,7 @@ const ManagerLayout = () => {
           <ManagerNavItem
             to="/manager/reports" // Đổi đường dẫn
             icon={FileText} // Đổi icon cho hợp
-            label="Danh sách Báo cáo" // Đổi tên
+            label="Danh sách Phản ánh" // Đổi tên
           />
           <ManagerNavItem
             to="/manager/sos"
