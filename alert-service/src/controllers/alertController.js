@@ -85,7 +85,7 @@ const receiveAlert = async (req, res) => {
             // Dữ liệu gửi đi: Tên trạm (để Frontend biết mà xóa đúng cái thẻ đó)
             console.log(`📡 Emit Socket: alert:resolved -> ${station_name}`);
             req.io.emit('alert:resolved', {
-                station_name: station_name,
+                station_name,
                 status: 'SAFE',
                 message: 'Khu vực đã trở lại bình thường.'
             });
@@ -139,20 +139,10 @@ const receiveAlert = async (req, res) => {
             (station_name, risk_type, alert_level, rain_value, description, estimated_toa_hours, status, rain_24h, context_data)
             VALUES ($1, $2, $3, $4, $5, $6, 'PENDING', $7, $8) RETURNING *;
         `;
-        // Đã sửa lại đúng số lượng tham số ($1 -> $9)
-        await pool.query(insertQuery, [
-            station_name,
-            risk_type,
-            level,
-            rain_value,
-            description,
-            estimated_toa_hours,
-            rain_24h,
-            JSON.stringify(fullContextData)
-        ]);
+
         const newAlertRes = await pool.query(insertQuery, [
             station_name, risk_type, level, rain_value, description,
-            estimated_toa_hours, status,
+            estimated_toa_hours,
             rain_24h, JSON.stringify(fullContextData)
         ]);
         const newAlert = newAlertRes.rows[0];
