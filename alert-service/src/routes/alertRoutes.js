@@ -20,7 +20,7 @@ const alertController = require('../controllers/alertController');
 
 /**
  * @swagger
- * /api/alerts:
+ * /api/alerts/citizen:
  *   get:
  *     summary: Lấy danh sách cảnh báo công khai (Dành cho người dân)
  *     description: Chỉ trả về các cảnh báo đã được DUYỆT (APPROVED) và còn hiệu lực trong 24h.
@@ -41,13 +41,21 @@ const alertController = require('../controllers/alertController');
  *                     type: string
  *                   alert_level:
  *                     type: string
- *                     enum: [MEDIUM, HIGH, CRITICAL]
+ *                     enum: [HIGH, VERY HIGH, CRITICAL]
  *                   description:
  *                     type: string
  *                   estimated_toa_hours:
  *                     type: number
  *                     format: float
- *                     example: 2.5
+ *                   rain_value:
+ *                     type: number
+ *                     description: Mưa 1h hiện tại
+ *                   rain_24h:
+ *                     type: number
+ *                     description: Mưa tích lũy 24h
+ *                   context_data:
+ *                     type: object
+ *                     description: Các chỉ số phân tích (Slope, TWI, Scores...)
  *                   impacted_points:
  *                     type: array
  *                     items:
@@ -62,7 +70,7 @@ const alertController = require('../controllers/alertController');
  *       500:
  *         description: Lỗi Server
  */
-router.get('/', alertController.getPublicAlerts);
+router.get('/citizen', alertController.getPublicAlerts);
 
 
 /**
@@ -91,13 +99,21 @@ router.get('/', alertController.getPublicAlerts);
  *                 enum: [LANDSLIDE, FLOOD]
  *               level:
  *                 type: string
- *                 enum: [MEDIUM, HIGH, CRITICAL]
+ *                 enum: [HIGH, VERY HIGH, CRITICAL]
  *               rain_value:
  *                 type: number
+ *               rain_24h:
+ *                 type: number
+ *               flood_score:
+ *                 type: number
+ *               landslide_score:
+ *                 type: number
+ *               context_data:
+ *                 type: object
+ *                 description: elevation, slope, twi, isr, soil_moisture...
  *               estimated_toa_hours:
  *                 type: number
  *                 format: float
- *                 example: 1.5
  *               description:
  *                 type: string
  *               impacted_points:
@@ -146,9 +162,13 @@ router.post('/internal/receive', alertController.receiveAlert);
  *                     type: string
  *                   rain_value:
  *                     type: number
+ *                   rain_24h:
+ *                     type: number
  *                   estimated_toa_hours:
  *                     type: number
  *                     format: float
+ *                   context_data:
+ *                     type: object
  *                   created_at:
  *                     type: string
  *                     format: date-time
@@ -156,7 +176,6 @@ router.post('/internal/receive', alertController.receiveAlert);
  *         description: Lỗi Server
  */
 router.get('/pending', alertController.getPendingAlerts);
-
 
 /**
  * @swagger
