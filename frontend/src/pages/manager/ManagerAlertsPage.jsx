@@ -3,13 +3,17 @@ import {
   Megaphone,
   Check,
   X,
-  MapPin,
   Activity,
+  Clock,
   AlertTriangle,
   AlertOctagon,
   Info,
-  CloudRain,
-  Clock,
+  Waves,
+  Mountain, // Icon cho Lũ và Sạt lở
+  TrendingUp,
+  ArrowUpFromLine,
+  Layers,
+  Ruler, // Icon thông số
 } from "lucide-react";
 import { toast } from "react-toastify";
 import alertService from "../../services/alertService";
@@ -18,12 +22,11 @@ const ManagerAlertsPage = () => {
   const [pendingList, setPendingList] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Hàm tải dữ liệu (Chạy mỗi 10s để giả lập Real-time)
+  // Load danh sách
   const fetchPending = async () => {
     try {
       const data = await alertService.getPendingAlerts();
       if (Array.isArray(data)) {
-        // Sắp xếp: Mới nhất lên đầu
         const sorted = data.sort(
           (a, b) => new Date(b.created_at) - new Date(a.created_at)
         );
@@ -38,48 +41,34 @@ const ManagerAlertsPage = () => {
 
   useEffect(() => {
     fetchPending();
-    const interval = setInterval(fetchPending, 10000); // Polling 10s
+    const interval = setInterval(fetchPending, 10000);
     return () => clearInterval(interval);
   }, []);
 
   // Xử lý nút Duyệt/Hủy
   const handleReview = async (id, status) => {
     const actionName = status === "APPROVED" ? "DUYỆT" : "TỪ CHỐI";
-
-    // Confirm trước khi bấm (tránh lỡ tay)
     if (!window.confirm(`Bạn chắc chắn muốn ${actionName} cảnh báo này?`))
       return;
 
     try {
       await alertService.reviewAlert(id, status);
-
       toast.success(`Đã ${actionName} cảnh báo thành công!`);
-
-      // Xóa ngay khỏi danh sách trên màn hình (Optimistic UI)
       setPendingList((prev) => prev.filter((item) => item.id !== id));
     } catch (error) {
-      console.error(error);
-      toast.error("Lỗi xử lý. Vui lòng thử lại.");
+      toast.error("Lỗi xử lý.");
     }
   };
 
-  // Helper: Chọn màu sắc và Icon theo cấp độ (1, 2, 3)
+  // Helper 1: Màu sắc theo cấp độ (Giữ nguyên)
   const getLevelInfo = (levelString) => {
-    // Backend trả về string "HIGH", "VERY HIGH", "CRITICAL" hoặc số.
-    // Ta map về 3 cấp độ:
-    // Cấp 1 (HIGH/Thấp) -> Vàng
-    // Cấp 2 (VERY HIGH/Trung bình) -> Cam
-    // Cấp 3 (CRITICAL/Cao) -> Đỏ
-
     const level = String(levelString).toUpperCase();
-
     if (level.includes("HIGH") && !level.includes("VERY")) {
       return {
         color: "bg-yellow-500",
         border: "border-yellow-500",
         text: "text-yellow-500",
         label: "Cấp 1 - Cảnh giác",
-        icon: Info,
       };
     }
     if (level.includes("VERY") || level == "2") {
@@ -88,7 +77,6 @@ const ManagerAlertsPage = () => {
         border: "border-orange-500",
         text: "text-orange-500",
         label: "Cấp 2 - Nguy hiểm",
-        icon: AlertTriangle,
       };
     }
     if (level.includes("CRITICAL") || level == "3") {
@@ -97,133 +85,208 @@ const ManagerAlertsPage = () => {
         border: "border-red-600",
         text: "text-red-600",
         label: "Cấp 3 - Thảm họa",
-        icon: AlertOctagon,
       };
     }
-
-    // Mặc định
     return {
       color: "bg-slate-500",
       border: "border-slate-500",
       text: "text-slate-500",
       label: "Chưa phân loại",
-      icon: Activity,
     };
+  };
+
+  // Helper 2: Icon theo Loại thiên tai (Mới)
+  const getRiskInfo = (type) => {
+    if (type === "FLOOD") return { icon: Waves, label: "Lũ lụt / Ngập úng" };
+    if (type === "LANDSLIDE") return { icon: Mountain, label: "Sạt lở đất" };
+    return { icon: Activity, label: "Thiên tai khác" };
   };
 
   return (
     <div className="text-slate-100 font-sans pb-20">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold flex items-center gap-3 text-white">
-          <Megaphone className="text-yellow-400 animate-pulse" size={32} />
-          Phê duyệt Cảnh báo Thiên tai
-        </h1>
-        <p className="text-slate-400 text-sm mt-1 ml-11">
-          Danh sách cảnh báo tự động từ hệ thống phân tích. Cần xác thực trước
-          khi phát sóng.
-        </p>
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold flex items-center gap-3 text-white">
+            <Megaphone className="text-yellow-400 animate-pulse" size={28} />
+            Phê duyệt Cảnh báo
+          </h1>
+          <p className="text-slate-400 text-xs mt-1 ml-10">
+            Hệ thống phân tích rủi ro tự động (AI Analysis).
+          </p>
+        </div>
+        <div className="bg-slate-800 px-3 py-1 rounded-lg border border-slate-700">
+          <span className="text-xs text-slate-400">Chờ duyệt: </span>
+          <span className="text-sm font-bold text-white">
+            {pendingList.length}
+          </span>
+        </div>
       </div>
 
-      {/* Danh sách */}
-      <div className="grid grid-cols-1 gap-6">
+      {/* Danh sách Card */}
+      <div className="grid grid-cols-1 gap-4">
         {isLoading && pendingList.length === 0 ? (
-          <p className="text-center text-slate-500 py-10 italic">
-            Đang kết nối máy trạm phân tích...
+          <p className="text-center text-slate-500 py-10 italic text-sm">
+            Đang đồng bộ dữ liệu...
           </p>
         ) : pendingList.length === 0 ? (
-          <div className="text-center py-16 bg-slate-800/30 rounded-2xl border border-slate-700 border-dashed">
-            <Check className="mx-auto text-emerald-500 mb-3" size={48} />
-            <h3 className="text-lg font-bold text-white">
-              Hệ thống bình thường
-            </h3>
-            <p className="text-slate-400 text-sm mt-1">
-              Hiện không có cảnh báo rủi ro nào cần duyệt.
-            </p>
+          <div className="text-center py-12 bg-slate-800/30 rounded-xl border border-slate-700 border-dashed">
+            <Check className="mx-auto text-emerald-500 mb-2" size={32} />
+            <p className="text-slate-400 text-sm">Không có cảnh báo nào.</p>
           </div>
         ) : (
           pendingList.map((alert) => {
-            const ui = getLevelInfo(alert.alert_level); // Lấy màu sắc
-            const Icon = ui.icon;
+            const levelUI = getLevelInfo(alert.alert_level);
+            const riskUI = getRiskInfo(alert.risk_type);
+            const RiskIcon = riskUI.icon;
+
+            // Lấy context data an toàn
+            const ctx = alert.context_data || {};
 
             return (
               <div
                 key={alert.id}
-                className={`relative bg-slate-900 border-l-4 ${ui.border} rounded-r-xl p-6 shadow-xl flex flex-col md:flex-row gap-6 transition-all hover:translate-x-1`}
+                className={`relative bg-slate-900 border-l-4 ${levelUI.border} rounded-r-xl p-4 shadow-lg flex flex-col lg:flex-row gap-4 transition-all hover:bg-slate-800/80`}
               >
-                {/* Cột 1: Hình ảnh Visual */}
-                <div
-                  className={`w-20 h-20 rounded-2xl flex items-center justify-center shrink-0 ${ui.color} bg-opacity-20 border border-white/5`}
-                >
-                  <Icon size={40} className={ui.text} />
-                </div>
-
-                {/* Cột 2: Thông tin chính */}
+                {/* CỘT 1: VISUAL & TITLE */}
                 <div className="flex-1">
-                  <div className="flex flex-wrap items-center gap-3 mb-2">
+                  {/* Header nhỏ */}
+                  <div className="flex items-center gap-2 mb-2">
                     <span
-                      className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-white/10 ${ui.text}`}
+                      className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-white/10 ${levelUI.text}`}
                     >
-                      {ui.label}
+                      {levelUI.label}
                     </span>
-                    <span className="text-xs text-slate-500 flex items-center gap-1">
-                      <Clock size={12} />
-                      Phát hiện:{" "}
+                    <span className="text-[10px] text-slate-500 flex items-center gap-1">
+                      <Clock size={10} />
                       {new Date(alert.created_at).toLocaleString("vi-VN")}
                     </span>
                   </div>
 
-                  {/* Tiêu đề tự sinh: Trạm + Loại rủi ro */}
-                  <h3 className="text-xl font-bold text-white mb-2">
-                    Cảnh báo tại trạm {alert.station_name}
-                  </h3>
-
-                  {/* Thông số kỹ thuật quan trọng */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mt-4 bg-slate-800/50 p-3 rounded-lg border border-slate-700/50">
+                  {/* Title & Icon */}
+                  <div className="flex items-start gap-3 mb-3">
+                    <div
+                      className={`p-2 rounded-lg ${levelUI.color} bg-opacity-20 shrink-0`}
+                    >
+                      <RiskIcon size={24} className={levelUI.text} />
+                    </div>
                     <div>
-                      <p className="text-slate-500 text-xs mb-1">
-                        Lượng mưa 1h
+                      <h3 className="text-base font-bold text-white leading-tight">
+                        {alert.station_name}
+                      </h3>
+                      <p className="text-xs text-slate-400 font-medium mt-0.5">
+                        {riskUI.label}
                       </p>
-                      <p className="font-mono font-bold text-blue-400">
+                    </div>
+                  </div>
+
+                  {/* Description */}
+                  <div className="bg-slate-950/50 p-2 rounded border border-slate-800 text-xs text-slate-300 italic mb-3">
+                    "{alert.description || alert.message}"
+                  </div>
+
+                  {/* GRID THÔNG SỐ (Compact) */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    {/* Hàng 1: Dữ liệu mưa & Thời gian */}
+                    <div className="bg-slate-800 p-1.5 rounded border border-slate-700/50">
+                      <p className="text-[10px] text-slate-500">Mưa 1h</p>
+                      <p className="text-sm font-mono font-bold text-blue-400">
                         {alert.rain_value}mm
                       </p>
                     </div>
-                    <div>
-                      <p className="text-slate-500 text-xs mb-1">Mưa 24h</p>
-                      <p className="font-mono font-bold text-sky-400">
+                    <div className="bg-slate-800 p-1.5 rounded border border-slate-700/50">
+                      <p className="text-[10px] text-slate-500">Mưa 24h</p>
+                      <p className="text-sm font-mono font-bold text-sky-400">
                         {alert.rain_24h}mm
                       </p>
                     </div>
-                    <div>
-                      <p className="text-slate-500 text-xs mb-1">
-                        Dự kiến đổ bộ
-                      </p>
-                      <p className="font-mono font-bold text-yellow-400">
-                        +{alert.estimated_toa_hours}h
+                    <div className="bg-slate-800 p-1.5 rounded border border-slate-700/50">
+                      <p className="text-[10px] text-slate-500">Đổ bộ sau</p>
+                      <p className="text-sm font-mono font-bold text-yellow-400">
+                        {alert.estimated_toa_hours}h
                       </p>
                     </div>
-                    {/* Bán kính ảnh hưởng (Giả lập nếu API chưa trả về, hoặc lấy từ context_data) */}
-                    <div>
-                      <p className="text-slate-500 text-xs mb-1">Bán kính</p>
-                      <p className="font-mono font-bold text-white">~5km</p>
+                    <div className="bg-slate-800 p-1.5 rounded border border-slate-700/50">
+                      <p className="text-[10px] text-slate-500">
+                        Phạm vi ảnh hưởng
+                      </p>
+                      <p className="text-sm font-mono font-bold text-white flex items-center gap-1">
+                        <Ruler size={12} className="text-slate-400" />
+                        {/* Nếu API chưa trả radius thì tạm tính theo Level */}
+                        {alert.radius
+                          ? alert.radius
+                          : alert.alert_level === "CRITICAL"
+                          ? ">10km"
+                          : alert.alert_level === "HIGH"
+                          ? "<3km"
+                          : "5km"}
+                      </p>
                     </div>
                   </div>
                 </div>
 
-                {/* Cột 3: Nút Hành động */}
-                <div className="flex flex-row md:flex-col gap-3 w-full md:w-auto items-center justify-center border-t md:border-t-0 md:border-l border-slate-700 pt-4 md:pt-0 md:pl-6">
+                {/* CỘT 2: THÔNG SỐ ĐỊA HÌNH (CONTEXT DATA) */}
+                <div className="lg:w-48 bg-slate-950/30 rounded-lg p-3 border border-white/5 flex flex-col justify-center text-xs space-y-2">
+                  <p className="text-[10px] font-bold text-slate-500 uppercase mb-1 border-b border-white/5 pb-1">
+                    Địa hình & Thủy văn
+                  </p>
+
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-400 flex items-center gap-1">
+                      <TrendingUp size={10} /> Độ dốc:
+                    </span>
+                    <span className="font-mono text-white">
+                      {ctx.slope ? `${ctx.slope}%` : "N/A"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-400 flex items-center gap-1">
+                      <ArrowUpFromLine size={10} /> Độ cao:
+                    </span>
+                    <span className="font-mono text-white">
+                      {ctx.elevation ? `${ctx.elevation}m` : "N/A"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-400 flex items-center gap-1">
+                      <Layers size={10} /> TWI (Ẩm):
+                    </span>
+                    <span className="font-mono text-white">
+                      {ctx.twi ? Number(ctx.twi).toFixed(1) : "N/A"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center pt-1 border-t border-white/5 mt-1">
+                    <span className="text-slate-400 font-bold">
+                      Rủi ro tích lũy:
+                    </span>
+                    <span
+                      className={`font-mono font-bold ${
+                        alert.risk_type === "FLOOD"
+                          ? "text-blue-400"
+                          : "text-orange-400"
+                      }`}
+                    >
+                      {alert.risk_type === "FLOOD"
+                        ? ctx.flood_score
+                        : ctx.landslide_score}{" "}
+                      điểm
+                    </span>
+                  </div>
+                </div>
+
+                {/* CỘT 3: HÀNH ĐỘNG */}
+                <div className="flex lg:flex-col gap-2 min-w-[120px] justify-center border-t lg:border-t-0 lg:border-l border-slate-700 pt-3 lg:pt-0 lg:pl-4">
                   <button
                     onClick={() => handleReview(alert.id, "APPROVED")}
-                    className="flex-1 w-full md:w-36 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-emerald-900/20 transition-all active:scale-95"
+                    className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-lg flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95 text-xs"
                   >
-                    <Check size={18} /> PHÁT TIN
+                    <Check size={16} /> PHÁT TIN
                   </button>
-
                   <button
                     onClick={() => handleReview(alert.id, "REJECTED")}
-                    className="flex-1 w-full md:w-36 bg-slate-800 hover:bg-red-900/30 text-slate-400 hover:text-red-400 font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 border border-slate-700 transition-all active:scale-95"
+                    className="flex-1 bg-slate-800 hover:bg-red-900/40 text-slate-400 hover:text-red-400 font-bold py-2 rounded-lg flex items-center justify-center gap-2 border border-slate-700 transition-all active:scale-95 text-xs"
                   >
-                    <X size={18} /> Hủy bỏ
+                    <X size={16} /> HỦY BỎ
                   </button>
                 </div>
               </div>
