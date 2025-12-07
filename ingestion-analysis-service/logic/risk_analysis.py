@@ -171,42 +171,39 @@ def analyze_rain_risk(rain_data, lat, lon, station_name, station_id):
         final_level = "HIGH"
     else:
         final_level = "LOW"
-    
-    if final_level != "LOW":
-        # Xác định loại thiên tai chính
-        disaster_type = "FLOOD" if flood_score_total >= landslide_score_total else "LANDSLIDE"
-        
-        # Tính toán ToA 
-        dist_km = static_metrics.get('water_distance', 1000) / 1000.0
-        slope_perc = static_metrics.get('slope', 1.0)
-        toa = calculate_toa(slope_perc, dist_km)
-        
-        # Lấy thông tin xung yếu
-        impacted_points = get_impacted_points(lat, lon, radius_km=5)
 
-        # Mô tả
-        desc_text = f"Nguy cơ {final_level} {disaster_type} cao do tích lũy điểm rủi ro ({final_score} điểm)."
-        desc_text += f" Mưa 24h: {rain_24h}mm. Địa hình dốc: {slope_perc}%."
+    # Xác định loại thiên tai chính
+    disaster_type = "FLOOD" if flood_score_total >= landslide_score_total else "LANDSLIDE"
 
-        # Tạo payload cảnh báo chi tiết
-        alert_payload = {
-            "title": f"🚨 CẢNH BÁO {disaster_type}: {station_name}",
-            "level": final_level,
-            "description": desc_text,
-            "station_name": station_name,
-            "rain_1h": rain_1h,
-            "rain_24h": rain_24h,
-            "risk_type": disaster_type,
-            "flood_score": flood_score_total,
-            "landslide_score": landslide_score_total,
-            "context_data": {"elevation": elevation, "twi": twi, "isr": isr, "soil_moisture": soil_moisture, "slope": slope},
-            "impacted_points": impacted_points,
-            "estimated_toa_hours": toa
-        }
-        
-        trigger_alert(alert_payload)
-    else:
-        print(f"👍 [{station_name}] Nguy cơ Thấp (Lũ: {flood_score_total}, Sạt lở: {landslide_score_total}).")
+    # Tính toán ToA
+    dist_km = static_metrics.get('water_distance', 1000) / 1000.0
+    slope_perc = static_metrics.get('slope', 1.0)
+    toa = calculate_toa(slope_perc, dist_km)
+
+    # Lấy thông tin xung yếu
+    impacted_points = get_impacted_points(lat, lon, radius_km=5)
+
+    # Mô tả
+    desc_text = f"Nguy cơ {final_level} {disaster_type} cao do tích lũy điểm rủi ro ({final_score} điểm)."
+    desc_text += f" Mưa 24h: {rain_24h}mm. Địa hình dốc: {slope_perc}%."
+
+    # Tạo payload cảnh báo chi tiết
+    alert_payload = {
+        "title": f"🚨 CẢNH BÁO {disaster_type}: {station_name}",
+        "level": final_level,
+        "description": desc_text,
+        "station_name": station_name,
+        "rain_1h": rain_1h,
+        "rain_24h": rain_24h,
+        "risk_type": disaster_type,
+        "flood_score": flood_score_total,
+        "landslide_score": landslide_score_total,
+        "context_data": {"elevation": elevation, "twi": twi, "isr": isr, "soil_moisture": soil_moisture, "slope": slope},
+        "impacted_points": impacted_points,
+        "estimated_toa_hours": toa
+    }
+
+    trigger_alert(alert_payload)
 
 #==============================================================================
 # def analyze_rain_risk(rain_data, lat, lon, station_name, station_id):
