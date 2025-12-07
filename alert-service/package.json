@@ -12,7 +12,8 @@
     "axios": "^1.6.2",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
-    "swagger-jsdoc": "^6.2.8"
+    "swagger-jsdoc": "^6.2.8",
+    "socket.io": "^4.7.4"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"

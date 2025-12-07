@@ -162,22 +162,33 @@ def analyze_rain_risk(rain_data, lat, lon, station_name, station_id):
     landslide_score_total = sum(landslide_scores)
 
     # C. RA QUYẾT ĐỊNH CUỐI CÙNG (Dựa trên tổng điểm)
-    
-    final_score = max(flood_score_total, landslide_score_total)
-    MAX_TOTAL_SCORE = f_conf.get('MAX_SCORE', 21)
-    
-    
-    if final_score >= MAX_TOTAL_SCORE * 0.8:
+
+    MAX_FLOOD_SCORE = len(f_conf) * 2  # 7 tiêu chí x 2 điểm = 14
+    MAX_LANDSLIDE_SCORE = len(l_conf) * 2  # 4 tiêu chí x 2 điểm = 8
+
+    # 1. TÍNH CHỈ SỐ RỦI RO (RISK INDEX)
+    # Chuẩn hóa về tỷ lệ 0.0 - 1.0 (hoặc 0% - 100%)
+    flood_risk_index = flood_score_total / MAX_FLOOD_SCORE
+    landslide_risk_index = landslide_score_total / MAX_LANDSLIDE_SCORE
+
+    # 2. RA QUYẾT ĐỊNH CUỐI CÙNG DỰA TRÊN CHỈ SỐ CAO NHẤT
+    # Chỉ số rủi ro cuối cùng là chỉ số cao nhất của hai loại (đã chuẩn hóa)
+    final_risk_index = max(flood_risk_index, landslide_risk_index)
+
+    # 3. PHÂN CẤP CẢNH BÁO DỰA TRÊN INDEX (0.0 đến 1.0)
+    # Bạn không cần dùng MAX_TOTAL_SCORE nữa!
+    if final_risk_index >= 0.8:  # 80% rủi ro tối đa
         final_level = "CRITICAL"
-    elif final_score >= MAX_TOTAL_SCORE * 0.6:
+    elif final_risk_index >= 0.6:  # 60% rủi ro tối đa
         final_level = "VERY HIGH"
-    elif final_score >= MAX_TOTAL_SCORE * 0.4:
+    elif final_risk_index >= 0.4:  # 40% rủi ro tối đa
         final_level = "HIGH"
     else:
         final_level = "LOW"
 
     # Xác định loại thiên tai chính
-    disaster_type = "FLOOD" if flood_score_total >= landslide_score_total else "LANDSLIDE"
+    # So sánh hai chỉ số Index đã được chuẩn hóa để xác định Hazard chiếm ưu thế
+    disaster_type = "FLOOD" if flood_risk_index >= landslide_risk_index else "LANDSLIDE"
 
     # Tính toán ToA
     dist_km = static_metrics.get('water_distance', 1000) / 1000.0
@@ -185,7 +196,7 @@ def analyze_rain_risk(rain_data, lat, lon, station_name, station_id):
     toa = calculate_toa(slope_perc, dist_km)
 
     # Mô tả
-    desc_text = f"Nguy cơ {final_level} {disaster_type} cao do tích lũy điểm rủi ro ({final_score} điểm)."
+    desc_text = f"Nguy cơ {final_level} {disaster_type} cao do tích lũy điểm rủi ro ({final_risk_index} điểm)."
     desc_text += f" Mưa 24h: {rain_24h}mm. Địa hình dốc: {slope_perc}%."
 
     # Tạo payload cảnh báo chi tiết
