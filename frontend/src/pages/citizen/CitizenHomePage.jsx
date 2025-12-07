@@ -201,16 +201,16 @@ const getAlertRadius = (type, levelString) => {
   const t = String(type).toUpperCase();
   const l = String(levelString).toUpperCase();
   if (t === "FLOOD") {
-    if (l.includes("CRITICAL") || l == "3") return 20000;
-    if (l.includes("VERY") || l == "2") return 10000;
-    return 5000;
+    if (l.includes("CRITICAL") || l == "3") return 3000;
+    if (l.includes("VERY") || l == "2") return 1500;
+    return 800;
   }
   if (t === "LANDSLIDE") {
-    if (l.includes("CRITICAL") || l == "3") return 5000;
-    if (l.includes("VERY") || l == "2") return 2000;
-    return 1000;
+    if (l.includes("CRITICAL") || l == "3") return 1000;
+    if (l.includes("VERY") || l == "2") return 600;
+    return 300;
   }
-  return 1000;
+  return 500;
 };
 
 const getAlertColor = (levelString) => {
@@ -315,7 +315,19 @@ const CitizenHomePage = () => {
       try {
         const data = await alertService.getCitizenAlerts();
         if (Array.isArray(data)) {
-          setActiveAlerts(data);
+          // 👇 CŨNG THÊM LOGIC LỌC TƯƠNG TỰ
+          const uniqueAlertsMap = new Map();
+          data.forEach((alert) => {
+            const existing = uniqueAlertsMap.get(alert.station_name);
+            if (
+              !existing ||
+              new Date(alert.created_at) > new Date(existing.created_at)
+            ) {
+              uniqueAlertsMap.set(alert.station_name, alert);
+            }
+          });
+
+          setActiveAlerts(Array.from(uniqueAlertsMap.values()));
         }
       } catch (error) {
         console.error(error);

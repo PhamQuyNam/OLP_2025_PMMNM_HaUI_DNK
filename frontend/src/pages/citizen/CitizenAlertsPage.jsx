@@ -15,11 +15,43 @@ const CitizenAlertsPage = () => {
   const [alerts, setAlerts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  // ... trong useEffect
   useEffect(() => {
     const fetchAlerts = async () => {
       try {
         const data = await alertService.getCitizenAlerts();
-        if (Array.isArray(data)) setAlerts(data);
+
+        if (Array.isArray(data)) {
+          // 👇 LOGIC LỌC TRÙNG: Chỉ lấy cảnh báo mới nhất của mỗi trạm
+          const uniqueAlertsMap = new Map();
+
+          data.forEach((alert) => {
+            const existing = uniqueAlertsMap.get(alert.station_name);
+            // Nếu chưa có, hoặc cảnh báo này mới hơn cái đang lưu -> Ghi đè
+            if (
+              !existing ||
+              new Date(alert.created_at) > new Date(existing.created_at)
+            ) {
+              uniqueAlertsMap.set(alert.station_name, alert);
+            }
+          });
+
+          // Chuyển Map ngược lại thành Array để hiển thị
+          const uniqueList = Array.from(uniqueAlertsMap.values());
+
+          // Sắp xếp: Cấp độ cao (CRITICAL) lên đầu, sau đó đến thời gian
+          const sortedList = uniqueList.sort((a, b) => {
+            // Logic sort: Cấp 3 > Cấp 2 > Cấp 1
+            const getScore = (lvl) => {
+              if (lvl.includes("CRITICAL") || lvl == "3") return 3;
+              if (lvl.includes("VERY") || lvl == "2") return 2;
+              return 1;
+            };
+            return getScore(b.alert_level) - getScore(a.alert_level);
+          });
+
+          setAlerts(sortedList);
+        }
       } catch (error) {
         console.error(error);
       } finally {
