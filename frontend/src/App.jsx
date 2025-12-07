@@ -17,6 +17,7 @@ import CitizenLayout from "./layouts/CitizenLayout";
 import CitizenHomePage from "./pages/citizen/CitizenHomePage";
 import CitizenGuidePage from "./pages/citizen/CitizenGuidePage";
 import CitizenProfile from "./pages/citizen/CitizenProfile";
+import CitizenAlertsPage from "./pages/citizen/CitizenAlertsPage";
 // Manager Imports
 import ManagerLayout from "./layouts/ManagerLayout";
 import ManagerDashboardPage from "./pages/manager/ManagerDashboardPage";
@@ -52,7 +53,7 @@ function App() {
           {/* 1. Khu vực Người Dân */}
           <Route path="/citizen" element={<CitizenLayout />}>
             <Route index element={<CitizenHomePage />} />
-            <Route path="alerts" element={<CitizenAlerts />} />
+            <Route path="alerts" element={<CitizenAlertsPage />} />
             <Route path="report" element={<CitizenReportPage />} />
             <Route path="profile" element={<CitizenProfile />} />
             <Route path="guide" element={<CitizenGuidePage />} />

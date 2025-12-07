@@ -21,6 +21,7 @@ import {
   LayerGroup,
   useMap,
   Polyline,
+  Circle, // Import Circle
 } from "react-leaflet";
 import L from "leaflet";
 import axios from "axios";
@@ -36,6 +37,7 @@ import {
 import { useAuth } from "../../context/AuthContext";
 import weatherService from "../../services/weatherService";
 import reportService from "../../services/reportService";
+import alertService from "../../services/alertService"; // Import Alert Service
 
 // Fix icon marker
 import icon from "leaflet/dist/images/marker-icon.png";
@@ -50,13 +52,13 @@ let DefaultIcon = L.icon({
 });
 L.Marker.prototype.options.icon = DefaultIcon;
 
-// --- 1. CẤU HÌNH DANH SÁCH (THÊM MỤC 'CURRENT') ---
+// CẤU HÌNH THÀNH PHỐ
 const CITIES = [
   {
-    id: "current", // ID đặc biệt
+    id: "current",
     name: "Vị trí của bạn",
-    query: null, // Không cần query
-    center: null, // Không có tâm cố định
+    query: null,
+    center: null,
   },
   {
     id: "hatinh",
@@ -78,24 +80,18 @@ const CITIES = [
   },
 ];
 
-// --- 2. COMPONENT ĐIỀU KHIỂN ---
+// --- COMPONENT ĐIỀU KHIỂN ---
 
-// Component: Bay về vị trí người dùng
-// Chỉ hoạt động khi mode = 'current'
 const UserLocationController = ({ userLocation, activeCityId }) => {
   const map = useMap();
-
   useEffect(() => {
-    // Chỉ bay nếu đang chọn chế độ "Vị trí của bạn" VÀ có tọa độ
     if (activeCityId === "current" && userLocation) {
-      console.log("Fly to User Location");
-      map.flyTo(userLocation, 15, { duration: 2 });
+      map.flyTo(userLocation, 15, { duration: 2.5, easeLinearity: 0.25 });
     }
   }, [userLocation, activeCityId, map]);
 
   if (!userLocation) return null;
 
-  // Marker người dùng luôn hiển thị dù ở chế độ nào (để biết mình đang ở đâu so với thành phố)
   const userIcon = new L.DivIcon({
     className: "relative",
     html: `<div class="absolute -inset-2 bg-blue-500/30 rounded-full animate-ping"></div>
@@ -113,18 +109,20 @@ const UserLocationController = ({ userLocation, activeCityId }) => {
   );
 };
 
-// Component: Zoom theo ranh giới thành phố
 const BoundaryController = ({ geoJsonData, shouldZoom, onZoomComplete }) => {
   const map = useMap();
-
   useEffect(() => {
     if (geoJsonData && shouldZoom) {
       try {
         const geoJsonLayer = L.geoJSON(geoJsonData);
         const bounds = geoJsonLayer.getBounds();
         if (bounds.isValid()) {
-          console.log("Zoom to City Boundary...");
-          map.fitBounds(bounds, { padding: [20, 20], duration: 1.5 });
+          map.fitBounds(bounds, {
+            padding: [20, 20],
+            animate: true,
+            duration: 3,
+            easeLinearity: 0.5,
+          });
         }
         if (onZoomComplete) onZoomComplete();
       } catch (e) {
@@ -132,11 +130,9 @@ const BoundaryController = ({ geoJsonData, shouldZoom, onZoomComplete }) => {
       }
     }
   }, [geoJsonData, shouldZoom, map, onZoomComplete]);
-
   return null;
 };
 
-// Component: Vẽ đường SOS (Giữ nguyên)
 const RoutingController = ({ userLocation, destination }) => {
   const map = useMap();
   useEffect(() => {
@@ -160,7 +156,7 @@ const RoutingController = ({ userLocation, destination }) => {
   );
 };
 
-// ... (Giữ nguyên createWeatherIcon, createReportIcon) ...
+// --- HELPERS ---
 const createWeatherIcon = (color) => {
   let cssColor = "bg-emerald-500";
   let ringColor = "bg-emerald-500/30";
@@ -200,22 +196,42 @@ const createReportIcon = (type) => {
   });
 };
 
+const getAlertRadius = (type, levelString) => {
+  const t = String(type).toUpperCase();
+  const l = String(levelString).toUpperCase();
+  if (t === "FLOOD") {
+    if (l.includes("CRITICAL") || l == "3") return 20000;
+    if (l.includes("VERY") || l == "2") return 10000;
+    return 5000;
+  }
+  if (t === "LANDSLIDE") {
+    if (l.includes("CRITICAL") || l == "3") return 5000;
+    if (l.includes("VERY") || l == "2") return 2000;
+    return 1000;
+  }
+  return 1000;
+};
+
+const getAlertColor = (levelString) => {
+  const l = String(levelString).toUpperCase();
+  if (l.includes("CRITICAL") || l == "3") return "#dc2626"; // Đỏ
+  if (l.includes("VERY") || l == "2") return "#f97316"; // Cam
+  return "#eab308"; // Vàng
+};
+
 const CitizenHomePage = () => {
   const { userLocation } = useAuth();
   const location = useLocation();
 
-  // --- STATE ---
-  // Mặc định chọn "Vị trí của bạn" (CITIES[0])
   const [activeCity, setActiveCity] = useState(CITIES[0]);
-
   const [shouldZoomCity, setShouldZoomCity] = useState(false);
   const [geoJsonData, setGeoJsonData] = useState(null);
 
   const [weatherStations, setWeatherStations] = useState([]);
   const [reports, setReports] = useState([]);
+  const [activeAlerts, setActiveAlerts] = useState([]);
   const [destination, setDestination] = useState(null);
 
-  // 1. Nhận lệnh chỉ đường SOS
   useEffect(() => {
     if (location.state?.destination) {
       setDestination(location.state.destination);
@@ -223,22 +239,17 @@ const CitizenHomePage = () => {
     }
   }, [location]);
 
-  // 2. Fetch Ranh giới (SỬA LẠI LOGIC KỸ LƯỠNG)
+  // Fetch Ranh giới
   useEffect(() => {
     const fetchBoundary = async () => {
-      // 2.1. Nếu chọn "Vị trí của bạn": Xóa ranh giới ngay lập tức
       if (activeCity.id === "current") {
         setGeoJsonData(null);
         setShouldZoomCity(false);
         return;
       }
-
-      // 2.2. Nếu đang dẫn đường SOS: Cũng không load ranh giới
       if (destination) return;
 
       try {
-        // QUAN TRỌNG: Xóa dữ liệu cũ và tắt zoom TRƯỚC KHI gọi API mới
-        // Để tránh map bị nhảy về dữ liệu cũ
         setGeoJsonData(null);
         setShouldZoomCity(false);
 
@@ -256,8 +267,6 @@ const CitizenHomePage = () => {
         );
 
         if (response.data?.[0]) {
-          console.log(`Đã tải xong: ${activeCity.name}`);
-          // CHỈ khi dữ liệu mới về đến nơi -> Mới Set Data và Bật Zoom
           setGeoJsonData(response.data[0].geojson);
           setShouldZoomCity(true);
         }
@@ -268,7 +277,7 @@ const CitizenHomePage = () => {
     fetchBoundary();
   }, [activeCity, destination]);
 
-  // 3. Fetch dữ liệu khác
+  // Fetch Data
   useEffect(() => {
     const fetchWeather = async () => {
       try {
@@ -300,12 +309,27 @@ const CitizenHomePage = () => {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    const fetchAlerts = async () => {
+      try {
+        const data = await alertService.getCitizenAlerts();
+        if (Array.isArray(data)) {
+          setActiveAlerts(data);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchAlerts();
+    const interval = setInterval(fetchAlerts, 10000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div className="h-[calc(100vh-56px)] w-full relative">
       {/* UI DROPDOWN */}
       <div className="absolute top-4 left-4 z-[1000] group">
         <div className="relative flex items-center bg-white/90 backdrop-blur-md border border-slate-200 shadow-xl rounded-2xl p-1.5 pr-4 transition-all duration-300 hover:scale-[1.02] hover:border-primary/50 hover:shadow-primary/10">
-          {/* Đổi icon tùy theo mode */}
           <div
             className={`p-2 rounded-xl text-white shadow-md mr-3 transition-colors ${
               activeCity.id === "current"
@@ -319,10 +343,9 @@ const CitizenHomePage = () => {
               <MapIcon size={18} />
             )}
           </div>
-
           <div className="flex flex-col relative">
             <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
-              Lựa chọn thành phố
+              Khu vực giám sát
             </span>
             <div className="flex items-center gap-2">
               <span className="text-sm font-bold text-slate-800 w-[140px] truncate">
@@ -333,7 +356,6 @@ const CitizenHomePage = () => {
                 className="text-slate-400 group-hover:text-primary transition-colors"
               />
             </div>
-
             <select
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
               value={activeCity.id}
@@ -341,7 +363,7 @@ const CitizenHomePage = () => {
                 const city = CITIES.find((c) => c.id === e.target.value);
                 if (city) {
                   setActiveCity(city);
-                  setDestination(null); // Reset chỉ đường SOS nếu đổi thành phố
+                  setDestination(null);
                 }
               }}
             >
@@ -356,25 +378,20 @@ const CitizenHomePage = () => {
       </div>
 
       <MapContainer
-        // Mặc định center Hà Tĩnh, nhưng LocationMarker sẽ đè lên nếu chọn 'current'
         center={[18.3436, 105.9002]}
         zoom={10}
         scrollWheelZoom={true}
         className="h-full w-full z-0"
         zoomControl={false}
       >
-        {/* 1. Component này chịu trách nhiệm bay về user khi activeCity là 'current' */}
         <UserLocationController
           userLocation={userLocation}
           activeCityId={activeCity.id}
         />
-
         <RoutingController
           userLocation={userLocation}
           destination={destination}
         />
-
-        {/* 2. Component này chịu trách nhiệm zoom ranh giới khi activeCity là các tỉnh */}
         <BoundaryController
           geoJsonData={geoJsonData}
           shouldZoom={shouldZoomCity}
@@ -389,12 +406,72 @@ const CitizenHomePage = () => {
             />
           </LayersControl.BaseLayer>
 
-          {/* Chỉ hiện layer ranh giới nếu có dữ liệu (tức là không phải mode 'current') */}
+          {/* VÙNG CẢNH BÁO NGUY HIỂM (CÓ FIX LOGIC TÌM TỌA ĐỘ) */}
+          <LayersControl.Overlay checked name="⚠️ Vùng Cảnh báo Thiên tai">
+            <LayerGroup>
+              {activeAlerts.map((alert) => {
+                // 👇 LOGIC TÌM TỌA ĐỘ (HYBRID)
+                let lat = alert.lat;
+                let lon = alert.lon;
+
+                if (!lat || !lon) {
+                  // Fallback: Tìm trong danh sách trạm thời tiết
+                  const matchedStation = weatherStations.find(
+                    (s) =>
+                      s.name === alert.station_name || s.id === alert.station_id
+                  );
+                  if (matchedStation) {
+                    lat = matchedStation.lat;
+                    lon = matchedStation.lon;
+                  }
+                }
+
+                // Nếu vẫn không có tọa độ -> Bỏ qua
+                if (!lat || !lon) return null;
+
+                return (
+                  <Circle
+                    key={`alert-${alert.id}`}
+                    center={[lat, lon]}
+                    radius={getAlertRadius(alert.risk_type, alert.alert_level)}
+                    pathOptions={{
+                      color: getAlertColor(alert.alert_level),
+                      fillColor: getAlertColor(alert.alert_level),
+                      fillOpacity: 0.2,
+                      weight: 2,
+                    }}
+                  >
+                    <Popup>
+                      <div className="text-center font-sans">
+                        <strong className="text-red-600 uppercase text-xs block mb-1">
+                          {alert.alert_level === "CRITICAL"
+                            ? "KHẨN CẤP"
+                            : "CẢNH BÁO"}
+                        </strong>
+                        <div className="font-bold text-sm text-slate-800">
+                          {alert.station_name}
+                        </div>
+                        <div className="text-xs text-slate-500 mt-1">
+                          {alert.risk_type === "FLOOD" ? "Ngập lụt" : "Sạt lở"}
+                          <span className="mx-1">•</span>
+                          Bán kính{" "}
+                          {getAlertRadius(alert.risk_type, alert.alert_level) /
+                            1000}
+                          km
+                        </div>
+                      </div>
+                    </Popup>
+                  </Circle>
+                );
+              })}
+            </LayerGroup>
+          </LayersControl.Overlay>
+
           {geoJsonData && (
             <LayersControl.Overlay checked name="Ranh giới Hành chính">
               <LayerGroup>
                 <GeoJSON
-                  key={activeCity.id} // Quan trọng: Force re-render khi đổi tỉnh
+                  key={activeCity.id}
                   data={geoJsonData}
                   style={{
                     color: "#3b82f6",
@@ -407,7 +484,6 @@ const CitizenHomePage = () => {
             </LayersControl.Overlay>
           )}
 
-          {/* ... (Các Overlay khác giữ nguyên) ... */}
           <LayersControl.Overlay checked name="Trạm đo mưa (Real-time)">
             <LayerGroup>
               {weatherStations.map((station) => (
