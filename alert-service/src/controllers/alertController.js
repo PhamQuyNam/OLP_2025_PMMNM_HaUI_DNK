@@ -97,7 +97,7 @@ const receiveAlert = async (req, res) => {
             SELECT id, alert_level, rain_value FROM active_alerts
             WHERE station_name = $1 AND risk_type = $2
             AND status IN ('PENDING', 'APPROVED')
-            AND created_at >= NOW() - INTERVAL '1 HOURS'
+            AND created_at >= NOW() - INTERVAL '2 HOURS'
         `;
         const existing = await pool.query(checkDuplicateQuery, [station_name, risk_type]);
 
