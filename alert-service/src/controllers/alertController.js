@@ -226,7 +226,13 @@ const getPendingAlerts = async (req, res) => {
 // 3. MANAGER DUYỆT (Approve)
 const approveAlert = async (req, res) => {
   const { id } = req.params;
-  const { managerName } = req.body;
+  const { managerName, status } = req.body; // status: 'APPROVED' hoặc 'REJECTED'
+
+  if (!["APPROVED", "REJECTED"].includes(status)) {
+    return res
+      .status(400)
+      .json({ message: "Trạng thái không hợp lệ (Chỉ APPROVED/REJECTED)" });
+  }
 
   const client = await pool.connect();
   try {
@@ -237,20 +243,21 @@ const approveAlert = async (req, res) => {
       "SELECT * FROM active_alerts WHERE id = $1",
       [id]
     );
-    if (resActive.rows.length === 0) throw new Error("Cảnh báo không tồn tại");
+    if (resActive.rows.length === 0)
+      throw new Error("Cảnh báo không tồn tại hoặc đã được xử lý");
     const alert = resActive.rows[0];
 
-    // B2: Sao chép sang bảng LẠNH (Archive)
-    // Đã bổ sung rain_24h và context_data vào câu lệnh INSERT
+    // B2: Chuyển sang Archive (Lưu trữ cả APPROVED và REJECTED)
     const insertArchive = `
             INSERT INTO alert_archive
-            (station_name, risk_type, alert_level, rain_value, description, estimated_toa_hours, approved_by, original_created_at, status, rain_24h, context_data)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'APPROVED', $9, $10)
+            (
+                station_name, risk_type, alert_level, rain_value, description,
+                estimated_toa_hours, approved_by, original_created_at, status,
+                rain_24h, context_data
+            )
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
         `;
 
-    // Chú ý: alert.impacted_points và context_data lấy ra từ DB là Object,
-    // nhưng khi INSERT lại vào JSONB cần stringify nếu dùng thư viện pg bản cũ,
-    // bản mới thường tự hiểu. Để chắc ăn ta cứ stringify.
     await client.query(insertArchive, [
       alert.station_name,
       alert.risk_type,
@@ -260,6 +267,7 @@ const approveAlert = async (req, res) => {
       alert.estimated_toa_hours,
       managerName,
       alert.created_at,
+      status, // Lưu trạng thái động (APPROVED/REJECTED)
       alert.rain_24h,
       JSON.stringify(alert.context_data),
     ]);
@@ -267,25 +275,31 @@ const approveAlert = async (req, res) => {
     // B3: Xóa khỏi bảng NÓNG
     await client.query("DELETE FROM active_alerts WHERE id = $1", [id]);
 
-    // B4: Đẩy lên Orion
-    await pushToOrion(alert);
+    // B4: Xử lý nghiệp vụ theo trạng thái
+    if (status === "APPROVED") {
+      // Chỉ đẩy lên Orion và thông báo dân khi ĐƯỢC DUYỆT
+      await pushToOrion(alert);
 
-    console.log(`📡 Emit Socket: Phát lệnh báo động (${alert.station_name})`);
-
-    // Bổ sung thêm thông tin người duyệt để Frontend hiển thị nếu cần
-    const broadcastData = {
-      ...alert,
-      approved_by: managerName,
-      status: "APPROVED",
-    };
-    req.io.emit("alert:broadcast", broadcastData);
+      console.log(`📡 Emit Socket: Alert Approved -> Broadcast`);
+      if (req.io) {
+        const broadcastData = {
+          ...alert,
+          approved_by: managerName,
+          status: "APPROVED",
+        };
+        req.io.emit("alert:broadcast", broadcastData);
+      }
+    } else {
+      console.log(`🚫 Alert Rejected by ${managerName}`);
+      // Nếu từ chối thì không làm gì thêm (hoặc có thể bắn socket báo admin khác là đã từ chối)
+    }
 
     await client.query("COMMIT");
-    res.json({ message: "Đã duyệt và lưu trữ thành công!" });
+    res.json({ message: `Đã xử lý: ${status} thành công!` });
   } catch (e) {
     await client.query("ROLLBACK");
     console.error(e);
-    res.status(500).json({ error: "Lỗi quy trình duyệt: " + e.message });
+    res.status(500).json({ error: e.message });
   } finally {
     client.release();
   }
@@ -308,9 +322,40 @@ const getPublicAlerts = async (req, res) => {
   }
 };
 
+// ---------------------------------------------------------
+// 5. API MANAGER: LẤY LỊCH SỬ DUYỆT (APPROVED & REJECTED)
+// ---------------------------------------------------------
+const getHistoryAlerts = async (req, res) => {
+  try {
+    const { status, limit } = req.query; // Hỗ trợ lọc ?status=REJECTED
+
+    let query = `
+            SELECT * FROM alert_archive
+            WHERE 1=1
+        `;
+    const params = [];
+    let pIdx = 1;
+
+    if (status) {
+      query += ` AND status = $${pIdx++}`;
+      params.push(status);
+    }
+
+    query += ` ORDER BY created_at DESC LIMIT $${pIdx}`;
+    params.push(limit || 100); // Mặc định lấy 100 cái mới nhất
+
+    const result = await pool.query(query, params);
+    res.json(result.rows);
+  } catch (err) {
+    console.error("Lỗi lấy lịch sử:", err);
+    res.status(500).json({ message: "Lỗi Server" });
+  }
+};
+
 module.exports = {
   getPublicAlerts,
   receiveAlert,
   getPendingAlerts,
   approveAlert,
+  getHistoryAlerts,
 };
