@@ -9,11 +9,11 @@ import {
   AlertOctagon,
   Info,
   Waves,
-  Mountain, // Icon cho Lũ và Sạt lở
+  Mountain, // Icon Sóng và Núi
   TrendingUp,
   ArrowUpFromLine,
   Layers,
-  Ruler, // Icon thông số
+  Ruler,
 } from "lucide-react";
 import { toast } from "react-toastify";
 import alertService from "../../services/alertService";
@@ -45,7 +45,6 @@ const ManagerAlertsPage = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Xử lý nút Duyệt/Hủy
   const handleReview = async (id, status) => {
     const actionName = status === "APPROVED" ? "DUYỆT" : "TỪ CHỐI";
     if (!window.confirm(`Bạn chắc chắn muốn ${actionName} cảnh báo này?`))
@@ -60,7 +59,7 @@ const ManagerAlertsPage = () => {
     }
   };
 
-  // Helper 1: Màu sắc theo cấp độ (Giữ nguyên)
+  // Helper 1: Màu sắc theo cấp độ
   const getLevelInfo = (levelString) => {
     const level = String(levelString).toUpperCase();
     if (level.includes("HIGH") && !level.includes("VERY")) {
@@ -95,16 +94,35 @@ const ManagerAlertsPage = () => {
     };
   };
 
-  // Helper 2: Icon theo Loại thiên tai (Mới)
+  // Helper 2: Icon theo Loại thiên tai
   const getRiskInfo = (type) => {
     if (type === "FLOOD") return { icon: Waves, label: "Lũ lụt / Ngập úng" };
     if (type === "LANDSLIDE") return { icon: Mountain, label: "Sạt lở đất" };
     return { icon: Activity, label: "Thiên tai khác" };
   };
 
+  // Helper 3: Tính phạm vi ảnh hưởng (Dựa trên File Excel)
+  const getRadiusInfo = (type, levelString) => {
+    const t = String(type).toUpperCase();
+    const l = String(levelString).toUpperCase();
+
+    // Logic Ngập lụt
+    if (t === "FLOOD") {
+      if (l.includes("CRITICAL") || l == "3") return "20+ km"; // Cấp 3
+      if (l.includes("VERY") || l == "2") return "10 km"; // Cấp 2
+      return "5 km"; // Cấp 1
+    }
+    // Logic Sạt lở
+    if (t === "LANDSLIDE") {
+      if (l.includes("CRITICAL") || l == "3") return "5 km"; // Cấp 3
+      if (l.includes("VERY") || l == "2") return "2 km"; // Cấp 2
+      return "1 km"; // Cấp 1
+    }
+    return "N/A";
+  };
+
   return (
     <div className="text-slate-100 font-sans pb-20">
-      {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-3 text-white">
@@ -123,7 +141,6 @@ const ManagerAlertsPage = () => {
         </div>
       </div>
 
-      {/* Danh sách Card */}
       <div className="grid grid-cols-1 gap-4">
         {isLoading && pendingList.length === 0 ? (
           <p className="text-center text-slate-500 py-10 italic text-sm">
@@ -139,8 +156,11 @@ const ManagerAlertsPage = () => {
             const levelUI = getLevelInfo(alert.alert_level);
             const riskUI = getRiskInfo(alert.risk_type);
             const RiskIcon = riskUI.icon;
+            const radiusText = getRadiusInfo(
+              alert.risk_type,
+              alert.alert_level
+            );
 
-            // Lấy context data an toàn
             const ctx = alert.context_data || {};
 
             return (
@@ -150,7 +170,6 @@ const ManagerAlertsPage = () => {
               >
                 {/* CỘT 1: VISUAL & TITLE */}
                 <div className="flex-1">
-                  {/* Header nhỏ */}
                   <div className="flex items-center gap-2 mb-2">
                     <span
                       className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-white/10 ${levelUI.text}`}
@@ -163,12 +182,13 @@ const ManagerAlertsPage = () => {
                     </span>
                   </div>
 
-                  {/* Title & Icon */}
                   <div className="flex items-start gap-3 mb-3">
+                    {/* ICON SÓNG / NÚI Ở ĐÂY: Tôi tăng opacity nền lên để dễ nhìn hơn */}
                     <div
-                      className={`p-2 rounded-lg ${levelUI.color} bg-opacity-20 shrink-0`}
+                      className={`p-2.5 rounded-lg ${levelUI.color} bg-opacity-30 shrink-0 border border-white/10`}
                     >
-                      <RiskIcon size={24} className={levelUI.text} />
+                      <RiskIcon size={28} className="text-white" />{" "}
+                      {/* Icon màu trắng cho nổi */}
                     </div>
                     <div>
                       <h3 className="text-base font-bold text-white leading-tight">
@@ -180,14 +200,11 @@ const ManagerAlertsPage = () => {
                     </div>
                   </div>
 
-                  {/* Description */}
                   <div className="bg-slate-950/50 p-2 rounded border border-slate-800 text-xs text-slate-300 italic mb-3">
                     "{alert.description || alert.message}"
                   </div>
 
-                  {/* GRID THÔNG SỐ (Compact) */}
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                    {/* Hàng 1: Dữ liệu mưa & Thời gian */}
                     <div className="bg-slate-800 p-1.5 rounded border border-slate-700/50">
                       <p className="text-[10px] text-slate-500">Mưa 1h</p>
                       <p className="text-sm font-mono font-bold text-blue-400">
@@ -206,26 +223,20 @@ const ManagerAlertsPage = () => {
                         {alert.estimated_toa_hours}h
                       </p>
                     </div>
+                    {/* PHẠM VI ẢNH HƯỞNG (Đã sửa tên & Logic từ Excel) */}
                     <div className="bg-slate-800 p-1.5 rounded border border-slate-700/50">
                       <p className="text-[10px] text-slate-500">
                         Phạm vi ảnh hưởng
                       </p>
                       <p className="text-sm font-mono font-bold text-white flex items-center gap-1">
                         <Ruler size={12} className="text-slate-400" />
-                        {/* Nếu API chưa trả radius thì tạm tính theo Level */}
-                        {alert.radius
-                          ? alert.radius
-                          : alert.alert_level === "CRITICAL"
-                          ? ">10km"
-                          : alert.alert_level === "HIGH"
-                          ? "<3km"
-                          : "5km"}
+                        {radiusText}
                       </p>
                     </div>
                   </div>
                 </div>
 
-                {/* CỘT 2: THÔNG SỐ ĐỊA HÌNH (CONTEXT DATA) */}
+                {/* CỘT 2: THÔNG SỐ (Đã bỏ Rủi ro tích lũy) */}
                 <div className="lg:w-48 bg-slate-950/30 rounded-lg p-3 border border-white/5 flex flex-col justify-center text-xs space-y-2">
                   <p className="text-[10px] font-bold text-slate-500 uppercase mb-1 border-b border-white/5 pb-1">
                     Địa hình & Thủy văn
@@ -255,23 +266,7 @@ const ManagerAlertsPage = () => {
                       {ctx.twi ? Number(ctx.twi).toFixed(1) : "N/A"}
                     </span>
                   </div>
-                  <div className="flex justify-between items-center pt-1 border-t border-white/5 mt-1">
-                    <span className="text-slate-400 font-bold">
-                      Rủi ro tích lũy:
-                    </span>
-                    <span
-                      className={`font-mono font-bold ${
-                        alert.risk_type === "FLOOD"
-                          ? "text-blue-400"
-                          : "text-orange-400"
-                      }`}
-                    >
-                      {alert.risk_type === "FLOOD"
-                        ? ctx.flood_score
-                        : ctx.landslide_score}{" "}
-                      điểm
-                    </span>
-                  </div>
+                  {/* ĐÃ XÓA MỤC RỦI RO TÍCH LŨY Ở ĐÂY */}
                 </div>
 
                 {/* CỘT 3: HÀNH ĐỘNG */}
