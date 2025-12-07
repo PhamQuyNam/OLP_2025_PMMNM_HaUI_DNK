@@ -80,6 +80,15 @@ const receiveAlert = async (req, res) => {
             await pool.query("DELETE FROM active_alerts WHERE station_name = $1", [station_name]);
             await pool.query("DELETE FROM alert_archive WHERE station_name = $1", [station_name]);
             await deleteFromOrion(station_name);
+            //  BẮN SOCKET BÁO FRONTEND GỠ BỎ
+            // Sự kiện: 'alert:resolved'
+            // Dữ liệu gửi đi: Tên trạm (để Frontend biết mà xóa đúng cái thẻ đó)
+            console.log(`📡 Emit Socket: alert:resolved -> ${station_name}`);
+            req.io.emit('alert:resolved', {
+                station_name,
+                status: 'SAFE',
+                message: 'Khu vực đã trở lại bình thường.'
+            });
             return res.json({ message: "Đã gỡ bỏ cảnh báo (Trạng thái bình thường)." });
         }
 
@@ -88,7 +97,7 @@ const receiveAlert = async (req, res) => {
             SELECT id, alert_level, rain_value FROM active_alerts
             WHERE station_name = $1 AND risk_type = $2
             AND status IN ('PENDING', 'APPROVED')
-            AND created_at >= NOW() - INTERVAL '1 HOURS'
+            AND created_at >= NOW() - INTERVAL '2 HOURS'
         `;
         const existing = await pool.query(checkDuplicateQuery, [station_name, risk_type]);
 
@@ -128,19 +137,19 @@ const receiveAlert = async (req, res) => {
         const insertQuery = `
             INSERT INTO active_alerts
             (station_name, risk_type, alert_level, rain_value, description, estimated_toa_hours, status, rain_24h, context_data)
-            VALUES ($1, $2, $3, $4, $5, $6, 'PENDING', $7, $8) RETURNING id;
+            VALUES ($1, $2, $3, $4, $5, $6, 'PENDING', $7, $8) RETURNING *;
         `;
-        // Đã sửa lại đúng số lượng tham số ($1 -> $9)
-        await pool.query(insertQuery, [
-            station_name,
-            risk_type,
-            level,
-            rain_value,
-            description,
+
+        const newAlertRes = await pool.query(insertQuery, [
+            station_name, risk_type, level, rain_value, description,
             estimated_toa_hours,
-            rain_24h,
-            JSON.stringify(fullContextData)
+            rain_24h, JSON.stringify(fullContextData)
         ]);
+        const newAlert = newAlertRes.rows[0];
+        if (status === 'PENDING') {
+            console.log(`📡 Emit Socket: Admin có việc làm mới (${station_name})`);
+            req.io.emit('alert:new_pending', newAlert);
+        }
 
         res.json({ message: "Đã tiếp nhận cảnh báo mới, chờ duyệt." });
 
@@ -197,6 +206,12 @@ const approveAlert = async (req, res) => {
 
         // B4: Đẩy lên Orion
         await pushToOrion(alert);
+
+        console.log(`📡 Emit Socket: Phát lệnh báo động (${alert.station_name})`);
+
+        // Bổ sung thêm thông tin người duyệt để Frontend hiển thị nếu cần
+        const broadcastData = { ...alert, approved_by: managerName, status: 'APPROVED' };
+        req.io.emit('alert:broadcast', broadcastData);
 
         await client.query('COMMIT');
         res.json({ message: "Đã duyệt và lưu trữ thành công!" });
