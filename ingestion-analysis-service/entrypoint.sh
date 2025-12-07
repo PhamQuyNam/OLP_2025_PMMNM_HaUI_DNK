@@ -35,14 +35,14 @@ echo "=== 2. CHẠY CÁC TÁC VỤ ETL (IMPORT DỮ LIỆU TĨNH TỰ ĐỘNG) =
 echo "========================================================="
 
 
-echo "➡️ B2: Chạy ETL: Import Waterways (Sông/Suối)"
-python -m etl.etl_import_waterways # <-- Dùng -m
+#echo "➡️ B2: Chạy ETL: Import Waterways (Sông/Suối)"
+#python -m etl.etl_import_waterways # <-- Dùng -m
 
-echo "➡️ B3: Chạy ETL: Import Stations (Trạm Quan Trắc)"
-python -m etl.etl_import_stations # <-- Dùng -m
+#echo "➡️ B3: Chạy ETL: Import Stations (Trạm Quan Trắc)"
+#python -m etl.etl_import_stations # <-- Dùng -m
 
-echo "➡️ B4: Chạy ETL: Profiling (Tính toán Slope, TWI, ISR...)"
-python -m etl.etl_station_profiling # <-- Dùng -m
+#echo "➡️ B4: Chạy ETL: Profiling (Tính toán Slope, TWI, ISR...)"
+#python -m etl.etl_station_profiling # <-- Dùng -m
 echo "✅ HOÀN TẤT ETL DỮ LIỆU TĨNH!"
 
 echo "========================================================="
