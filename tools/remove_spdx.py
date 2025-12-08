@@ -1,9 +1,5 @@
-# Copyright 2025 HaUI.DNK
-# Licensed under the Apache License, Version 2.0
-# http://www.apache.org/licenses/LICENSE-2.0
 import os
 import fnmatch
-
 
 EXCLUDE_DIRS = {'node_modules', '.git', 'dist', 'build', 'out', 'target'}
 

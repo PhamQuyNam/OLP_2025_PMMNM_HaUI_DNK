@@ -1,8 +1,4 @@
-<!--
-  Copyright 2025 HaUI.DNK
-  Licensed under the Apache License, Version 2.0
-  http://www.apache.org/licenses/LICENSE-2.0
--->
+
 # Lịch sử thay đổi (Changelog)
 
 Mọi thay đổi đáng chú ý của dự án **Viet Resilience Hub** sẽ được ghi lại tại tệp này.
@@ -40,3 +36,27 @@ Mọi thay đổi đáng chú ý của dự án **Viet Resilience Hub** sẽ đ�
   - **Dockerization:** Đóng gói 100% Frontend và Backend vào Docker.
   - **API Gateway:** Sử dụng Nginx (Port 8000) để điều phối request.
   - **Standardized API:** Cấu hình Axios Client và Proxy để tối ưu kết nối.
+
+## [v2.0.0] - 2025-12-08
+### Đã thêm (Added)
+- **🗺️ Phân hệ Người dân (Citizen)**
+  - **Ingest Statistics:** Thống kê lượng mưa trung bình, số trạm cảnh báo.
+  
+
+- **📊 Phân hệ Quản lý (Manager Dashboard)**
+  
+
+- **Pull-based Ingestion**
+  
+
+- **Real-time Dashboard**
+  
+
+- **Data Explorer**
+  
+
+- **RESTful APIs**
+  
+
+- **Docker Deployment**
+  
