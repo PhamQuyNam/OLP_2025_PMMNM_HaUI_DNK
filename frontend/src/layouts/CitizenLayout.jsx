@@ -11,6 +11,7 @@ import { useState, useRef, useEffect } from "react"; // Thêm hook
 import { Outlet, NavLink, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext"; // Import AuthContext
 import SOSModal from "../components/citizen/SOSModal";
+import alertService from "../services/alertService";
 import {
   Map,
   Bell,
