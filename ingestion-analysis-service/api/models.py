@@ -1,3 +1,6 @@
+# Copyright 2025 HaUI.DNK
+# Licensed under the Apache License, Version 2.0
+# http://www.apache.org/licenses/LICENSE-2.0
 from pydantic import BaseModel, Field
 from typing import List, Optional
 

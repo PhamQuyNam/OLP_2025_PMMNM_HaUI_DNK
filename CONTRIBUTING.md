@@ -1,3 +1,8 @@
+<!--
+  Copyright 2025 HaUI.DNK
+  Licensed under the Apache License, Version 2.0
+  http://www.apache.org/licenses/LICENSE-2.0
+-->
 # Hướng dẫn đóng góp cho HaUI_DNK
 
 Chúng tôi rất vui vì bạn quan tâm đến việc đóng góp cho HaUI_DNK!
