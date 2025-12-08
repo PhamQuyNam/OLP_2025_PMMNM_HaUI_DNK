@@ -21,7 +21,11 @@ import {
   LayerGroup,
   useMap,
   Polyline,
+<<<<<<< HEAD
   Circle, // Import Circle
+=======
+  Circle,
+>>>>>>> 5d4713b5900aed0861919c5304a59dbf543619fa
 } from "react-leaflet";
 import L from "leaflet";
 import axios from "axios";
@@ -33,10 +37,15 @@ import {
   Navigation,
   LocateFixed,
 } from "lucide-react";
+<<<<<<< HEAD
+=======
+import { toast } from "react-toastify";
+>>>>>>> 5d4713b5900aed0861919c5304a59dbf543619fa
 
 import { useAuth } from "../../context/AuthContext";
 import weatherService from "../../services/weatherService";
 import reportService from "../../services/reportService";
+<<<<<<< HEAD
 import alertService from "../../services/alertService"; // Import Alert Service
 import { STATIC_STATIONS } from "../../constants/stations";
 import { useSocket } from "../../context/SocketContext";
@@ -44,6 +53,16 @@ import { useSocket } from "../../context/SocketContext";
 import icon from "leaflet/dist/images/marker-icon.png";
 import iconShadow from "leaflet/dist/images/marker-shadow.png";
 import { toast } from "react-toastify";
+=======
+import alertService from "../../services/alertService";
+import { STATIC_STATIONS } from "../../constants/stations";
+import { useSocket } from "../../context/SocketContext";
+import SovereigntyMarker from "../../components/common/SovereigntyMarker"; // Import
+
+// Fix icon marker
+import icon from "leaflet/dist/images/marker-icon.png";
+import iconShadow from "leaflet/dist/images/marker-shadow.png";
+>>>>>>> 5d4713b5900aed0861919c5304a59dbf543619fa
 
 let DefaultIcon = L.icon({
   iconUrl: icon,
@@ -56,12 +75,16 @@ L.Marker.prototype.options.icon = DefaultIcon;
 
 // CẤU HÌNH THÀNH PHỐ
 const CITIES = [
+<<<<<<< HEAD
   {
     id: "current",
     name: "Vị trí của bạn",
     query: null,
     center: null,
   },
+=======
+  { id: "current", name: "Vị trí của bạn", query: null, center: null },
+>>>>>>> 5d4713b5900aed0861919c5304a59dbf543619fa
   {
     id: "hatinh",
     name: "TP. Hà Tĩnh",
@@ -83,16 +106,24 @@ const CITIES = [
 ];
 
 // --- COMPONENT ĐIỀU KHIỂN ---
+<<<<<<< HEAD
 
+=======
+>>>>>>> 5d4713b5900aed0861919c5304a59dbf543619fa
 const UserLocationController = ({ userLocation, activeCityId }) => {
   const map = useMap();
   useEffect(() => {
     if (activeCityId === "current" && userLocation) {
+<<<<<<< HEAD
+=======
+      map.stop();
+>>>>>>> 5d4713b5900aed0861919c5304a59dbf543619fa
       map.flyTo(userLocation, 15, { duration: 2.5, easeLinearity: 0.25 });
     }
   }, [userLocation, activeCityId, map]);
 
   if (!userLocation) return null;
+<<<<<<< HEAD
 
   const userIcon = new L.DivIcon({
     className: "relative",
@@ -102,6 +133,14 @@ const UserLocationController = ({ userLocation, activeCityId }) => {
     iconAnchor: [8, 8],
   });
 
+=======
+  const userIcon = new L.DivIcon({
+    className: "relative",
+    html: `<div class="absolute -inset-2 bg-blue-500/30 rounded-full animate-ping"></div><div class="w-4 h-4 bg-blue-600 border-2 border-white rounded-full shadow-lg"></div>`,
+    iconSize: [16, 16],
+    iconAnchor: [8, 8],
+  });
+>>>>>>> 5d4713b5900aed0861919c5304a59dbf543619fa
   return (
     <Marker position={userLocation} icon={userIcon}>
       <Popup>
@@ -119,6 +158,10 @@ const BoundaryController = ({ geoJsonData, shouldZoom, onZoomComplete }) => {
         const geoJsonLayer = L.geoJSON(geoJsonData);
         const bounds = geoJsonLayer.getBounds();
         if (bounds.isValid()) {
+<<<<<<< HEAD
+=======
+          map.stop();
+>>>>>>> 5d4713b5900aed0861919c5304a59dbf543619fa
           map.fitBounds(bounds, {
             padding: [20, 20],
             animate: true,
@@ -143,7 +186,10 @@ const RoutingController = ({ userLocation, destination }) => {
       map.fitBounds(bounds, { padding: [50, 50] });
     }
   }, [userLocation, destination, map]);
+<<<<<<< HEAD
 
+=======
+>>>>>>> 5d4713b5900aed0861919c5304a59dbf543619fa
   if (!userLocation || !destination) return null;
   return (
     <Polyline
@@ -216,19 +262,31 @@ const getAlertRadius = (type, levelString) => {
 
 const getAlertColor = (levelString) => {
   const l = String(levelString).toUpperCase();
+<<<<<<< HEAD
   if (l.includes("CRITICAL") || l == "3") return "#dc2626"; // Đỏ
   if (l.includes("VERY") || l == "2") return "#f97316"; // Cam
   return "#eab308"; // Vàng
+=======
+  if (l.includes("CRITICAL") || l == "3") return "#dc2626";
+  if (l.includes("VERY") || l == "2") return "#f97316";
+  return "#eab308";
+>>>>>>> 5d4713b5900aed0861919c5304a59dbf543619fa
 };
 
 const CitizenHomePage = () => {
   const { userLocation } = useAuth();
   const location = useLocation();
+<<<<<<< HEAD
 
   const [activeCity, setActiveCity] = useState(CITIES[0]);
   const [shouldZoomCity, setShouldZoomCity] = useState(false);
   const [geoJsonData, setGeoJsonData] = useState(null);
 
+=======
+  const [activeCity, setActiveCity] = useState(CITIES[0]);
+  const [shouldZoomCity, setShouldZoomCity] = useState(false);
+  const [geoJsonData, setGeoJsonData] = useState(null);
+>>>>>>> 5d4713b5900aed0861919c5304a59dbf543619fa
   const [weatherStations, setWeatherStations] = useState([]);
   const [reports, setReports] = useState([]);
   const [activeAlerts, setActiveAlerts] = useState([]);
@@ -240,6 +298,7 @@ const CitizenHomePage = () => {
     alertsRef.current = activeAlerts;
   }, [activeAlerts]);
 
+<<<<<<< HEAD
   // 👇 LOGIC SOCKET ĐÃ SỬA (FIX LỖI DOUBLE TOAST)
   useEffect(() => {
     if (!socket) return;
@@ -259,6 +318,15 @@ const CitizenHomePage = () => {
         );
       }
 
+=======
+  useEffect(() => {
+    if (!socket) return;
+    socket.on("alert:broadcast", (newAlert) => {
+      const isExist = alertsRef.current.some(
+        (a) => a.station_name === newAlert.station_name
+      );
+      if (!isExist) toast.error(`CẢNH BÁO: ${newAlert.station_name}`);
+>>>>>>> 5d4713b5900aed0861919c5304a59dbf543619fa
       setActiveAlerts((prev) => {
         const unique = prev.filter(
           (a) => a.station_name !== newAlert.station_name
@@ -266,6 +334,7 @@ const CitizenHomePage = () => {
         return [newAlert, ...unique];
       });
     });
+<<<<<<< HEAD
 
     // 2. Nghe tin HẾT báo động
     socket.on("alert:resolved", (data) => {
@@ -281,17 +350,32 @@ const CitizenHomePage = () => {
         console.log(`✅ Đã gỡ cảnh báo cho: ${data.station_name}`);
 
         // Cập nhật State để xóa vòng tròn
+=======
+    socket.on("alert:resolved", (data) => {
+      const exists = alertsRef.current.find(
+        (a) => a.station_name === data.station_name
+      );
+      if (exists) {
+        toast.success(`An toàn: ${data.station_name} đã bình thường.`);
+>>>>>>> 5d4713b5900aed0861919c5304a59dbf543619fa
         setActiveAlerts((prev) =>
           prev.filter((a) => a.station_name !== data.station_name)
         );
       }
     });
+<<<<<<< HEAD
 
+=======
+>>>>>>> 5d4713b5900aed0861919c5304a59dbf543619fa
     return () => {
       socket.off("alert:broadcast");
       socket.off("alert:resolved");
     };
+<<<<<<< HEAD
   }, [socket]); // Bỏ activeAlerts ra khỏi dependency để tránh re-render liên tục
+=======
+  }, [socket]);
+>>>>>>> 5d4713b5900aed0861919c5304a59dbf543619fa
 
   useEffect(() => {
     if (location.state?.destination) {
@@ -300,7 +384,10 @@ const CitizenHomePage = () => {
     }
   }, [location]);
 
+<<<<<<< HEAD
   // Fetch Ranh giới
+=======
+>>>>>>> 5d4713b5900aed0861919c5304a59dbf543619fa
   useEffect(() => {
     const fetchBoundary = async () => {
       if (activeCity.id === "current") {
@@ -309,11 +396,17 @@ const CitizenHomePage = () => {
         return;
       }
       if (destination) return;
+<<<<<<< HEAD
 
       try {
         setGeoJsonData(null);
         setShouldZoomCity(false);
 
+=======
+      try {
+        setGeoJsonData(null);
+        setShouldZoomCity(false);
+>>>>>>> 5d4713b5900aed0861919c5304a59dbf543619fa
         const response = await axios.get(
           "https://nominatim.openstreetmap.org/search",
           {
@@ -326,7 +419,10 @@ const CitizenHomePage = () => {
             },
           }
         );
+<<<<<<< HEAD
 
+=======
+>>>>>>> 5d4713b5900aed0861919c5304a59dbf543619fa
         if (response.data?.[0]) {
           setGeoJsonData(response.data[0].geojson);
           setShouldZoomCity(true);
@@ -338,7 +434,10 @@ const CitizenHomePage = () => {
     fetchBoundary();
   }, [activeCity, destination]);
 
+<<<<<<< HEAD
   // Fetch Data
+=======
+>>>>>>> 5d4713b5900aed0861919c5304a59dbf543619fa
   useEffect(() => {
     const fetchWeather = async () => {
       try {
@@ -375,7 +474,10 @@ const CitizenHomePage = () => {
       try {
         const data = await alertService.getCitizenAlerts();
         if (Array.isArray(data)) {
+<<<<<<< HEAD
           // 👇 CŨNG THÊM LOGIC LỌC TƯƠNG TỰ
+=======
+>>>>>>> 5d4713b5900aed0861919c5304a59dbf543619fa
           const uniqueAlertsMap = new Map();
           data.forEach((alert) => {
             const existing = uniqueAlertsMap.get(alert.station_name);
@@ -386,7 +488,10 @@ const CitizenHomePage = () => {
               uniqueAlertsMap.set(alert.station_name, alert);
             }
           });
+<<<<<<< HEAD
 
+=======
+>>>>>>> 5d4713b5900aed0861919c5304a59dbf543619fa
           setActiveAlerts(Array.from(uniqueAlertsMap.values()));
         }
       } catch (error) {
@@ -471,6 +576,7 @@ const CitizenHomePage = () => {
           onZoomComplete={() => setShouldZoomCity(false)}
         />
 
+<<<<<<< HEAD
         <LayersControl position="topright">
           <LayersControl.BaseLayer checked name="Bản đồ Tiêu chuẩn">
             <TileLayer
@@ -487,6 +593,43 @@ const CitizenHomePage = () => {
                 let lon = alert.lon;
 
                 // LỚP 1: Nếu API thiếu, tìm trong danh sách Real-time (weatherStations)
+=======
+        {/* 👇 1. ĐẶT SOVEREIGNTY MARKER Ở ĐÂY (NGOÀI LayersControl) */}
+        <SovereigntyMarker />
+
+        <LayersControl position="topright">
+          <LayersControl.BaseLayer checked name="Bản đồ Tiêu chuẩn">
+            {/* 👇 2. CHỈ ĐỂ TILELAYER Ở ĐÂY */}
+            <TileLayer
+              attribution="&copy; CARTO"
+              url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+            />
+          </LayersControl.BaseLayer>
+
+          {/* ... (Các Overlay giữ nguyên) */}
+          <LayersControl.Overlay checked name="Ranh giới Hành chính">
+            <LayerGroup>
+              {geoJsonData && (
+                <GeoJSON
+                  key={activeCity.id}
+                  data={geoJsonData}
+                  style={{
+                    color: "#3b82f6",
+                    weight: 3,
+                    fillOpacity: 0.05,
+                    dashArray: "5, 5",
+                  }}
+                />
+              )}
+            </LayerGroup>
+          </LayersControl.Overlay>
+
+          <LayersControl.Overlay checked name="⚠️ Vùng Cảnh báo Thiên tai">
+            <LayerGroup>
+              {activeAlerts.map((alert) => {
+                let lat = alert.lat;
+                let lon = alert.lon;
+>>>>>>> 5d4713b5900aed0861919c5304a59dbf543619fa
                 if (!lat || !lon) {
                   const matchedLive = weatherStations.find(
                     (s) =>
@@ -495,11 +638,16 @@ const CitizenHomePage = () => {
                   if (matchedLive) {
                     lat = matchedLive.lat;
                     lon = matchedLive.lon;
+<<<<<<< HEAD
                     // console.log(`Found coordinates for ${alert.station_name} in Live Data`);
                   }
                 }
 
                 // LỚP 2: Nếu vẫn chưa thấy, tìm trong danh sách Cố định (STATIC_STATIONS)
+=======
+                  }
+                }
+>>>>>>> 5d4713b5900aed0861919c5304a59dbf543619fa
                 if (!lat || !lon) {
                   const matchedStatic = STATIC_STATIONS.find(
                     (s) => s.name === alert.station_name
@@ -507,11 +655,16 @@ const CitizenHomePage = () => {
                   if (matchedStatic) {
                     lat = matchedStatic.lat;
                     lon = matchedStatic.lon;
+<<<<<<< HEAD
                     // console.log(`Found coordinates for ${alert.station_name} in Static File`);
                   }
                 }
 
                 // Nếu sau tất cả nỗ lực vẫn không có tọa độ -> Bỏ qua
+=======
+                  }
+                }
+>>>>>>> 5d4713b5900aed0861919c5304a59dbf543619fa
                 if (!lat || !lon) return null;
 
                 return (
@@ -537,9 +690,14 @@ const CitizenHomePage = () => {
                           {alert.station_name}
                         </div>
                         <div className="text-xs text-slate-500 mt-1">
+<<<<<<< HEAD
                           {alert.risk_type === "FLOOD" ? "Ngập lụt" : "Sạt lở"}
                           <span className="mx-1">•</span>
                           Bán kính{" "}
+=======
+                          {alert.risk_type === "FLOOD" ? "Ngập lụt" : "Sạt lở"}{" "}
+                          <span className="mx-1">•</span> Bán kính{" "}
+>>>>>>> 5d4713b5900aed0861919c5304a59dbf543619fa
                           {getAlertRadius(alert.risk_type, alert.alert_level) /
                             1000}
                           km
@@ -552,6 +710,7 @@ const CitizenHomePage = () => {
             </LayerGroup>
           </LayersControl.Overlay>
 
+<<<<<<< HEAD
           {geoJsonData && (
             <LayersControl.Overlay checked name="Ranh giới Hành chính">
               <LayerGroup>
@@ -569,6 +728,8 @@ const CitizenHomePage = () => {
             </LayersControl.Overlay>
           )}
 
+=======
+>>>>>>> 5d4713b5900aed0861919c5304a59dbf543619fa
           <LayersControl.Overlay checked name="Trạm đo mưa (Real-time)">
             <LayerGroup>
               {weatherStations.map((station) => (
@@ -587,7 +748,11 @@ const CitizenHomePage = () => {
             </LayerGroup>
           </LayersControl.Overlay>
 
+<<<<<<< HEAD
           <LayersControl.Overlay checked name="Cảnh báo từ Cộng đồng">
+=======
+          <LayersControl.Overlay checked name="Phản ánh từ Cộng đồng">
+>>>>>>> 5d4713b5900aed0861919c5304a59dbf543619fa
             <LayerGroup>
               {reports.map((report) => (
                 <Marker
@@ -627,7 +792,10 @@ const CitizenHomePage = () => {
         </LayersControl>
 
         <ZoomControl position="bottomright" />
+<<<<<<< HEAD
 
+=======
+>>>>>>> 5d4713b5900aed0861919c5304a59dbf543619fa
         {destination && (
           <Marker
             position={destination}

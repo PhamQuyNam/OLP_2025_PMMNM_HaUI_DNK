@@ -24,57 +24,86 @@ Hệ thống của chúng tôi là một giải pháp tiên phong nhằm chuyể
 Đây là sơ đồ mô tả luồng dữ liệu chính, từ người dùng đến lớp dữ liệu lõi và ngược lại.
 
 ```mermaid
-flowchart LR
-    %% ===== 0. AUTH =====
-    subgraph S0["0. Hạ tầng & Xác thực"]
-        A[Người dùng] --> AUTH[Xác thực / Phân quyền]
-        AUTH --> DBUser[(PostgreSQL + PostGIS)]
-    end
+flowchart TD
 
-    %% ===== 1. INGESTION =====
-    subgraph S1["1. Thu thập & Chuẩn hoá Dữ liệu & Dự Đoán"]
-        direction LR
-        OpenAPI["Dữ liệu Mở (Thời tiết)"]
-        StaticData["Dữ liệu Tĩnh (Địa hình, Đất, Ngưỡng)"]
+%% ===== MICRO SERVICES & HẠ TẦNG =====
+subgraph Services["Các Microservice & Hạ tầng"]
+    direction LR
+    API_GW((API Gateway - Nginx))
+    AUTH[Auth Service]
+    INGEST[Ingestion Service - Python]
+    ALERT[Alert Service]
+    REPORT[Report Service]
+    SAFETY[Safety Service]
+    WEATHER[Weather Service]
+    DATA[Data Service]
+end
 
-        OpenAPI --> INGEST["Ingestion Service"]
-        StaticData --> INGEST
-        Citizen --> API["API Gateway"]
+%% ===== STORAGE =====
+subgraph Storage["Dữ liệu Lõi"]
+    ORION[(Orion-LD - Context Broker)]
+    POSTGIS[(PostGIS - Du lieu Tinh Lich su)]
+    MONGO[(MongoDB - Context Storage)]
+end
 
-        INGEST -->|"Chuẩn hóa NGSI-LD"| Orion
-    end
+%% ===== CLIENT =====
+subgraph Clients["Giao diện Người dùng"]
+    FE["CITIZEN, ADMIN"]
+end
 
-    %% ===== 2. CONTEXT CORE =====
-    subgraph S2["2. Nền tảng Dữ liệu Ngữ cảnh (FIWARE)"]
-        direction LR
-        Orion[Orion-LD Context Broker]
-        Mongo[(MongoDB - Context Storage)]
+%% ===== KẾT NỐI CƠ BẢN =====
+AUTH --> POSTGIS
+INGEST -- Query Tinh & ETL --> POSTGIS
+ALERT --> POSTGIS
+SAFETY --> POSTGIS
+DATA --> POSTGIS
+ORION -- Luu Context Hien tai --> MONGO
 
-        Orion -->|"Lưu Context hiện tại theo chuẩn NGSI-LD"| Mongo
-        Orion -->|"Publish sự kiện"| Logic["Dịch vụ Logic / Rule Engine"]
+%% ===== LUỒNG 1: CẢNH BÁO CHỦ ĐỘNG =====
+subgraph Flow1["1. Canh bao Chu dong - Analysis & Workflow"]
+    direction LR
 
-        subgraph P["Lưu lịch sử"]
-            Orion --> QL[QuantumLeap]
-            QL --> TS[(TimescaleDB)]
-        end
-    end
+    APIs["Du lieu Mua - Moi truong"] -->|Thu thap & Phan tich| INGEST
+    INGEST -->|Cap nhat RainObserved| ORION
+    INGEST -->|Internal API| ALERT
 
-    %% ===== 3. BUSINESS  =====
-    subgraph S3["3. Phân tích & Dự đoán"]
-        Logic -->|"Query dữ liệu tĩnh"| DBUser
-        Logic -->|"Chạy mô hình ML"| Model["Model dự báo Sạt lở / Lũ quét"]
-        Model -->|"Cập nhật cảnh báo"| Orion
-        API -->|"Tạo/Cập nhật CitizenReport"| Orion
-    end
+    ALERT -->|Save status PENDING| POSTGIS
+    FE -->|Quan ly - Duyet| ALERT
 
-    %% ===== 4. APPLICATION =====
-    subgraph S4["4. Ứng dụng"]
-        Admin["Web Dashboard"]
+    ALERT -->|APPROVED| ORION
+    ALERT -->|Socket.IO| API_GW
+    API_GW -->|Proxy WS| FE
+end
 
-        Admin -->|"Query trạng thái"| Orion
-        Admin -->|"Truy vấn lịch sử"| TS
-        Admin -->|"Quản lý dữ liệu tĩnh"| DBUser
-    end
+%% ===== LUỒNG 2: SOS & CROWDSOURCING =====
+subgraph Flow2["2. Phan anh & SOS"]
+    direction LR
+
+    FE -->|/reports/send| REPORT
+    REPORT -->|Create CitizenReport| ORION
+
+    FE -->|/safety/sos| SAFETY
+    SAFETY -->|Find nearest Safe Zone| POSTGIS
+    SAFETY -->|Evacuation guidance| FE
+
+    FE -->|Manager query SOS| SAFETY
+end
+
+%% ===== LUỒNG 3: TRUY VẤN HIỂN THỊ =====
+subgraph Flow3["3. Truy van & Hien thi"]
+    direction LR
+
+    FE --> API_GW
+
+    API_GW --> WEATHER
+    WEATHER -->|Query RainObserved| ORION
+
+    API_GW --> DATA
+    DATA -->|Query RiskZones - Waterways| POSTGIS
+
+    API_GW --> REPORT
+    REPORT -->|Query CitizenReport| ORION
+end
 
 ```
 ## 🛠️ Công nghệ & Phụ thuộc (Tech Stack)
@@ -101,6 +130,39 @@ Hệ thống yêu cầu đã cài đặt Docker và Docker Compose.
 git clone https://github.com/PhamQuyNam/OLP_2025_PMMNM_HaUI_DNK.git
 ```
 
+**Thiết lập biến môi trường (.env)**
+
+Để chạy dự án, bạn cần cấu hình file `.env` cho **từng service** gồm:
+
+- `alert-service`
+- `auth-service`
+- `data-service`
+- Thư mục gốc của dự án
+
+**Các bước thực hiện**
+
+1. Sao chép file mẫu `.env.example` để tạo file `.env`:
+
+```bash
+cp .env.example .env
+```
+2. Cấu hình file `.env`;
+
+Sau khi tạo file `.env`, mở file và cập nhật các thông số cấu hình cần thiết (theo tùy file), bao gồm:
+
+- Mật khẩu database
+- Thông tin kết nối server (host, port, protocol, v.v.)
+- Các biến bảo mật như `JWT_SECRET`, `API_KEY`, `CLIENT_SECRET`, …
+
+Sau khi chỉnh sửa, **lưu lại file `.env`** để áp dụng cấu hình.
+
+3. Lưu ý bảo mật
+
+> ⚠️ **Quan trọng:**  
+> Không commit file `.env` lên repository để tránh làm lộ thông tin nhạy cảm (mật khẩu, API key, secret key, …).  
+> Hãy đảm bảo file `.env` đã được liệt kê trong `.gitignore`.
+
+
 **Chạy ứng dụng**  
 (Mở terminal trong thư mục gốc và chạy lệnh)
 ```bash
@@ -123,14 +185,6 @@ docker-compose stop
 ```bash
 docker-compose down -v
 ```
-
-<!-- ## 📚 Tài liệu Chi tiết
-
-Tài liệu này chỉ là tổng quan. Toàn bộ mô tả chi tiết về Backend, Infrastructure, API, và hướng dẫn sử dụng đều có tại trang Docusaurus của dự án.
-
-➡️ **Xem tài liệu đầy đủ tại đây:**  -->
-
-
 
 
 ## 🤝 Đóng góp cho Dự án
