@@ -21,7 +21,7 @@ import {
   LayerGroup,
   useMap,
   Polyline,
-  Circle, // Import Circle
+  Circle,
 } from "react-leaflet";
 import L from "leaflet";
 import axios from "axios";
@@ -33,17 +33,19 @@ import {
   Navigation,
   LocateFixed,
 } from "lucide-react";
+import { toast } from "react-toastify";
 
 import { useAuth } from "../../context/AuthContext";
 import weatherService from "../../services/weatherService";
 import reportService from "../../services/reportService";
-import alertService from "../../services/alertService"; // Import Alert Service
+import alertService from "../../services/alertService";
 import { STATIC_STATIONS } from "../../constants/stations";
 import { useSocket } from "../../context/SocketContext";
+import SovereigntyMarker from "../../components/common/SovereigntyMarker"; // Import
+
 // Fix icon marker
 import icon from "leaflet/dist/images/marker-icon.png";
 import iconShadow from "leaflet/dist/images/marker-shadow.png";
-import { toast } from "react-toastify";
 
 let DefaultIcon = L.icon({
   iconUrl: icon,
@@ -56,12 +58,7 @@ L.Marker.prototype.options.icon = DefaultIcon;
 
 // CẤU HÌNH THÀNH PHỐ
 const CITIES = [
-  {
-    id: "current",
-    name: "Vị trí của bạn",
-    query: null,
-    center: null,
-  },
+  { id: "current", name: "Vị trí của bạn", query: null, center: null },
   {
     id: "hatinh",
     name: "TP. Hà Tĩnh",
@@ -83,25 +80,22 @@ const CITIES = [
 ];
 
 // --- COMPONENT ĐIỀU KHIỂN ---
-
 const UserLocationController = ({ userLocation, activeCityId }) => {
   const map = useMap();
   useEffect(() => {
     if (activeCityId === "current" && userLocation) {
+      map.stop();
       map.flyTo(userLocation, 15, { duration: 2.5, easeLinearity: 0.25 });
     }
   }, [userLocation, activeCityId, map]);
 
   if (!userLocation) return null;
-
   const userIcon = new L.DivIcon({
     className: "relative",
-    html: `<div class="absolute -inset-2 bg-blue-500/30 rounded-full animate-ping"></div>
-           <div class="w-4 h-4 bg-blue-600 border-2 border-white rounded-full shadow-lg"></div>`,
+    html: `<div class="absolute -inset-2 bg-blue-500/30 rounded-full animate-ping"></div><div class="w-4 h-4 bg-blue-600 border-2 border-white rounded-full shadow-lg"></div>`,
     iconSize: [16, 16],
     iconAnchor: [8, 8],
   });
-
   return (
     <Marker position={userLocation} icon={userIcon}>
       <Popup>
@@ -119,6 +113,7 @@ const BoundaryController = ({ geoJsonData, shouldZoom, onZoomComplete }) => {
         const geoJsonLayer = L.geoJSON(geoJsonData);
         const bounds = geoJsonLayer.getBounds();
         if (bounds.isValid()) {
+          map.stop();
           map.fitBounds(bounds, {
             padding: [20, 20],
             animate: true,
@@ -143,7 +138,6 @@ const RoutingController = ({ userLocation, destination }) => {
       map.fitBounds(bounds, { padding: [50, 50] });
     }
   }, [userLocation, destination, map]);
-
   if (!userLocation || !destination) return null;
   return (
     <Polyline
@@ -216,19 +210,17 @@ const getAlertRadius = (type, levelString) => {
 
 const getAlertColor = (levelString) => {
   const l = String(levelString).toUpperCase();
-  if (l.includes("CRITICAL") || l == "3") return "#dc2626"; // Đỏ
-  if (l.includes("VERY") || l == "2") return "#f97316"; // Cam
-  return "#eab308"; // Vàng
+  if (l.includes("CRITICAL") || l == "3") return "#dc2626";
+  if (l.includes("VERY") || l == "2") return "#f97316";
+  return "#eab308";
 };
 
 const CitizenHomePage = () => {
   const { userLocation } = useAuth();
   const location = useLocation();
-
   const [activeCity, setActiveCity] = useState(CITIES[0]);
   const [shouldZoomCity, setShouldZoomCity] = useState(false);
   const [geoJsonData, setGeoJsonData] = useState(null);
-
   const [weatherStations, setWeatherStations] = useState([]);
   const [reports, setReports] = useState([]);
   const [activeAlerts, setActiveAlerts] = useState([]);
@@ -240,25 +232,13 @@ const CitizenHomePage = () => {
     alertsRef.current = activeAlerts;
   }, [activeAlerts]);
 
-  // 👇 LOGIC SOCKET ĐÃ SỬA (FIX LỖI DOUBLE TOAST)
   useEffect(() => {
     if (!socket) return;
-
-    // 1. Nghe tin báo động MỚI
     socket.on("alert:broadcast", (newAlert) => {
-      console.log("🚨 CẢNH BÁO TỚI:", newAlert);
-
-      // Kiểm tra trong Ref xem đã có chưa (Tránh spam toast khi F5)
       const isExist = alertsRef.current.some(
         (a) => a.station_name === newAlert.station_name
       );
-
-      if (!isExist) {
-        toast.error(
-          `CẢNH BÁO: ${newAlert.station_name} - ${newAlert.alert_level}`
-        );
-      }
-
+      if (!isExist) toast.error(`CẢNH BÁO: ${newAlert.station_name}`);
       setActiveAlerts((prev) => {
         const unique = prev.filter(
           (a) => a.station_name !== newAlert.station_name
@@ -266,32 +246,22 @@ const CitizenHomePage = () => {
         return [newAlert, ...unique];
       });
     });
-
-    // 2. Nghe tin HẾT báo động
     socket.on("alert:resolved", (data) => {
-      // Kiểm tra trong Ref xem trạm này CÓ ĐANG bị đỏ không?
       const exists = alertsRef.current.find(
         (a) => a.station_name === data.station_name
       );
-
       if (exists) {
-        // Chỉ hiện thông báo NẾU thực sự trạm đó đang bị cảnh báo
-        // Vì lệnh toast nằm ngoài setActiveAlerts -> Nó chỉ chạy 1 lần
         toast.success(`An toàn: ${data.station_name} đã bình thường.`);
-        console.log(`✅ Đã gỡ cảnh báo cho: ${data.station_name}`);
-
-        // Cập nhật State để xóa vòng tròn
         setActiveAlerts((prev) =>
           prev.filter((a) => a.station_name !== data.station_name)
         );
       }
     });
-
     return () => {
       socket.off("alert:broadcast");
       socket.off("alert:resolved");
     };
-  }, [socket]); // Bỏ activeAlerts ra khỏi dependency để tránh re-render liên tục
+  }, [socket]);
 
   useEffect(() => {
     if (location.state?.destination) {
@@ -300,7 +270,6 @@ const CitizenHomePage = () => {
     }
   }, [location]);
 
-  // Fetch Ranh giới
   useEffect(() => {
     const fetchBoundary = async () => {
       if (activeCity.id === "current") {
@@ -309,11 +278,9 @@ const CitizenHomePage = () => {
         return;
       }
       if (destination) return;
-
       try {
         setGeoJsonData(null);
         setShouldZoomCity(false);
-
         const response = await axios.get(
           "https://nominatim.openstreetmap.org/search",
           {
@@ -326,7 +293,6 @@ const CitizenHomePage = () => {
             },
           }
         );
-
         if (response.data?.[0]) {
           setGeoJsonData(response.data[0].geojson);
           setShouldZoomCity(true);
@@ -338,7 +304,6 @@ const CitizenHomePage = () => {
     fetchBoundary();
   }, [activeCity, destination]);
 
-  // Fetch Data
   useEffect(() => {
     const fetchWeather = async () => {
       try {
@@ -375,7 +340,6 @@ const CitizenHomePage = () => {
       try {
         const data = await alertService.getCitizenAlerts();
         if (Array.isArray(data)) {
-          // 👇 CŨNG THÊM LOGIC LỌC TƯƠNG TỰ
           const uniqueAlertsMap = new Map();
           data.forEach((alert) => {
             const existing = uniqueAlertsMap.get(alert.station_name);
@@ -386,7 +350,6 @@ const CitizenHomePage = () => {
               uniqueAlertsMap.set(alert.station_name, alert);
             }
           });
-
           setActiveAlerts(Array.from(uniqueAlertsMap.values()));
         }
       } catch (error) {
@@ -471,22 +434,41 @@ const CitizenHomePage = () => {
           onZoomComplete={() => setShouldZoomCity(false)}
         />
 
+        {/* 👇 1. ĐẶT SOVEREIGNTY MARKER Ở ĐÂY (NGOÀI LayersControl) */}
+        <SovereigntyMarker />
+
         <LayersControl position="topright">
           <LayersControl.BaseLayer checked name="Bản đồ Tiêu chuẩn">
+            {/* 👇 2. CHỈ ĐỂ TILELAYER Ở ĐÂY */}
             <TileLayer
-              attribution="&copy; OSM"
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              attribution="&copy; CARTO"
+              url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
             />
           </LayersControl.BaseLayer>
+
+          {/* ... (Các Overlay giữ nguyên) */}
+          <LayersControl.Overlay checked name="Ranh giới Hành chính">
+            <LayerGroup>
+              {geoJsonData && (
+                <GeoJSON
+                  key={activeCity.id}
+                  data={geoJsonData}
+                  style={{
+                    color: "#3b82f6",
+                    weight: 3,
+                    fillOpacity: 0.05,
+                    dashArray: "5, 5",
+                  }}
+                />
+              )}
+            </LayerGroup>
+          </LayersControl.Overlay>
 
           <LayersControl.Overlay checked name="⚠️ Vùng Cảnh báo Thiên tai">
             <LayerGroup>
               {activeAlerts.map((alert) => {
-                // --- LOGIC TÌM TỌA ĐỘ THÔNG MINH (3 LỚP) ---
                 let lat = alert.lat;
                 let lon = alert.lon;
-
-                // LỚP 1: Nếu API thiếu, tìm trong danh sách Real-time (weatherStations)
                 if (!lat || !lon) {
                   const matchedLive = weatherStations.find(
                     (s) =>
@@ -495,11 +477,8 @@ const CitizenHomePage = () => {
                   if (matchedLive) {
                     lat = matchedLive.lat;
                     lon = matchedLive.lon;
-                    // console.log(`Found coordinates for ${alert.station_name} in Live Data`);
                   }
                 }
-
-                // LỚP 2: Nếu vẫn chưa thấy, tìm trong danh sách Cố định (STATIC_STATIONS)
                 if (!lat || !lon) {
                   const matchedStatic = STATIC_STATIONS.find(
                     (s) => s.name === alert.station_name
@@ -507,11 +486,8 @@ const CitizenHomePage = () => {
                   if (matchedStatic) {
                     lat = matchedStatic.lat;
                     lon = matchedStatic.lon;
-                    // console.log(`Found coordinates for ${alert.station_name} in Static File`);
                   }
                 }
-
-                // Nếu sau tất cả nỗ lực vẫn không có tọa độ -> Bỏ qua
                 if (!lat || !lon) return null;
 
                 return (
@@ -537,9 +513,8 @@ const CitizenHomePage = () => {
                           {alert.station_name}
                         </div>
                         <div className="text-xs text-slate-500 mt-1">
-                          {alert.risk_type === "FLOOD" ? "Ngập lụt" : "Sạt lở"}
-                          <span className="mx-1">•</span>
-                          Bán kính{" "}
+                          {alert.risk_type === "FLOOD" ? "Ngập lụt" : "Sạt lở"}{" "}
+                          <span className="mx-1">•</span> Bán kính{" "}
                           {getAlertRadius(alert.risk_type, alert.alert_level) /
                             1000}
                           km
@@ -551,23 +526,6 @@ const CitizenHomePage = () => {
               })}
             </LayerGroup>
           </LayersControl.Overlay>
-
-          {geoJsonData && (
-            <LayersControl.Overlay checked name="Ranh giới Hành chính">
-              <LayerGroup>
-                <GeoJSON
-                  key={activeCity.id}
-                  data={geoJsonData}
-                  style={{
-                    color: "#3b82f6",
-                    weight: 3,
-                    fillOpacity: 0.05,
-                    dashArray: "5, 5",
-                  }}
-                />
-              </LayerGroup>
-            </LayersControl.Overlay>
-          )}
 
           <LayersControl.Overlay checked name="Trạm đo mưa (Real-time)">
             <LayerGroup>
@@ -587,7 +545,7 @@ const CitizenHomePage = () => {
             </LayerGroup>
           </LayersControl.Overlay>
 
-          <LayersControl.Overlay checked name="Cảnh báo từ Cộng đồng">
+          <LayersControl.Overlay checked name="Phản ánh từ Cộng đồng">
             <LayerGroup>
               {reports.map((report) => (
                 <Marker
@@ -627,7 +585,6 @@ const CitizenHomePage = () => {
         </LayersControl>
 
         <ZoomControl position="bottomright" />
-
         {destination && (
           <Marker
             position={destination}
