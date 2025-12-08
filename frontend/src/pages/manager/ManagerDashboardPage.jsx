@@ -383,15 +383,18 @@ const ManagerDashboardPage = () => {
         </div>
 
         {/* Biểu đồ (4 phần) */}
+        {/* Cột phải (Chiếm 4 phần) */}
         <div className="lg:col-span-4 flex flex-col gap-4 h-full min-h-0">
-          {/* Biểu đồ 1: Diễn biến (Dùng Mock động) */}
+          {/* --- BIỂU ĐỒ 1: DIỄN BIẾN MƯA --- */}
           <div className="h-1/2 bg-slate-800/50 border border-slate-700 p-4 rounded-2xl flex flex-col min-h-0">
             <h3 className="font-bold text-sm mb-2 text-slate-300">
               Diễn biến Mưa ({activeCity.name})
             </h3>
-            <div className="flex-1 min-h-0">
+            {/* 👇 SỬA Ở ĐÂY: Thêm w-full h-full và min-h */}
+            <div className="flex-1 w-full h-full min-h-[150px]">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={filteredData.historyRain}>
+                  {/* ... (Giữ nguyên nội dung bên trong AreaChart) ... */}
                   <defs>
                     <linearGradient id="colorRain" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
@@ -430,16 +433,18 @@ const ManagerDashboardPage = () => {
             </div>
           </div>
 
-          {/* Biểu đồ 2: Mưa hiện tại (Dùng trạm đã lọc) */}
+          {/* --- BIỂU ĐỒ 2: MƯA HIỆN TẠI --- */}
           <div className="h-1/2 bg-slate-800/50 border border-slate-700 p-4 rounded-2xl flex flex-col min-h-0 overflow-hidden">
             <h3 className="font-bold text-sm mb-2 text-slate-300">
               Mưa hiện tại (mm)
             </h3>
             <div className="flex-1 w-full overflow-y-auto custom-scrollbar pr-2">
+              {/* 👇 SỬA Ở ĐÂY: Đảm bảo chiều cao luôn > 0 */}
               <div
                 style={{
                   height:
                     Math.max(200, filteredData.stations.length * 45) + "px",
+                  width: "100%",
                 }}
               >
                 {filteredData.stations.length > 0 ? (
@@ -450,6 +455,7 @@ const ManagerDashboardPage = () => {
                       margin={{ left: 0, right: 10, top: 0, bottom: 0 }}
                       barCategoryGap={8}
                     >
+                      {/* ... (Giữ nguyên nội dung bên trong BarChart) ... */}
                       <XAxis type="number" hide />
                       <YAxis
                         dataKey="name"
