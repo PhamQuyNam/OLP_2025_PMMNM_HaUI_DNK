@@ -24,57 +24,87 @@ Hệ thống của chúng tôi là một giải pháp tiên phong nhằm chuyể
 Đây là sơ đồ mô tả luồng dữ liệu chính, từ người dùng đến lớp dữ liệu lõi và ngược lại.
 
 ```mermaid
-flowchart LR
-    %% ===== 0. AUTH =====
-    subgraph S0["0. Hạ tầng & Xác thực"]
-        A[Người dùng] --> AUTH[Xác thực / Phân quyền]
-        AUTH --> DBUser[(PostgreSQL + PostGIS)]
-    end
+flowchart TD
 
-    %% ===== 1. INGESTION =====
-    subgraph S1["1. Thu thập & Chuẩn hoá Dữ liệu & Dự Đoán"]
+    %% ===== MICRO SERVICES & HẠ TẦNG =====
+    subgraph Services["Các Microservice & Hạ tầng"]
         direction LR
-        OpenAPI["Dữ liệu Mở (Thời tiết)"]
-        StaticData["Dữ liệu Tĩnh (Địa hình, Đất, Ngưỡng)"]
-
-        OpenAPI --> INGEST["Ingestion Service"]
-        StaticData --> INGEST
-        Citizen --> API["API Gateway"]
-
-        INGEST -->|"Chuẩn hóa NGSI-LD"| Orion
+        API_GW((API Gateway - Nginx))
+        AUTH[Auth Service]
+        INGEST[Ingestion Service - Python]
+        ALERT[Alert Service]
+        REPORT[Report Service]
+        SAFETY[Safety Service]
+        WEATHER[Weather Service]
+        DATA[Data Service]
     end
 
-    %% ===== 2. CONTEXT CORE =====
-    subgraph S2["2. Nền tảng Dữ liệu Ngữ cảnh (FIWARE)"]
+    %% ===== STORAGE =====
+    subgraph Storage["Dữ liệu Lõi"]
+        ORION[(Orion-LD - Context Broker)]
+        POSTGIS[(PostGIS - Du lieu Tinh Lich su)]
+        MONGO[(MongoDB - Context Storage)]
+    end
+
+    %% ===== CLIENT =====
+    subgraph Clients["Giao diện Người dùng"]
+        FE["CITIZEN, ADMIN"]
+    end
+
+    %% ===== KẾT NỐI CƠ BẢN =====
+    AUTH --> POSTGIS
+    INGEST -- Query Tinh & ETL --> POSTGIS
+    ALERT --> POSTGIS
+    SAFETY --> POSTGIS
+    DATA --> POSTGIS
+    ORION -- Luu Context Hien tai --> MONGO
+
+    %% ===== LUỒNG 1: CẢNH BÁO CHỦ ĐỘNG =====
+    subgraph Flow1["1. Canh bao Chu dong - Analysis & Workflow"]
         direction LR
-        Orion[Orion-LD Context Broker]
-        Mongo[(MongoDB - Context Storage)]
 
-        Orion -->|"Lưu Context hiện tại theo chuẩn NGSI-LD"| Mongo
-        Orion -->|"Publish sự kiện"| Logic["Dịch vụ Logic / Rule Engine"]
+        APIs["Du lieu Mua - Moi truong"] -->|Thu thap & Phan tich| INGEST
+        INGEST -->|Cap nhat RainObserved| ORION
+        INGEST -->|Internal API| ALERT
 
-        subgraph P["Lưu lịch sử"]
-            Orion --> QL[QuantumLeap]
-            QL --> TS[(TimescaleDB)]
-        end
+        ALERT -->|Save status PENDING| POSTGIS
+        FE -->|Quan ly - Duyet| ALERT
+
+        ALERT -->|APPROVED| ORION
+        ALERT -->|Socket.IO| API_GW
+        API_GW -->|Proxy WS| FE
     end
 
-    %% ===== 3. BUSINESS  =====
-    subgraph S3["3. Phân tích & Dự đoán"]
-        Logic -->|"Query dữ liệu tĩnh"| DBUser
-        Logic -->|"Chạy mô hình ML"| Model["Model dự báo Sạt lở / Lũ quét"]
-        Model -->|"Cập nhật cảnh báo"| Orion
-        API -->|"Tạo/Cập nhật CitizenReport"| Orion
+    %% ===== LUỒNG 2: SOS & CROWDSOURCING =====
+    subgraph Flow2["2. Phan anh & SOS"]
+        direction LR
+
+        FE -->|/reports/send| REPORT
+        REPORT -->|Create CitizenReport| ORION
+
+        FE -->|/safety/sos| SAFETY
+        SAFETY -->|Find nearest Safe Zone| POSTGIS
+        SAFETY -->|Evacuation guidance| FE
+
+        FE -->|Manager query SOS| SAFETY
     end
 
-    %% ===== 4. APPLICATION =====
-    subgraph S4["4. Ứng dụng"]
-        Admin["Web Dashboard"]
+    %% ===== LUỒNG 3: TRUY VẤN HIỂN THỊ =====
+    subgraph Flow3["3. Truy van & Hien thi"]
+        direction LR
 
-        Admin -->|"Query trạng thái"| Orion
-        Admin -->|"Truy vấn lịch sử"| TS
-        Admin -->|"Quản lý dữ liệu tĩnh"| DBUser
+        FE --> API_GW
+
+        API_GW --> WEATHER
+        WEATHER -->|Query RainObserved| ORION
+
+        API_GW --> DATA
+        DATA -->|Query RiskZones - Waterways| POSTGIS
+
+        API_GW --> REPORT
+        REPORT -->|Query CitizenReport| ORION
     end
+
 
 ```
 ## 🛠️ Công nghệ & Phụ thuộc (Tech Stack)
@@ -100,6 +130,41 @@ Hệ thống yêu cầu đã cài đặt Docker và Docker Compose.
 ```bash
 git clone https://github.com/PhamQuyNam/OLP_2025_PMMNM_HaUI_DNK.git
 ```
+
+**Cấu hình môi trường**
+
+Trước khi chạy dự án, bạn cần thiết lập các file môi trường (`.env`) cho từng service:
+
+- `alert-service`
+- `auth-service`
+- `data-service`
+- `safety-service`
+- File `.env` trong thư mục gốc dự án
+
+**Hướng dẫn**
+
+1. Copy file mẫu `.env.example` thành `.env`:
+
+```bash
+cp .env.example .env
+```
+2. Mở file `.env` vừa tạo và chỉnh sửa các thông số cấu hình theo nhu cầu của bạn.  
+   Các thông số chính cần lưu ý bao gồm:
+
+**Cấu hình Database (PostGIS)**  
+  - `POSTGRES_USER` – Tên người dùng cơ sở dữ liệu  
+  - `POSTGRES_PASSWORD` – Mật khẩu cơ sở dữ liệu  
+  - `POSTGRES_DB` – Tên cơ sở dữ liệu  
+  - `POSTGRES_HOST` – Địa chỉ host của database
+
+**Cấu hình API bên ngoài**  
+  - `OPENWEATHER_API_KEY` – API key từ OpenWeather  
+  - `ORION_HOST` – URL của service Orion Context Broker
+
+**Cấu hình bảo mật**  
+  - `JWT_SECRET` – Khóa bí mật JWT dùng cho xác thực  
+  - `EMAIL_USER` – Email dùng để gửi thông báo  
+  - `EMAIL_PASS` – Mật khẩu ứng dụng (App Password) cho email
 
 **Chạy ứng dụng**  
 (Mở terminal trong thư mục gốc và chạy lệnh)
