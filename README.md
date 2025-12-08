@@ -177,7 +177,7 @@ docker-compose up -d --build
 - **Dashboard Nhà Quản lý:** http://localhost:3001/manager   
 - **Ứng dụng Người Dân:** http://localhost:3001/citizen   
 - **API Backend (Node.js):** http://localhost:8000/api/...
-- **API Cảnh báo/Báo cáo:** http://localhost:3004/api/...
+- **API Cảnh báo/Báo cáo:** http://localhost:8000/api/...
 - **Orion-LD Context Broker:** http://localhost:1026/ngsi-ld/v1/entities  
 
 **Dừng hệ thống:**
@@ -186,16 +186,8 @@ docker-compose stop
 ```
 **Dọn dẹp hoàn toàn (Xóa container, network, và volumes):**
 ```bash
-docker-compose down -v
+docker-compose down 
 ```
-
-<!-- ## 📚 Tài liệu Chi tiết
-
-Tài liệu này chỉ là tổng quan. Toàn bộ mô tả chi tiết về Backend, Infrastructure, API, và hướng dẫn sử dụng đều có tại trang Docusaurus của dự án.
-
-➡️ **Xem tài liệu đầy đủ tại đây:**  -->
-
-
 
 
 ## 🤝 Đóng góp cho Dự án

@@ -8,7 +8,7 @@
 
 Mọi thay đổi đáng chú ý của dự án **Viet Resilience Hub** sẽ được ghi lại tại tệp này.
 
-## [v0.1.0] - 2025-12-04 (Phiên bản PoF OLP)
+## [v1.0.0] - 2025-12-04 (Phiên bản PoF OLP)
 
 Đây là bản phát hành đầu tiên
 
