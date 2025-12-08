@@ -37,13 +37,14 @@ import {
 import { useAuth } from "../../context/AuthContext";
 import weatherService from "../../services/weatherService";
 import reportService from "../../services/reportService";
-import alertService from "../../services/alertService"; // Import Alert Service
+import alertService from "../../services/alertService";
 import { STATIC_STATIONS } from "../../constants/stations";
 import { useSocket } from "../../context/SocketContext";
 // Fix icon marker
 import icon from "leaflet/dist/images/marker-icon.png";
 import iconShadow from "leaflet/dist/images/marker-shadow.png";
 import { toast } from "react-toastify";
+import SovereigntyMarker from "../../components/common/SovereigntyMarker";
 
 let DefaultIcon = L.icon({
   iconUrl: icon,
@@ -474,9 +475,11 @@ const CitizenHomePage = () => {
         <LayersControl position="topright">
           <LayersControl.BaseLayer checked name="Bản đồ Tiêu chuẩn">
             <TileLayer
-              attribution="&copy; OSM"
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+              url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
             />
+
+            <SovereigntyMarker />
           </LayersControl.BaseLayer>
 
           <LayersControl.Overlay checked name="⚠️ Vùng Cảnh báo Thiên tai">

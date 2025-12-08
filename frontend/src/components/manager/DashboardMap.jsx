@@ -35,7 +35,7 @@ import {
 // Fix icon marker mặc định của Leaflet
 import icon from "leaflet/dist/images/marker-icon.png";
 import iconShadow from "leaflet/dist/images/marker-shadow.png";
-
+import SovereigntyMarker from "../common/SovereigntyMarker";
 let DefaultIcon = L.icon({
   iconUrl: icon,
   shadowUrl: iconShadow,
@@ -172,10 +172,11 @@ const DashboardMap = ({
           {/* Mặc định Sáng */}
           <LayersControl.BaseLayer checked name="Bản đồ Sáng (Light)">
             <TileLayer
-              attribution="&copy; OSM"
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              attribution="&copy; CARTO"
+              url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
             />
           </LayersControl.BaseLayer>
+          <SovereigntyMarker />
           <LayersControl.BaseLayer name="Bản đồ Tối (Dark)">
             <TileLayer
               attribution="&copy; CARTO"
