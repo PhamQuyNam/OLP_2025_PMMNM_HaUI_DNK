@@ -4,7 +4,7 @@
   http://www.apache.org/licenses/LICENSE-2.0
 -->
 
-# VIET-RESILIENCE-HUB HỆ THỐNG NỀN TĂNG DỮ LIỆU MỞ GIÚP CẢNH BÁO SỚM VÀ PHẢN ỨNG KHẨN CẤP THIÊN TAI (Bài dự thi OLP PMNM 2025)
+# VIET-RESILIENCE-HUB HỆ THỐNG NỀN TẢNG DỮ LIỆU MỞ GIÚP CẢNH BÁO SỚM VÀ PHẢN ỨNG KHẨN CẤP THIÊN TAI (Bài dự thi OLP PMNM 2025)
 
 **Đội:** HaUI-DNK
 
@@ -25,18 +25,17 @@ Hệ thống của chúng tôi là một giải pháp tiên phong nhằm chuyể
 
 ```mermaid
 flowchart LR
-    %% ===== 0. AUTH & INFRA =====
+    %% ===== 0. AUTH =====
     subgraph S0["0. Hạ tầng & Xác thực"]
         A[Người dùng] --> AUTH[Xác thực / Phân quyền]
         AUTH --> DBUser[(PostgreSQL + PostGIS)]
     end
 
     %% ===== 1. INGESTION =====
-    subgraph S1["1. Thu thập & Chuẩn hoá Dữ liệu"]
+    subgraph S1["1. Thu thập & Chuẩn hoá Dữ liệu & Dự Đoán"]
         direction LR
         OpenAPI["Dữ liệu Mở (Thời tiết)"]
         StaticData["Dữ liệu Tĩnh (Địa hình, Đất, Ngưỡng)"]
-        Citizen["Người dân gửi phản ánh"]
 
         OpenAPI --> INGEST["Ingestion Service"]
         StaticData --> INGEST
@@ -51,7 +50,7 @@ flowchart LR
         Orion[Orion-LD Context Broker]
         Mongo[(MongoDB - Context Storage)]
 
-        Orion -->|"Lưu Context hiện tại"| Mongo
+        Orion -->|"Lưu Context hiện tại theo chuẩn NGSI-LD"| Mongo
         Orion -->|"Publish sự kiện"| Logic["Dịch vụ Logic / Rule Engine"]
 
         subgraph P["Lưu lịch sử"]
@@ -60,7 +59,7 @@ flowchart LR
         end
     end
 
-    %% ===== 3. BUSINESS & ML =====
+    %% ===== 3. BUSINESS  =====
     subgraph S3["3. Phân tích & Dự đoán"]
         Logic -->|"Query dữ liệu tĩnh"| DBUser
         Logic -->|"Chạy mô hình ML"| Model["Model dự báo Sạt lở / Lũ quét"]
