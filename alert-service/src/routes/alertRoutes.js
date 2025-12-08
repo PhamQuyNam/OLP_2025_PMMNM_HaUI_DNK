@@ -20,7 +20,7 @@ const alertController = require('../controllers/alertController');
 
 /**
  * @swagger
- * /api/alerts:
+ * /api/alerts/citizen:
  *   get:
  *     summary: Lấy danh sách cảnh báo công khai (Dành cho người dân)
  *     description: Chỉ trả về các cảnh báo đã được DUYỆT (APPROVED) và còn hiệu lực trong 24h.
@@ -41,31 +41,33 @@ const alertController = require('../controllers/alertController');
  *                     type: string
  *                   alert_level:
  *                     type: string
- *                     enum: [MEDIUM, HIGH, CRITICAL]
+ *                     enum: [HIGH, VERY HIGH, CRITICAL]
  *                   description:
  *                     type: string
- *                   impacted_points:
- *                     type: array
- *                     items:
- *                       type: object
- *                       properties:
- *                         name:
- *                           type: string
- *                         lat:
- *                           type: number
- *                         lon:
- *                           type: number
+ *                   estimated_toa_hours:
+ *                     type: number
+ *                     format: float
+ *                   rain_value:
+ *                     type: number
+ *                     description: Mưa 1h hiện tại
+ *                   rain_24h:
+ *                     type: number
+ *                     description: Mưa tích lũy 24h
+ *                   context_data:
+ *                     type: object
+ *                     description: Các chỉ số phân tích (Slope, TWI, Scores...)
  *       500:
  *         description: Lỗi Server
  */
-router.get('/', alertController.getPublicAlerts);
+router.get('/citizen', alertController.getPublicAlerts);
+
 
 /**
  * @swagger
  * /api/alerts/internal/receive:
  *   post:
  *     summary: Nhận cảnh báo từ hệ thống phân tích (Internal Only)
- *     description: API này dành riêng cho Python Analysis Service gọi sang. Không dành cho người dùng.
+ *     description: API này dành riêng cho Python Analysis Service gọi sang.
  *     tags: [Alerts]
  *     requestBody:
  *       required: true
@@ -81,30 +83,28 @@ router.get('/', alertController.getPublicAlerts);
  *             properties:
  *               station_name:
  *                 type: string
- *                 example: "Trạm Hương Sơn"
  *               risk_type:
  *                 type: string
  *                 enum: [LANDSLIDE, FLOOD]
  *               level:
  *                 type: string
- *                 enum: [MEDIUM, HIGH, CRITICAL]
+ *                 enum: [HIGH, VERY HIGH, CRITICAL]
  *               rain_value:
  *                 type: number
- *                 example: 120.5
+ *               rain_24h:
+ *                 type: number
+ *               flood_score:
+ *                 type: number
+ *               landslide_score:
+ *                 type: number
+ *               context_data:
+ *                 type: object
+ *                 description: elevation, slope, twi, isr, soil_moisture...
+ *               estimated_toa_hours:
+ *                 type: number
+ *                 format: float
  *               description:
  *                 type: string
- *               impacted_points:
- *                 type: array
- *                 description: Danh sách các điểm bị ảnh hưởng
- *                 items:
- *                   type: object
- *                   properties:
- *                     name:
- *                       type: string
- *                     lat:
- *                       type: number
- *                     lon:
- *                       type: number
  *     responses:
  *       200:
  *         description: Đã tiếp nhận hoặc cập nhật cảnh báo thành công
@@ -112,6 +112,7 @@ router.get('/', alertController.getPublicAlerts);
  *         description: Lỗi lưu Database
  */
 router.post('/internal/receive', alertController.receiveAlert);
+
 
 /**
  * @swagger
@@ -135,6 +136,17 @@ router.post('/internal/receive', alertController.receiveAlert);
  *                     type: integer
  *                   station_name:
  *                     type: string
+ *                   alert_level:
+ *                     type: string
+ *                   rain_value:
+ *                     type: number
+ *                   rain_24h:
+ *                     type: number
+ *                   estimated_toa_hours:
+ *                     type: number
+ *                     format: float
+ *                   context_data:
+ *                     type: object
  *                   created_at:
  *                     type: string
  *                     format: date-time
@@ -171,13 +183,12 @@ router.get('/pending', alertController.getPendingAlerts);
  *               status:
  *                 type: string
  *                 enum: [APPROVED, REJECTED]
- *                 description: APPROVED để phát cảnh báo, REJECTED để hủy.
  *               managerName:
  *                 type: string
  *                 example: "Nguyen Van A"
  *     responses:
  *       200:
- *         description: Đã xử lý thành công (Nếu Approve thì đã gửi SMS và đẩy lên Map)
+ *         description: Đã xử lý thành công
  *       400:
  *         description: Trạng thái không hợp lệ
  *       404:
@@ -186,5 +197,56 @@ router.get('/pending', alertController.getPendingAlerts);
  *         description: Lỗi Server
  */
 router.patch('/:id/review', alertController.approveAlert);
+
+/**
+ * @swagger
+ * /api/alerts/history:
+ *   get:
+ *     summary: Lấy lịch sử cảnh báo đã xử lý (Dành cho Manager)
+ *     description: Xem danh sách các cảnh báo đã được duyệt hoặc từ chối trong quá khứ.
+ *     tags: [Alerts]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [APPROVED, REJECTED]
+ *         description: Lọc theo trạng thái (bỏ trống để lấy tất cả)
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 100
+ *         description: Số lượng bản ghi tối đa
+ *     responses:
+ *       200:
+ *         description: Danh sách lịch sử đã xử lý
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: integer
+ *                   station_name:
+ *                     type: string
+ *                   status:
+ *                     type: string
+ *                     enum: [APPROVED, REJECTED]
+ *                   approved_by:
+ *                     type: string
+ *                   rain_value:
+ *                     type: number
+ *                   created_at:
+ *                     type: string
+ *                     format: date-time
+ *       500:
+ *         description: Lỗi Server
+ */
+router.get('/history', alertController.getHistoryAlerts);
 
 module.exports = router;

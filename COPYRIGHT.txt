@@ -47,6 +47,7 @@ axios                           1.6.2          MIT                Promise based 
 cors                            2.8.5          MIT                Node.js CORS middleware                                          https://github.com/expressjs/cors
 dotenv                          16.3.1         BSD-2-Clause       Loads environment variables from .env for nodejs projects        https://github.com/motdotla/dotenv
 swagger-jsdoc                   6.2.8          MIT                Generates swagger/openapi specification based on jsdoc comments  https://github.com/Surnet/swagger-jsdoc
+socket.io                       4.7.4          MIT                Realtime application framework (Node.JS server)                  https://github.com/socketio/socket.io
 ================================================================================================================================================================================
 API GATEWAY DEPENDENCIES ()
 ================================================================================================================================================================================
@@ -61,6 +62,7 @@ jsonwebtoken                    9.0.2          MIT                JsonWebToken i
 cors                            2.8.5          MIT                Node.js CORS middleware                                          https://github.com/expressjs/cors
 dotenv                          16.3.1         BSD-2-Clause       Loads environment variables from .env for nodejs projects        https://github.com/motdotla/dotenv
 swagger-jsdoc                   6.2.8          MIT                Generates swagger/openapi specification based on jsdoc comments  https://github.com/Surnet/swagger-jsdoc
+nodemailer                      6.9.8          MIT                Send emails from Node.js applications                            https://github.com/nodemailer/nodemailer
 ================================================================================================================================================================================
 DATA SERVICE DEPENDENCIES ()
 ================================================================================================================================================================================
@@ -88,6 +90,8 @@ axios                           1.6.2          MIT                Promise based 
 cors                            2.8.5          MIT                Node.js CORS middleware                                          https://github.com/expressjs/cors
 dotenv                          16.3.1         BSD-2-Clause       Loads environment variables from .env for nodejs projects        https://github.com/motdotla/dotenv
 swagger-jsdoc                   6.2.8          MIT                Generates swagger/openapi specification based on jsdoc comments  https://github.com/Surnet/swagger-jsdoc
+nodemailer                      6.9.8          MIT                Send emails from Node.js applications                            https://github.com/nodemailer/nodemailer
+jsonwebtoken                    9.0.2          MIT                JsonWebToken implementation for node.js                          https://github.com/auth0/node-jsonwebtoken
 ================================================================================================================================================================================
 WEATHER REALTIME SERVICE DEPENDENCIES ()
 ================================================================================================================================================================================

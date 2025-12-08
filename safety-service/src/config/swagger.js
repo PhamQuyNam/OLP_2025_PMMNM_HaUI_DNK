@@ -16,6 +16,16 @@ const options = {
       title: 'Safety Service API', // Sửa tên tùy service
       version: '1.0.0',
     },
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+        },
+      },
+    },
+    security: [{ bearerAuth: [] }],
     servers: [
       { url: '/', description: 'Safety Service' }, // Quan trọng: Base URL qua Gateway
     ],

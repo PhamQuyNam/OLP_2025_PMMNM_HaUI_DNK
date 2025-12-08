@@ -23,6 +23,11 @@ const reportService = {
   deleteReport(id) {
     return axiosClient.delete(`/reports/${id}`);
   },
+  // 4. Duyệt báo cáo (PUT)
+  verifyReport(id) {
+    // Gửi body JSON { status: "VERIFIED" } lên server
+    return axiosClient.put(`/reports/${id}`, { status: "VERIFIED" });
+  },
 };
 
 export default reportService;

@@ -10,6 +10,7 @@
 const express = require('express');
 const router = express.Router();
 const sosController = require('../controllers/sosController');
+const verifyToken = require('../auth/middleware');
 
 /**
  * @swagger
@@ -20,10 +21,50 @@ const sosController = require('../controllers/sosController');
 
 /**
  * @swagger
+ * /api/safety/sos/request:
+ *   post:
+ *     summary: Yêu cầu gửi mã OTP SOS (Cần đăng nhập)
+ *     description: |
+ *       Hệ thống sẽ tự động lấy Email từ Token đăng nhập của người dùng và gửi OTP về đó.
+ *       Người dùng không cần nhập email thủ công.
+ *     tags: [Safety]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: OTP đã được gửi thành công
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "OTP đã gửi đến d***@gmail.com"
+ *                 otp_sent:
+ *                   type: boolean
+ *                   example: true
+ *       401:
+ *         description: Chưa đăng nhập (Thiếu Token)
+ *       404:
+ *         description: Không tìm thấy email người dùng trong DB
+ *       500:
+ *         description: Lỗi hệ thống khi gửi Email
+ */
+router.post('/sos/request', verifyToken, sosController.requestSOS);
+
+
+/**
+ * @swagger
  * /api/safety/sos:
  *   post:
- *     summary: Gửi tín hiệu SOS (Dành cho Dân)
+ *     summary: Xác thực OTP và Gửi tín hiệu SOS (Cần đăng nhập)
+ *     description: |
+ *       Người dùng gửi tọa độ và mã OTP vừa nhận được.
+ *       Hệ thống sẽ xác thực OTP, lưu tín hiệu cầu cứu và trả về các điểm an toàn gần nhất.
  *     tags: [Safety]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -33,25 +74,62 @@ const sosController = require('../controllers/sosController');
  *             required:
  *               - lat
  *               - lon
+ *               - otp
  *             properties:
  *               lat:
  *                 type: number
+ *                 format: float
  *                 example: 18.3436
  *               lon:
  *                 type: number
+ *                 format: float
  *                 example: 105.9002
- *               phone:
+ *               otp:
  *                 type: string
- *                 example: "0987654321"
+ *                 example: "123456"
  *               message:
  *                 type: string
- *                 example: "Tôi bị mắc kẹt, nước dâng cao."
+ *                 example: "Nước ngập quá đầu người, cần cano gấp!"
+ *               phone:
+ *                 type: string
+ *                 example: "0912345678"
  *     responses:
  *       200:
- *         description: Thành công, trả về danh sách điểm an toàn
+ *         description: SOS thành công
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 your_location:
+ *                   type: object
+ *                   properties:
+ *                     lat:
+ *                       type: number
+ *                     lon:
+ *                       type: number
+ *                 nearest_safe_zones:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       name:
+ *                         type: string
+ *                       type:
+ *                         type: string
+ *                       distance:
+ *                         type: string
+ *       400:
+ *         description: OTP sai hoặc hết hạn
+ *       401:
+ *         description: Token không hợp lệ
+ *       500:
+ *         description: Lỗi Server
  */
+router.post('/sos', verifyToken, sosController.handleSOS);
 
-router.post('/sos', sosController.handleSOS);
 
 /**
  * @swagger
@@ -86,5 +164,38 @@ router.get('/sos/active', sosController.getActiveSOS);
  */
 
 router.patch('/sos/:id/resolve', sosController.resolveSOS);
+
+/**
+ * @swagger
+ * /api/safety/sos/all:
+ *   get:
+ *     summary: Lấy toàn bộ lịch sử tín hiệu SOS (Dành cho Manager)
+ *     description: Trả về tất cả các tín hiệu cứu hộ (bao gồm cả ACTIVE và RESCUED) để phục vụ thống kê báo cáo.
+ *     tags: [Safety]
+ *     responses:
+ *       200:
+ *         description: Danh sách đầy đủ
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: integer
+ *                   status:
+ *                     type: string
+ *                     enum: [ACTIVE, RESCUED]
+ *                   phone:
+ *                     type: string
+ *                   lat:
+ *                     type: number
+ *                   lon:
+ *                     type: number
+ *       500:
+ *         description: Lỗi Server
+ */
+router.get('/sos/all', sosController.getAllSOS);
 
 module.exports = router;
