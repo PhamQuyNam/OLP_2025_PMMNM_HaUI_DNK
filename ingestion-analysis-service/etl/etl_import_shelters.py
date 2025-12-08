@@ -75,31 +75,74 @@ def import_shelters():
 
         total_count = 0
 
+        seen_osm_ids = set()
+
         for station in MONITORING_STATIONS:
             print(f"\n--- Khu vực: {station['name']} ---")
-
             elements = fetch_osm_shelters(station['lat'], station['lon'], radius=5000)
 
+            # Đếm số lượng tìm thấy raw
+            print(f"   🔹 Tìm thấy {len(elements)} địa điểm từ OSM.")
+
             for el in elements:
+                # 1. Kiểm tra ID của OSM trước
+                osm_id = el.get('id')
+                osm_type = el.get('type')  # node hoặc way
+                unique_key = f"{osm_type}_{osm_id}"
+
+                if unique_key in seen_osm_ids:
+                    # Nếu ID này đã được xử lý ở trạm trước đó rồi thì bỏ qua luôn
+                    continue
+
                 tags = el.get('tags', {})
                 name = tags.get('name')
 
-                if name:
-                    s_type = map_osm_type(tags)
+                if not name:
+                    continue
 
-                    # Lấy tọa độ
-                    p_lat = el.get('center', {}).get('lat') or el.get('lat')
-                    p_lon = el.get('center', {}).get('lon') or el.get('lon')
+                name = name.strip()  # Xóa khoảng trắng thừa
 
-                    if p_lat and p_lon:
-                        # Insert vào bảng safe_zones (Bỏ cột capacity)
-                        query = """
-                            INSERT INTO safe_zones (name, type, geom)
-                            VALUES (%s, %s, ST_SetSRID(ST_Point(%s, %s), 4326));
-                        """
-                        cur.execute(query, (name, s_type, p_lon, p_lat))
-                        total_count += 1
-                        print(f"   ✅ Đã thêm: {name} ({s_type})")
+                s_type = map_osm_type(tags)
+
+                # Lấy tọa độ (ưu tiên center cho way)
+                p_lat = el.get('center', {}).get('lat') or el.get('lat')
+                p_lon = el.get('center', {}).get('lon') or el.get('lon')
+
+                if not p_lat or not p_lon:
+                    continue
+
+                # 2. Kiểm tra trong DB (Double check - phòng trường hợp chạy script nhiều lần mà không Truncate)
+                check_query = """
+                                SELECT 1 
+                                FROM safe_zones
+                                WHERE name = %s 
+                                AND ST_DWithin(
+                                    geom::geography, 
+                                    ST_SetSRID(ST_Point(%s, %s), 4326)::geography,
+                                    30
+                                )
+                                LIMIT 1;
+                            """
+                # Lưu ý: ST_DWithin nhanh hơn ST_Distance < x
+                cur.execute(check_query, (name, p_lon, p_lat))
+
+                if cur.fetchone():
+                    # Đã có trong DB, đánh dấu vào set để lần sau không query DB nữa
+                    seen_osm_ids.add(unique_key)
+                    print(f"   ⏩ Bỏ qua (đã có trong DB): {name}")
+                    continue
+
+                # 3. Thêm mới
+                insert_query = """
+                                INSERT INTO safe_zones (name, type, geom)
+                                VALUES (%s, %s, ST_SetSRID(ST_Point(%s, %s), 4326));
+                            """
+                cur.execute(insert_query, (name, s_type, p_lon, p_lat))
+
+                # Đánh dấu đã xử lý
+                seen_osm_ids.add(unique_key)
+                total_count += 1
+                print(f"   ✅ Đã thêm: {name}")
 
         conn.commit()
         cur.close()

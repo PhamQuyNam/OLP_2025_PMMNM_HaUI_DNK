@@ -21,9 +21,40 @@ const verifyToken = require('../middleware/authMiddleware');
 
 /**
  * @swagger
+ * /api/auth/request-otp:
+ *   post:
+ *     summary: Yêu cầu gửi mã OTP xác thực email (Bước 1)
+ *     description: Gửi mã OTP 6 số về email để xác minh trước khi đăng ký tài khoản.
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: "user@gmail.com"
+ *     responses:
+ *       200:
+ *         description: OTP đã được gửi thành công
+ *       400:
+ *         description: Thiếu email hoặc email đã tồn tại
+ *       500:
+ *         description: Lỗi gửi email
+ */
+router.post('/request-otp', authController.requestOTP);
+
+/**
+ * @swagger
  * /api/auth/register:
  *   post:
- *     summary: Đăng ký tài khoản mới
+ *     summary: Đăng ký tài khoản mới (Bước 2)
+ *     description: Gửi thông tin đăng ký kèm mã OTP đã nhận được ở Bước 1.
  *     tags: [Auth]
  *     requestBody:
  *       required: true
@@ -35,6 +66,7 @@ const verifyToken = require('../middleware/authMiddleware');
  *               - username
  *               - email
  *               - password
+ *               - otp
  *             properties:
  *               username:
  *                 type: string
@@ -46,6 +78,9 @@ const verifyToken = require('../middleware/authMiddleware');
  *               password:
  *                 type: string
  *                 format: password
+ *                 example: "123456"
+ *               otp:
+ *                 type: string
  *                 example: "123456"
  *               role:
  *                 type: string
@@ -66,7 +101,7 @@ const verifyToken = require('../middleware/authMiddleware');
  *       201:
  *         description: Đăng ký thành công
  *       400:
- *         description: Email đã tồn tại hoặc thiếu thông tin
+ *         description: OTP sai/hết hạn hoặc Email đã tồn tại
  *       500:
  *         description: Lỗi Server
  */
