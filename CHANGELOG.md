@@ -39,24 +39,41 @@ Mọi thay đổi đáng chú ý của dự án **Viet Resilience Hub** sẽ đ�
 
 ## [v2.0.0] - 2025-12-08
 ### Đã thêm (Added)
-- **🗺️ Phân hệ Người dân (Citizen)**
-  - **Ingest Statistics:** Thống kê lượng mưa trung bình, số trạm cảnh báo.
-  
+- **🚨 Hệ thống SOS Khẩn cấp (Real-time SOS):**
+    - Người dân gửi tín hiệu cầu cứu kèm tọa độ GPS và xác thực OTP (Email).
+    - Nhà quản lý nhận tin báo ngay lập tức (Real-time Socket) và định vị nạn nhân trên bản đồ tác chiến.
+    - Quy trình xử lý khép kín: Gửi -> Duyệt -> Cứu hộ thành công -> Cập nhật trạng thái.
+- **⚠️ Hệ thống Cảnh báo Thiên tai (Disaster Alert):**
+    - Tự động tiếp nhận dữ liệu phân tích từ máy đo (Python Ingestion).
+    - Quy trình phê duyệt chặt chẽ: Admin duyệt tin -> Phát sóng diện rộng.
+    - Hiển thị trực quan: Vòng tròn cảnh báo (Circle) trên bản đồ với bán kính động theo cấp độ rủi ro (Excel Standard).
+- **🗺️ Bản đồ & Chủ quyền số:**
+    - Chuyển đổi nền bản đồ sang **CartoDB Voyager** (Giao diện hiện đại, trung tính).
+    - **Khẳng định chủ quyền:** Tích hợp nhãn hiển thị quần đảo **Hoàng Sa** và **Trường Sa** (Việt Nam).
+    - Hỗ trợ đa điểm cầu: TP. Hà Tĩnh, TP. Hồ Chí Minh, TP. Thái Nguyên.
+- **🧭 Dẫn đường nội bộ (In-app Navigation):**
+    - Tính năng chỉ đường từ vị trí người dân đến Điểm an toàn gần nhất trực tiếp trên bản đồ ứng dụng (Không phụ thuộc Google Maps).
 
-- **📊 Phân hệ Quản lý (Manager Dashboard)**
-  
+### 🛠️ Cải tiến (Improvements)
 
-- **Pull-based Ingestion**
-  
+- **Manager Dashboard:**
+    - Bộ lọc dữ liệu thông minh (Smart Filter) theo từng thành phố.
+    - Biểu đồ và chỉ số thống kê tự động tính toán lại theo khu vực được chọn.
+    - Giao diện Dropdown chọn tỉnh phong cách Glassmorphism.
+- **Citizen Experience:**
+    - Tự động lọc trùng cảnh báo (Deduplication) để tránh spam thông báo.
+    - Cơ chế **Fallback Tọa độ 3 lớp**: API -> Dữ liệu trạm -> File tĩnh (Đảm bảo bản đồ không bao giờ lỗi dù API thiếu dữ liệu).
+    - Tự động Zoom mượt mà (Smooth Fly/Pan) khi chuyển đổi vị trí.
 
-- **Real-time Dashboard**
-  
+### 🐛 Sửa lỗi (Bug Fixes)
 
-- **Data Explorer**
-  
+- Fix lỗi xung đột Zoom bản đồ khi vừa đăng nhập.
+- Fix lỗi `ECONNREFUSED` do Race Condition giữa Docker Containers (Thêm Healthcheck cho PostGIS).
+- Fix lỗi hiển thị Layer Control của Leaflet.
+- Fix lỗi hiển thị thông báo (Toast) bị lặp lại.
 
-- **RESTful APIs**
-  
+### 🏗️ Hạ tầng (Infrastructure)
 
-- **Docker Deployment**
+- Cập nhật `docker-compose.yml` với cơ chế Healthcheck chuẩn.
+- Bảo mật file môi trường: Cập nhật `.gitignore` loại bỏ `.env` và thêm `.env.example`.
   
