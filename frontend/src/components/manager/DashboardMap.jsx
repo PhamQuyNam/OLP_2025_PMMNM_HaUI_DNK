@@ -167,7 +167,7 @@ const DashboardMap = ({
           geoJsonData={geoJsonData}
           flyToLocation={flyToLocation}
         />
-
+        <SovereigntyMarker />
         <LayersControl position="topright">
           {/* Mặc định Sáng */}
           <LayersControl.BaseLayer checked name="Bản đồ Sáng (Light)">
@@ -176,7 +176,7 @@ const DashboardMap = ({
               url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
             />
           </LayersControl.BaseLayer>
-          <SovereigntyMarker />
+
           <LayersControl.BaseLayer name="Bản đồ Tối (Dark)">
             <TileLayer
               attribution="&copy; CARTO"
