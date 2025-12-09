@@ -101,5 +101,13 @@ cors                            2.8.5          MIT                Node.js CORS m
 dotenv                          16.3.1         BSD-2-Clause       Loads environment variables from .env for nodejs projects        https://github.com/motdotla/dotenv
 swagger-jsdoc                   6.2.8          MIT                Generates swagger/openapi specification based on jsdoc comments  https://github.com/Surnet/swagger-jsdoc
 ================================================================================================================================================================================
+TOOLS DEPENDENCIES ()
+================================================================================================================================================================================
+Ldx-Insigh                      1.0.0          Apache-2.0         The file/model used additionally has a license header.           https://github.com/Haui-HIT-H2K/Ldx-Insight
+================================================================================================================================================================================
+.GITHUB DEPENDENCIES ()
+================================================================================================================================================================================
+SmartCity-Platform              2.1.1          Apache-2.0         bug reporting and feature suggestion form                        https://github.com/Haui-HIT-H2K/SmartCity-Platform
+================================================================================================================================================================================
 
 See copyright information at the header of source code files for additional details.

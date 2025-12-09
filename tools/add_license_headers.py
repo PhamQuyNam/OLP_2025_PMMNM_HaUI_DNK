@@ -1,6 +1,14 @@
-# Copyright 2025 HaUI.DNK
-# Licensed under the Apache License, Version 2.0
-# http://www.apache.org/licenses/LICENSE-2.0
+
+#   BẢN QUYỀN GỐC:
+#   Copyright (c) 2025 Haui.HIT - H2K
+#   Mã nguồn này được sử dụng theo các điều khoản của Giấy phép Apache 2.0.
+#   Xem: https://github.com/Haui-HIT-H2K/Ldx-Insight/blob/main/LICENSE
+
+#   BẢN QUYỀN SỬA ĐỔI
+#   Copyright 2025 by HaUI.DNK
+#   Licensed under the Apache License, Version 2.0
+#   http://www.apache.org/licenses/LICENSE-2.0
+
 import os
 import argparse
 import fnmatch
