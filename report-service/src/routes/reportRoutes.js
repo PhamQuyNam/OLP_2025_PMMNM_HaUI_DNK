@@ -190,4 +190,39 @@ router.delete("/:id", reportController.deleteReport);
  */
 router.put('/:id', reportController.updateReportStatus);
 
+/**
+ * @swagger
+ * /api/reports/public:
+ *   get:
+ *     summary: Lấy danh sách báo cáo đã xác minh (Dành cho Người dân)
+ *     description: Chỉ trả về các báo cáo có trạng thái VERIFIED để hiển thị lên bản đồ cộng đồng.
+ *     tags: [Reports]
+ *     responses:
+ *       200:
+ *         description: Thành công
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: string
+ *                   report_type:
+ *                     type: string
+ *                   desc:
+ *                     type: string
+ *                   time:
+ *                     type: string
+ *                     format: date-time
+ *                   lat:
+ *                     type: number
+ *                   lon:
+ *                     type: number
+ *       500:
+ *         description: Lỗi Server
+ */
+router.get('/public', reportController.getPublicReports);
+
 module.exports = router;

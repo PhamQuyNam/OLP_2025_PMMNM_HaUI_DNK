@@ -198,4 +198,30 @@ router.patch('/sos/:id/resolve', sosController.resolveSOS);
  */
 router.get('/sos/all', sosController.getAllSOS);
 
+/**
+ * @swagger
+ * /api/safety/sos/{id}:
+ *   delete:
+ *     summary: Xóa tín hiệu SOS (Dành cho Manager/Admin)
+ *     description: Xóa vĩnh viễn một tín hiệu cầu cứu khỏi hệ thống.
+ *     tags: [Safety]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID của tín hiệu SOS
+ *     responses:
+ *       200:
+ *         description: Xóa thành công
+ *       404:
+ *         description: Không tìm thấy
+ *       500:
+ *         description: Lỗi Server
+ */
+router.delete('/sos/:id', verifyToken, sosController.deleteSOS);
+
 module.exports = router;

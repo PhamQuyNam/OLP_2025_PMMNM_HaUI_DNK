@@ -122,7 +122,7 @@ def analyze_rain_risk(rain_data, lat, lon, station_name, station_id):
     water_distance = static_metrics.get('water_distance', 9999.0)
     isr = static_metrics.get('isr', 0.0)
 
-    # LỌC SƠ BỘ: ĐÃ TẠM THỜI VÔ HIỆU HÓA ĐỂ BUỘC TẠO CẢNH BÁO (DEBUG/TEST MODE)
+    #LỌC SƠ BỘ: ĐÃ TẠM THỜI VÔ HIỆU HÓA ĐỂ BUỘC TẠO CẢNH BÁO (DEBUG/TEST MODE)
     moderate_val = config.get('rainfall', {}).get('moderate', 10.0)
     if rain_1h < moderate_val and rain_24h < 50:
         print(f"✅ [{station_name}] Mưa nhẹ, không cần phân tích chi tiết.")
