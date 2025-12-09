@@ -21,8 +21,8 @@ export const AuthProvider = ({ children }) => {
 
   // Load user từ storage khi F5
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    const token = localStorage.getItem("token");
+    const storedUser = sessionStorage.getItem("user");
+    const token = sessionStorage.getItem("token");
 
     if (storedUser && token) {
       try {
@@ -69,8 +69,8 @@ export const AuthProvider = ({ children }) => {
       const token = response.token || response.accessToken;
 
       if (userData && token) {
-        localStorage.setItem("token", token);
-        localStorage.setItem("user", JSON.stringify(userData));
+        sessionStorage.setItem("token", token);
+        sessionStorage.setItem("user", JSON.stringify(userData));
         setUser(userData);
 
         // 3. Kích hoạt lấy vị trí ngay khi Login thành công
@@ -83,8 +83,8 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("user");
     setUser(null);
     setUserLocation(null); // Xóa vị trí khi thoát
   };

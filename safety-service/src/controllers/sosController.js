@@ -188,4 +188,24 @@ const getAllSOS = async (req, res) => {
     }
 };
 
-module.exports = { handleSOS, getActiveSOS, resolveSOS, requestSOS, getAllSOS };
+const deleteSOS = async (req, res) => {
+    const { id } = req.params;
+
+    if (!id) return res.status(400).json({ message: "Thiếu ID SOS" });
+
+    try {
+        const result = await pool.query("DELETE FROM sos_signals WHERE id = $1 RETURNING id", [id]);
+
+        if (result.rowCount === 0) {
+            return res.status(404).json({ message: "Không tìm thấy tín hiệu SOS này" });
+        }
+
+        res.json({ message: "Đã xóa tín hiệu SOS thành công", id });
+
+    } catch (err) {
+        console.error("Lỗi xóa SOS:", err);
+        res.status(500).json({ error: "Lỗi hệ thống khi xóa SOS" });
+    }
+};
+
+module.exports = { handleSOS, getActiveSOS, resolveSOS, requestSOS, getAllSOS, deleteSOS };
