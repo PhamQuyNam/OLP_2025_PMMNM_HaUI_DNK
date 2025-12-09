@@ -36,17 +36,17 @@ echo "========================================================="
 
 
 
-#echo "➡️ B1: Chạy ETL: Import Waterways (Sông/Suối)"
-#python -m etl.etl_import_waterways # <-- Dùng -m
-#
-#echo "➡️ B2: Chạy ETL: Import Stations (Trạm Quan Trắc)"
-#python -m etl.etl_import_stations # <-- Dùng -m
-#
-#echo "➡️ B3: Chạy ETL: shelters (địa điểm an toàn)"
-#python -m etl.etl_import_shelters # <-- Dùng -m
-#
-#echo "➡️ B4: Chạy ETL: Profiling (Tính toán Slope, TWI, ISR...)"
-#python -m etl.etl_station_profiling # <-- Dùng -m
+echo "➡️ B1: Chạy ETL: Import Waterways (Sông/Suối)"
+python -m etl.etl_import_waterways # <-- Dùng -m
+
+echo "➡️ B2: Chạy ETL: Import Stations (Trạm Quan Trắc)"
+python -m etl.etl_import_stations # <-- Dùng -m
+
+echo "➡️ B3: Chạy ETL: shelters (địa điểm an toàn)"
+python -m etl.etl_import_shelters # <-- Dùng -m
+
+echo "➡️ B4: Chạy ETL: Profiling (Tính toán Slope, TWI, ISR...)"
+python -m etl.etl_station_profiling # <-- Dùng -m
 
 
 
