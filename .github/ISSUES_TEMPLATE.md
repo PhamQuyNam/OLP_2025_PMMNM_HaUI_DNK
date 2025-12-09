@@ -1,3 +1,15 @@
+<!--
+  BẢN QUYỀN GỐC:
+  Copyright (c) 2025 Haui.HIT - H2K
+  Mã nguồn này được sử dụng theo các điều khoản của Giấy phép Apache 2.0.
+  Xem: https://github.com/Haui-HIT-H2K/SmartCity-Platform/blob/main/LICENSE
+
+  BẢN QUYỀN SỬA ĐỔI
+  Copyright 2025 by HaUI.DNK
+  Licensed under the Apache License, Version 2.0
+  http://www.apache.org/licenses/LICENSE-2.0
+-->
+
 # Quy định thông báo lỗi
 
 Khi báo lỗi bạn vui lòng cung cấp các thông tin sau để chúng tôi có thể xây dựng môi trường thử nghiệm giống của bạn để kiểm tra. Các thông tin này rất cần thiết trong quá trình đội code kiểm tra và sửa lỗi, đề nghị thành viên cung cấp đầy đủ thông tin để việc sửa lỗi được nhanh chóng.
