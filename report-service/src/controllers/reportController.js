@@ -169,4 +169,29 @@ const updateReportStatus = async (req, res) => {
     }
 };
 
-module.exports = { createReport, getReports, deleteReport, updateReportStatus };
+const getPublicReports = async (req, res) => {
+    try {
+        // Thêm tham số q=status=="VERIFIED" để lọc ngay từ Orion
+        const orionUrl = `${process.env.ORION_HOST}/ngsi-ld/v1/entities?type=CitizenReport&q=status=="VERIFIED"&options=keyValues&limit=100`;
+
+        const response = await axios.get(orionUrl);
+
+        const formattedData = response.data.map(item => ({
+            id: item.id,
+            type: item.reportType,
+            desc: item.description,
+            status: item.status, // Chắc chắn là VERIFIED
+            time: item.reportTime,
+            lat: item.location?.coordinates[1],
+            lon: item.location?.coordinates[0]
+            // Không trả về sđt người báo (bảo mật)
+        }));
+
+        res.json(formattedData);
+    } catch (error) {
+        console.error("Lỗi lấy public report:", error.message);
+        res.json([]); // Trả mảng rỗng nếu lỗi
+    }
+};
+
+module.exports = { createReport, getReports, deleteReport, updateReportStatus, getPublicReports };
