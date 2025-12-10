@@ -38,6 +38,7 @@ import { toast } from "react-toastify";
 import DashboardMap from "../../components/manager/DashboardMap";
 import weatherService from "../../services/weatherService";
 import reportService from "../../services/reportService";
+import alertService from "../../services/alertService";
 import safetyService from "../../services/safetyService";
 
 // --- CẤU HÌNH THÀNH PHỐ (Giống bên dân) ---
@@ -70,6 +71,7 @@ const ManagerDashboardPage = () => {
   const [allWeatherStations, setAllWeatherStations] = useState([]);
   const [allReports, setAllReports] = useState([]);
   const [allSosSignals, setAllSosSignals] = useState([]);
+  const [activeAlerts, setActiveAlerts] = useState([]);
 
   // State dữ liệu hiển thị (Đã lọc theo thành phố)
   const [filteredData, setFilteredData] = useState({
@@ -114,11 +116,13 @@ const ManagerDashboardPage = () => {
         weatherService.getRealtimeStations(),
         reportService.getAllReports(),
         safetyService.getActiveSOS(),
+        alertService.getCitizenAlerts(),
       ]);
 
       if (Array.isArray(weatherRes)) setAllWeatherStations(weatherRes);
       if (Array.isArray(reportRes)) setAllReports(reportRes);
       if (Array.isArray(sosRes)) setAllSosSignals(sosRes);
+      if (Array.isArray(alertRes)) setActiveAlerts(alertRes);
     } catch (error) {
       console.error("Lỗi tải dữ liệu tổng hợp:", error);
     }
@@ -380,6 +384,7 @@ const ManagerDashboardPage = () => {
             geoJsonData={geoJsonData} // Ranh giới mới
             onResolveSos={handleResolveSos}
             flyToLocation={flyToCoords}
+            activeAlerts={activeAlerts}
           />
         </div>
 

@@ -6,308 +6,249 @@
  *
  * Distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND.
  */
+
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom"; // Hook điều hướng
 import {
   Megaphone,
   Check,
   X,
-  Activity,
   Clock,
   AlertTriangle,
   AlertOctagon,
   Info,
   Waves,
-  Mountain, // Icon Sóng và Núi
-  TrendingUp,
-  ArrowUpFromLine,
-  Layers,
-  Ruler,
+  Mountain,
+  MapPin, // Icon MapPin
 } from "lucide-react";
 import { toast } from "react-toastify";
 import alertService from "../../services/alertService";
 import { useSocket } from "../../context/SocketContext";
+import { STATIC_STATIONS } from "../../constants/stations";
 
 const ManagerAlertsPage = () => {
-  const [pendingList, setPendingList] = useState([]);
+  const [activeTab, setActiveTab] = useState("PENDING");
+  const [displayList, setDisplayList] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const socket = useSocket();
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!socket) return;
+  const handleLocate = (alert) => {
+    let targetLat = alert.lat;
+    let targetLon = alert.lon;
 
-    socket.on("alert:new_pending", (newAlert) => {
-      console.log("🔔 Có cảnh báo mới cần duyệt:", newAlert);
-      toast.info(`⚠️ Cảnh báo mới: ${newAlert.station_name}`);
+    // Nếu API không trả về tọa độ, tìm trong file cứng
+    if (!targetLat || !targetLon) {
+      // Tìm theo ID trước
+      let station = STATIC_STATIONS.find((s) => s.id === alert.station_id);
 
-      // Thêm ngay vào đầu danh sách
-      setPendingList((prev) => [newAlert, ...prev]);
-    });
+      // Nếu không thấy ID, tìm theo Tên (gần đúng)
+      if (!station) {
+        station = STATIC_STATIONS.find((s) => s.name === alert.station_name);
+      }
 
-    // Cleanup listener khi rời trang
-    return () => socket.off("alert:new_pending");
-  }, [socket]);
-  // Load danh sách
-  const fetchPending = async () => {
+      if (station) {
+        targetLat = station.lat;
+        targetLon = station.lon;
+      }
+    }
+
+    if (targetLat && targetLon) {
+      // Chuyển sang Dashboard và zoom vào đó
+      navigate("/manager", {
+        state: { focusLocation: [targetLat, targetLon] },
+      });
+    } else {
+      toast.warning("Không tìm thấy tọa độ của trạm này!");
+    }
+  };
+
+  const fetchData = async () => {
+    setIsLoading(true);
     try {
-      const data = await alertService.getPendingAlerts();
-      if (Array.isArray(data)) {
-        const sorted = data.sort(
-          (a, b) => new Date(b.created_at) - new Date(a.created_at)
-        );
-        setPendingList(sorted);
+      if (activeTab === "PENDING") {
+        // Tab Chờ duyệt: Gọi API Pending
+        const data = await alertService.getPendingAlerts();
+        if (Array.isArray(data)) setDisplayList(data);
+      } else {
+        // Tab Lịch sử (Duyệt/Hủy): Gọi API History rồi lọc tại Frontend
+        const historyData = await alertService.getHistoryAlerts();
+        if (Array.isArray(historyData)) {
+          // Lọc theo trạng thái Tab đang chọn
+          const filtered = historyData.filter(
+            (item) => item.status === activeTab
+          );
+          // Sắp xếp mới nhất lên đầu
+          const sorted = filtered.sort(
+            (a, b) => new Date(b.created_at) - new Date(a.created_at)
+          );
+          setDisplayList(sorted);
+        }
       }
     } catch (error) {
-      console.error("Lỗi tải cảnh báo:", error);
+      console.error(error);
+      setDisplayList([]);
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchPending();
-    const interval = setInterval(fetchPending, 10000);
-    return () => clearInterval(interval);
-  }, []);
+    fetchData();
+  }, [activeTab]);
+
+  // Socket: Chỉ nghe khi ở Tab Pending
+  useEffect(() => {
+    if (!socket || activeTab !== "PENDING") return;
+    socket.on("alert:new_pending", (newAlert) => {
+      toast.info(`⚠️ Cảnh báo mới: ${newAlert.station_name}`);
+      setDisplayList((prev) => [newAlert, ...prev]);
+    });
+    return () => socket.off("alert:new_pending");
+  }, [socket, activeTab]);
 
   const handleReview = async (id, status) => {
-    const actionName = status === "APPROVED" ? "DUYỆT" : "TỪ CHỐI";
-    if (!window.confirm(`Bạn chắc chắn muốn ${actionName} cảnh báo này?`))
-      return;
-
+    if (!window.confirm("Xác nhận hành động?")) return;
     try {
       await alertService.reviewAlert(id, status);
-      toast.success(`Đã ${actionName} cảnh báo thành công!`);
-      setPendingList((prev) => prev.filter((item) => item.id !== id));
+      toast.success("Thành công!");
+      setDisplayList((prev) => prev.filter((item) => item.id !== id));
     } catch (error) {
       toast.error("Lỗi xử lý.");
     }
   };
 
-  // Helper 1: Màu sắc theo cấp độ
+  // Helper hiển thị cấp độ (như cũ)
   const getLevelInfo = (levelString) => {
     const level = String(levelString).toUpperCase();
-    if (level.includes("HIGH") && !level.includes("VERY")) {
+    if (level.includes("CRITICAL") || level == "3")
       return {
-        color: "bg-yellow-500",
-        border: "border-yellow-500",
-        text: "text-yellow-500",
-        label: "Cấp 1 - Cảnh giác",
-      };
-    }
-    if (level.includes("VERY") || level == "2") {
-      return {
-        color: "bg-orange-500",
-        border: "border-orange-500",
-        text: "text-orange-500",
-        label: "Cấp 2 - Nguy hiểm",
-      };
-    }
-    if (level.includes("CRITICAL") || level == "3") {
-      return {
-        color: "bg-red-600",
         border: "border-red-600",
         text: "text-red-600",
         label: "Cấp 3 - Thảm họa",
       };
-    }
+    if (level.includes("VERY") || level == "2")
+      return {
+        border: "border-orange-500",
+        text: "text-orange-500",
+        label: "Cấp 2 - Nguy hiểm",
+      };
     return {
-      color: "bg-slate-500",
-      border: "border-slate-500",
-      text: "text-slate-500",
-      label: "Chưa phân loại",
+      border: "border-yellow-500",
+      text: "text-yellow-500",
+      label: "Cấp 1 - Cảnh báo",
     };
   };
 
-  // Helper 2: Icon theo Loại thiên tai
-  const getRiskInfo = (type) => {
-    if (type === "FLOOD") return { icon: Waves, label: "Lũ lụt / Ngập úng" };
-    if (type === "LANDSLIDE") return { icon: Mountain, label: "Sạt lở đất" };
-    return { icon: Activity, label: "Thiên tai khác" };
-  };
-
-  // Helper 3: Tính phạm vi ảnh hưởng (Dựa trên File Excel)
-  const getRadiusInfo = (type, levelString) => {
-    const t = String(type).toUpperCase();
-    const l = String(levelString).toUpperCase();
-
-    // Logic Ngập lụt
-    if (t === "FLOOD") {
-      if (l.includes("CRITICAL") || l == "3") return "20+ km"; // Cấp 3
-      if (l.includes("VERY") || l == "2") return "10 km"; // Cấp 2
-      return "5 km"; // Cấp 1
-    }
-    // Logic Sạt lở
-    if (t === "LANDSLIDE") {
-      if (l.includes("CRITICAL") || l == "3") return "5 km"; // Cấp 3
-      if (l.includes("VERY") || l == "2") return "2 km"; // Cấp 2
-      return "1 km"; // Cấp 1
-    }
-    return "N/A";
-  };
+  const getRiskIcon = (type) => (type === "FLOOD" ? Waves : Mountain);
 
   return (
     <div className="text-slate-100 font-sans pb-20">
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold flex items-center gap-3 text-white">
-            <Megaphone className="text-yellow-400 animate-pulse" size={28} />
-            Phê duyệt Cảnh báo
-          </h1>
-          <p className="text-slate-400 text-xs mt-1 ml-10">
-            Hệ thống phân tích rủi ro tự động (AI Analysis).
-          </p>
-        </div>
-        <div className="bg-slate-800 px-3 py-1 rounded-lg border border-slate-700">
-          <span className="text-xs text-slate-400">Chờ duyệt: </span>
-          <span className="text-sm font-bold text-white">
-            {pendingList.length}
-          </span>
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold flex items-center gap-3 text-white mb-4">
+          <Megaphone className="text-yellow-400" size={28} />
+          Quản lý Cảnh báo
+        </h1>
+
+        {/* --- TABS --- */}
+        <div className="flex gap-2 border-b border-slate-700 pb-1">
+          <TabButton
+            label="Chờ duyệt"
+            count={activeTab === "PENDING" ? displayList.length : null}
+            isActive={activeTab === "PENDING"}
+            onClick={() => setActiveTab("PENDING")}
+            activeColor="text-yellow-400 border-yellow-400"
+          />
+          <TabButton
+            label="Đã duyệt"
+            isActive={activeTab === "APPROVED"}
+            onClick={() => setActiveTab("APPROVED")}
+            activeColor="text-emerald-400 border-emerald-400"
+          />
+          <TabButton
+            label="Đã từ chối"
+            isActive={activeTab === "REJECTED"}
+            onClick={() => setActiveTab("REJECTED")}
+            activeColor="text-red-400 border-red-400"
+          />
         </div>
       </div>
 
       <div className="grid grid-cols-1 gap-4">
-        {isLoading && pendingList.length === 0 ? (
-          <p className="text-center text-slate-500 py-10 italic text-sm">
-            Đang đồng bộ dữ liệu...
+        {isLoading ? (
+          <p className="text-center py-10 text-slate-500">
+            Đang tải dữ liệu...
           </p>
-        ) : pendingList.length === 0 ? (
-          <div className="text-center py-12 bg-slate-800/30 rounded-xl border border-slate-700 border-dashed">
-            <Check className="mx-auto text-emerald-500 mb-2" size={32} />
-            <p className="text-slate-400 text-sm">Không có cảnh báo nào.</p>
+        ) : displayList.length === 0 ? (
+          <div className="text-center py-10 bg-slate-800/30 rounded-xl border border-slate-700 border-dashed text-slate-500">
+            Danh sách trống.
           </div>
         ) : (
-          pendingList.map((alert) => {
+          displayList.map((alert) => {
             const levelUI = getLevelInfo(alert.alert_level);
-            const riskUI = getRiskInfo(alert.risk_type);
-            const RiskIcon = riskUI.icon;
-            const radiusText = getRadiusInfo(
-              alert.risk_type,
-              alert.alert_level
-            );
-
-            const ctx = alert.context_data || {};
+            const RiskIcon = getRiskIcon(alert.risk_type);
 
             return (
               <div
                 key={alert.id}
-                className={`relative bg-slate-900 border-l-4 ${levelUI.border} rounded-r-xl p-4 shadow-lg flex flex-col lg:flex-row gap-4 transition-all hover:bg-slate-800/80`}
+                className={`bg-slate-900 border-l-4 ${levelUI.border} rounded-r-xl p-4 shadow-lg flex flex-col lg:flex-row gap-4`}
               >
-                {/* CỘT 1: VISUAL & TITLE */}
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
                     <span
-                      className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-white/10 ${levelUI.text}`}
+                      className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-white/10 ${levelUI.text}`}
                     >
                       {levelUI.label}
                     </span>
                     <span className="text-[10px] text-slate-500 flex items-center gap-1">
-                      <Clock size={10} />
+                      <Clock size={10} />{" "}
                       {new Date(alert.created_at).toLocaleString("vi-VN")}
                     </span>
                   </div>
-
-                  <div className="flex items-start gap-3 mb-3">
-                    {/* ICON SÓNG / NÚI Ở ĐÂY: Tôi tăng opacity nền lên để dễ nhìn hơn */}
-                    <div
-                      className={`p-2.5 rounded-lg ${levelUI.color} bg-opacity-30 shrink-0 border border-white/10`}
-                    >
-                      <RiskIcon size={28} className="text-white" />{" "}
-                      {/* Icon màu trắng cho nổi */}
-                    </div>
-                    <div>
-                      <h3 className="text-base font-bold text-white leading-tight">
-                        {alert.station_name}
-                      </h3>
-                      <p className="text-xs text-slate-400 font-medium mt-0.5">
-                        {riskUI.label}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="bg-slate-950/50 p-2 rounded border border-slate-800 text-xs text-slate-300 italic mb-3">
+                  <h3 className="text-base font-bold text-white flex items-center gap-2">
+                    <RiskIcon size={18} /> {alert.station_name}
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-1 italic">
                     "{alert.description || alert.message}"
-                  </div>
-
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                    <div className="bg-slate-800 p-1.5 rounded border border-slate-700/50">
-                      <p className="text-[10px] text-slate-500">Mưa 1h</p>
-                      <p className="text-sm font-mono font-bold text-blue-400">
-                        {alert.rain_value}mm
-                      </p>
-                    </div>
-                    <div className="bg-slate-800 p-1.5 rounded border border-slate-700/50">
-                      <p className="text-[10px] text-slate-500">Mưa 24h</p>
-                      <p className="text-sm font-mono font-bold text-sky-400">
-                        {alert.rain_24h}mm
-                      </p>
-                    </div>
-                    <div className="bg-slate-800 p-1.5 rounded border border-slate-700/50">
-                      <p className="text-[10px] text-slate-500">Đổ bộ sau</p>
-                      <p className="text-sm font-mono font-bold text-yellow-400">
-                        {alert.estimated_toa_hours}h
-                      </p>
-                    </div>
-                    {/* PHẠM VI ẢNH HƯỞNG (Đã sửa tên & Logic từ Excel) */}
-                    <div className="bg-slate-800 p-1.5 rounded border border-slate-700/50">
-                      <p className="text-[10px] text-slate-500">
-                        Phạm vi ảnh hưởng
-                      </p>
-                      <p className="text-sm font-mono font-bold text-white flex items-center gap-1">
-                        <Ruler size={12} className="text-slate-400" />
-                        {radiusText}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* CỘT 2: THÔNG SỐ (Đã bỏ Rủi ro tích lũy) */}
-                <div className="lg:w-48 bg-slate-950/30 rounded-lg p-3 border border-white/5 flex flex-col justify-center text-xs space-y-2">
-                  <p className="text-[10px] font-bold text-slate-500 uppercase mb-1 border-b border-white/5 pb-1">
-                    Địa hình & Thủy văn
                   </p>
 
-                  <div className="flex justify-between items-center">
-                    <span className="text-slate-400 flex items-center gap-1">
-                      <TrendingUp size={10} /> Độ dốc:
-                    </span>
-                    <span className="font-mono text-white">
-                      {ctx.slope ? `${ctx.slope}%` : "N/A"}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-slate-400 flex items-center gap-1">
-                      <ArrowUpFromLine size={10} /> Độ cao:
-                    </span>
-                    <span className="font-mono text-white">
-                      {ctx.elevation ? `${ctx.elevation}m` : "N/A"}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-slate-400 flex items-center gap-1">
-                      <Layers size={10} /> TWI (Ẩm):
-                    </span>
-                    <span className="font-mono text-white">
-                      {ctx.twi ? Number(ctx.twi).toFixed(1) : "N/A"}
-                    </span>
-                  </div>
-                  {/* ĐÃ XÓA MỤC RỦI RO TÍCH LŨY Ở ĐÂY */}
+                  <button
+                    onClick={() => handleLocate(alert)}
+                    className="mt-3 flex items-center gap-1 text-xs bg-slate-800 hover:bg-primary hover:text-white px-3 py-1.5 rounded border border-slate-700 transition-colors"
+                  >
+                    <MapPin size={12} /> Xem vị trí
+                  </button>
                 </div>
 
-                {/* CỘT 3: HÀNH ĐỘNG */}
-                <div className="flex lg:flex-col gap-2 min-w-[120px] justify-center border-t lg:border-t-0 lg:border-l border-slate-700 pt-3 lg:pt-0 lg:pl-4">
-                  <button
-                    onClick={() => handleReview(alert.id, "APPROVED")}
-                    className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-lg flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95 text-xs"
-                  >
-                    <Check size={16} /> PHÁT TIN
-                  </button>
-                  <button
-                    onClick={() => handleReview(alert.id, "REJECTED")}
-                    className="flex-1 bg-slate-800 hover:bg-red-900/40 text-slate-400 hover:text-red-400 font-bold py-2 rounded-lg flex items-center justify-center gap-2 border border-slate-700 transition-all active:scale-95 text-xs"
-                  >
-                    <X size={16} /> HỦY BỎ
-                  </button>
-                </div>
+                {/* Hành động */}
+                {activeTab === "PENDING" ? (
+                  <div className="flex flex-col justify-center gap-2 border-l border-slate-700 pl-4 min-w-[100px]">
+                    <button
+                      onClick={() => handleReview(alert.id, "APPROVED")}
+                      className="bg-emerald-600 text-white font-bold py-2 rounded text-xs"
+                    >
+                      DUYỆT
+                    </button>
+                    <button
+                      onClick={() => handleReview(alert.id, "REJECTED")}
+                      className="bg-slate-800 text-slate-400 font-bold py-2 rounded text-xs border border-slate-700"
+                    >
+                      TỪ CHỐI
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center px-4 border-l border-slate-700">
+                    <span
+                      className={`font-bold text-xs ${
+                        activeTab === "APPROVED"
+                          ? "text-emerald-500"
+                          : "text-red-500"
+                      }`}
+                    >
+                      {activeTab === "APPROVED" ? "ĐÃ PHÁT TIN" : "ĐÃ HỦY"}
+                    </span>
+                  </div>
+                )}
               </div>
             );
           })
@@ -316,5 +257,23 @@ const ManagerAlertsPage = () => {
     </div>
   );
 };
+
+const TabButton = ({ label, isActive, onClick, activeColor, count }) => (
+  <button
+    onClick={onClick}
+    className={`px-4 py-2 text-sm font-bold border-b-2 transition-colors flex items-center gap-2 ${
+      isActive
+        ? activeColor
+        : "text-slate-500 border-transparent hover:text-slate-300"
+    }`}
+  >
+    {label}{" "}
+    {count ? (
+      <span className="bg-slate-700 text-white px-1.5 py-0.5 rounded text-[10px]">
+        {count}
+      </span>
+    ) : null}
+  </button>
+);
 
 export default ManagerAlertsPage;

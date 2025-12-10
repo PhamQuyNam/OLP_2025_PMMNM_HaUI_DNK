@@ -34,6 +34,10 @@ const alertService = {
   getCitizenAlerts() {
     return axiosClient.get("/alerts/citizen");
   },
+  // GET: /alerts/history?limit=100
+  getHistoryAlerts() {
+    return axiosClient.get("/alerts/history", { params: { limit: 100 } });
+  },
 };
 
 export default alertService;

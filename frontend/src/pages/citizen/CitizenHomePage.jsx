@@ -211,26 +211,33 @@ const BoundaryController = ({ geoJsonData, shouldZoom, onZoomComplete }) => {
   return null;
 };
 
-const RoutingController = ({ userLocation, destination }) => {
+const RoutingController = ({ userLocation, destination, isSafeZone }) => {
   const map = useMap();
+
+  // 1. Luôn luôn bay đến đích (cho cả 2 trường hợp)
   useEffect(() => {
-    if (userLocation && destination) {
-      const bounds = L.latLngBounds([userLocation, destination]);
-      map.fitBounds(bounds, { padding: [50, 50] });
+    if (destination) {
+      map.flyTo(destination, 16, { duration: 2, easeLinearity: 0.25 });
     }
-  }, [userLocation, destination, map]);
-  if (!userLocation || !destination) return null;
-  return (
-    <Polyline
-      positions={[userLocation, destination]}
-      pathOptions={{
-        color: "#0ea5e9",
-        weight: 4,
-        dashArray: "10, 10",
-        opacity: 0.8,
-      }}
-    />
-  );
+  }, [destination, map]);
+
+  // 2. Chỉ vẽ đường Polyline nếu là Điểm an toàn (SOS)
+  if (isSafeZone && userLocation && destination) {
+    return (
+      <Polyline
+        positions={[userLocation, destination]}
+        pathOptions={{
+          color: "#0ea5e9", // Màu xanh
+          weight: 4,
+          dashArray: "10, 10",
+          opacity: 0.8,
+        }}
+      />
+    );
+  }
+
+  // Nếu là xem cảnh báo bình thường -> Không vẽ gì cả
+  return null;
 };
 
 // --- HELPERS ---
@@ -308,6 +315,7 @@ const CitizenHomePage = () => {
   const [destination, setDestination] = useState(null);
   const socket = useSocket();
   const alertsRef = useRef(activeAlerts);
+  const [isSafeZone, setIsSafeZone] = useState(false);
 
   useEffect(() => {
     alertsRef.current = activeAlerts;
@@ -347,6 +355,15 @@ const CitizenHomePage = () => {
   useEffect(() => {
     if (location.state?.destination) {
       setDestination(location.state.destination);
+
+      // Kiểm tra type có phải SAFE_ZONE không (SOSModal có gửi cái này)
+      if (location.state?.type === "SAFE_ZONE") {
+        setIsSafeZone(true);
+      } else {
+        setIsSafeZone(false);
+      }
+
+      // Xóa state lịch sử để F5 không bị lỗi (Optional)
       window.history.replaceState({}, document.title);
     }
   }, [location]);
@@ -511,6 +528,7 @@ const CitizenHomePage = () => {
         <RoutingController
           userLocation={userLocation}
           destination={destination}
+          isSafeZone={isSafeZone}
         />
         <BoundaryController
           geoJsonData={geoJsonData}

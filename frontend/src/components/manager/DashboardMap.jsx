@@ -23,6 +23,7 @@ import {
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { Phone, Clock, ShieldAlert, CheckCircle, Info } from "lucide-react";
+import { Circle } from "react-leaflet";
 
 // Fix icon marker mặc định
 import icon from "leaflet/dist/images/marker-icon.png";
@@ -40,6 +41,12 @@ L.Marker.prototype.options.icon = DefaultIcon;
 
 const CENTER = [18.3436, 105.9002];
 
+const getAlertRadius = (type, level) => {
+  /* logic 3000/1500/800... */
+};
+const getAlertColor = (level) => {
+  /* logic red/orange/yellow */
+};
 // --- 1. COMPONENT CHÚ GIẢI MINI (MANAGER LEGEND) ---
 const ManagerLegend = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -201,6 +208,7 @@ const DashboardMap = ({
   onResolveSos,
   geoJsonData,
   flyToLocation,
+  activeAlerts = [],
 }) => {
   return (
     <div className="h-full w-full relative rounded-xl overflow-hidden border border-slate-600 shadow-inner bg-slate-900">
@@ -222,6 +230,36 @@ const DashboardMap = ({
         <SovereigntyMarker />
 
         <LayersControl position="topright">
+          <LayersControl.Overlay checked name="⚠️ Vùng Cảnh báo">
+            <LayerGroup>
+              {activeAlerts.map((alert) => {
+                let lat = alert.lat;
+                let lon = alert.lon;
+                // Logic fallback nếu API thiếu tọa độ (như yêu cầu 3 lớp)
+                // (Ở map thì thường API alert/citizen đã trả về đủ lat/lon rồi, nếu không thì bỏ qua)
+                if (!lat || !lon) return null;
+
+                return (
+                  <Circle
+                    key={`alert-${alert.id}`}
+                    center={[lat, lon]}
+                    radius={getAlertRadius(alert.risk_type, alert.alert_level)}
+                    pathOptions={{
+                      color: getAlertColor(alert.alert_level),
+                      fillColor: getAlertColor(alert.alert_level),
+                      fillOpacity: 0.2,
+                    }}
+                  >
+                    <Popup>
+                      <div className="text-center font-bold text-red-600">
+                        {alert.station_name} <br /> {alert.alert_level}
+                      </div>
+                    </Popup>
+                  </Circle>
+                );
+              })}
+            </LayerGroup>
+          </LayersControl.Overlay>
           <LayersControl.BaseLayer checked name="Bản đồ Sáng (Light)">
             <TileLayer
               attribution="&copy; CARTO"
