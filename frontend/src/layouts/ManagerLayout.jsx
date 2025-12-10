@@ -89,14 +89,16 @@ const ManagerLayout = () => {
             end
           />
           <ManagerNavItem
-            to="/manager/reports" // Đổi đường dẫn
-            icon={FileText} // Đổi icon cho hợp
-            label="Danh sách Phản ánh" // Đổi tên
+            to="/manager/reports"
+            icon={FileText}
+            label="Danh sách Phản ánh"
+            hasBadge={true}
           />
           <ManagerNavItem
             to="/manager/sos"
             icon={BellRing}
             label="Quản lý Cứu hộ"
+            hasBadge={true}
           />
           <ManagerNavItem
             to="/manager/alerts"
@@ -197,7 +199,7 @@ const ManagerNavItem = ({ to, icon: Icon, label, end, hasBadge, onClick }) => (
     {label}
 
     {hasBadge && (
-      <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 border-2 border-slate-900 rounded-full animate-pulse"></span>
+      <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 border-2 border-slate-900 rounded-full animate-pulse-fast"></span>
     )}
   </NavLink>
 );

@@ -226,7 +226,7 @@ const DesktopNavLink = ({ to, icon: Icon, label, end, hasBadge, onClick }) => (
     <Icon size={18} /> {label}
     {/* Chấm đỏ */}
     {hasBadge && (
-      <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 border-2 border-white rounded-full animate-pulse"></span>
+      <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 border-2 border-white rounded-full animate-pulse-fast"></span>
     )}
   </NavLink>
 );
@@ -248,7 +248,7 @@ const MobileNavItem = ({ to, icon: Icon, label, end, hasBadge, onClick }) => (
         <div className="relative">
           <Icon size={22} strokeWidth={isActive ? 2.5 : 2} />
           {hasBadge && (
-            <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-red-500 border-2 border-white rounded-full animate-pulse"></span>
+            <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-red-500 border-2 border-white rounded-full animate-pulse-fast"></span>
           )}
         </div>
         <span className="text-[10px] font-medium">{label}</span>
