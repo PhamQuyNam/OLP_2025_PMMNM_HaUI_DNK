@@ -271,7 +271,7 @@ const CitizenReportPage = () => {
                   "Đang gửi..."
                 ) : (
                   <>
-                    <Send size={18} /> GỬI BÁO CÁO
+                    <Send size={18} /> GỬI PHẢN ÁNH
                   </>
                 )}
               </button>
