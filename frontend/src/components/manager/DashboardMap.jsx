@@ -8,7 +8,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -22,20 +22,13 @@ import {
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
-import {
-  CloudRain,
-  AlertTriangle,
-  Phone,
-  Clock,
-  MapPin,
-  CheckCircle,
-  ShieldAlert,
-} from "lucide-react";
+import { Phone, Clock, ShieldAlert, CheckCircle, Info } from "lucide-react";
 
-// Fix icon marker mặc định của Leaflet
+// Fix icon marker mặc định
 import icon from "leaflet/dist/images/marker-icon.png";
 import iconShadow from "leaflet/dist/images/marker-shadow.png";
 import SovereigntyMarker from "../common/SovereigntyMarker";
+
 let DefaultIcon = L.icon({
   iconUrl: icon,
   shadowUrl: iconShadow,
@@ -46,7 +39,66 @@ let DefaultIcon = L.icon({
 L.Marker.prototype.options.icon = DefaultIcon;
 
 const CENTER = [18.3436, 105.9002];
-// 👇 1. TẠO ICON SOS (RADAR EFFECT)
+
+// --- 1. COMPONENT CHÚ GIẢI MINI (MANAGER LEGEND) ---
+const ManagerLegend = () => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div className="absolute bottom-20 left-4 z-[400] flex flex-col items-start gap-2">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="bg-slate-800/90 backdrop-blur border border-slate-600 p-2 rounded-lg text-slate-300 hover:text-white hover:border-primary transition-colors shadow-lg"
+        title="Chú giải bản đồ"
+      >
+        <Info size={18} />
+      </button>
+
+      {/* Bảng chú giải mini */}
+      <div
+        className={`bg-slate-900/95 backdrop-blur border border-slate-700 rounded-lg shadow-xl overflow-hidden transition-all duration-300 origin-bottom-left ${
+          isOpen ? "w-40 opacity-100 scale-100" : "w-0 h-0 opacity-0 scale-95"
+        }`}
+      >
+        <div className="p-3 space-y-2">
+          <p className="text-[10px] font-bold text-slate-500 uppercase border-b border-slate-700 pb-1">
+            Cảnh báo
+          </p>
+          <div className="flex items-center gap-2 text-xs text-slate-300">
+            <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse"></span>
+            Cấp 3 (Khẩn)
+          </div>
+          <div className="flex items-center gap-2 text-xs text-slate-300">
+            <span className="w-2.5 h-2.5 rounded-full bg-orange-500"></span>
+            Cấp 2 (Nguy)
+          </div>
+          <div className="flex items-center gap-2 text-xs text-slate-300">
+            <span className="w-2.5 h-2.5 rounded-full bg-yellow-500"></span>
+            Cấp 1 (Cao)
+          </div>
+
+          <p className="text-[10px] font-bold text-slate-500 uppercase border-b border-slate-700 pb-1 mt-2">
+            Phản ánh (Đã duyệt)
+          </p>
+          <div className="flex items-center gap-2 text-xs text-slate-300">
+            <div className="w-4 h-4 rounded bg-blue-500/20 border border-blue-500 flex items-center justify-center text-[8px] text-blue-400">
+              🌊
+            </div>
+            Ngập lụt
+          </div>
+          <div className="flex items-center gap-2 text-xs text-slate-300">
+            <div className="w-4 h-4 rounded bg-orange-500/20 border border-orange-500 flex items-center justify-center text-[8px] text-orange-400">
+              ⛰️
+            </div>
+            Sạt lở
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// --- 2. ICON HELPER (ĐÃ ĐỒNG BỘ VỚI BÊN DÂN) ---
 const createSosIcon = () => {
   return new L.DivIcon({
     className: "bg-transparent",
@@ -62,7 +114,7 @@ const createSosIcon = () => {
     popupAnchor: [0, -20],
   });
 };
-// --- 1. ICON TRẠM ĐO MƯA (Giữ nguyên) ---
+
 const createStationIcon = (color) => {
   let cssColor = "bg-emerald-500";
   let ringColor = "bg-emerald-500/30";
@@ -84,42 +136,39 @@ const createStationIcon = (color) => {
   });
 };
 
-// --- 2. ICON SỰ CỐ MỚI (Sóng & Núi) ---
 const createReportIcon = (type) => {
   const isFlood = type === "FLOOD";
-  const colorClass = isFlood ? "text-blue-600" : "text-amber-700";
-  const bgClass = isFlood
-    ? "bg-blue-100 border-blue-500"
-    : "bg-amber-100 border-amber-600";
-
-  // SVG Icon trực tiếp
+  // Icon SVG
   const iconSvg = isFlood
-    ? `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/></svg>`
-    : `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m8 3 4 8 5-5 5 15H2L8 3z"/></svg>`;
+    ? `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/></svg>`
+    : `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m8 3 4 8 5-5 5 15H2L8 3z"/></svg>`;
+
+  const bgClass = isFlood
+    ? "bg-blue-100 border-blue-600 text-blue-600"
+    : "bg-orange-100 border-orange-600 text-orange-600";
+  const ringClass = isFlood ? "bg-blue-500/30" : "bg-orange-500/30";
 
   return new L.DivIcon({
     className: "bg-transparent",
     html: `
-      <div class="relative">
-        <div class="absolute -inset-2 ${
-          isFlood ? "bg-blue-500/30" : "bg-amber-500/30"
-        } rounded-full animate-ping"></div>
-        <div class="w-8 h-8 ${bgClass} border-2 rounded-full shadow-lg flex items-center justify-center ${colorClass}">
+      <div class="relative group">
+        <div class="absolute -inset-2 ${ringClass} rounded-full animate-ping opacity-75"></div>
+        <div class="w-8 h-8 ${bgClass} border-2 rounded-lg shadow-lg flex items-center justify-center transform group-hover:scale-110 transition-transform">
           ${iconSvg}
         </div>
+        <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 ${bgClass} border-r-2 border-b-2 rotate-45 bg-white"></div>
       </div>
     `,
     iconSize: [32, 32],
-    iconAnchor: [16, 32],
-    popupAnchor: [0, -34],
+    iconAnchor: [16, 36],
+    popupAnchor: [0, -36],
   });
 };
 
-// --- 3. COMPONENT ĐIỀU KHIỂN ZOOM/FLY ---
+// --- 3. MAP CONTROLLER ---
 const MapController = ({ geoJsonData, flyToLocation }) => {
   const map = useMap();
 
-  // Logic 1: Xử lý Zoom toàn cảnh ranh giới
   useEffect(() => {
     if (geoJsonData && !flyToLocation) {
       try {
@@ -133,7 +182,6 @@ const MapController = ({ geoJsonData, flyToLocation }) => {
     }
   }, [geoJsonData, map, flyToLocation]);
 
-  // Logic 2: Xử lý Bay đến điểm SOS (Ưu tiên cao nhất)
   useEffect(() => {
     if (flyToLocation) {
       map.flyTo(flyToLocation, 16, {
@@ -149,13 +197,15 @@ const MapController = ({ geoJsonData, flyToLocation }) => {
 const DashboardMap = ({
   stations = [],
   reports = [],
-  sosSignals = [], // Danh sách SOS
-  onResolveSos, // Hàm xử lý khi bấm nút "Đã cứu"
+  sosSignals = [],
+  onResolveSos,
   geoJsonData,
   flyToLocation,
 }) => {
   return (
     <div className="h-full w-full relative rounded-xl overflow-hidden border border-slate-600 shadow-inner bg-slate-900">
+      <ManagerLegend />
+
       <MapContainer
         center={CENTER}
         zoom={13}
@@ -167,9 +217,11 @@ const DashboardMap = ({
           geoJsonData={geoJsonData}
           flyToLocation={flyToLocation}
         />
+
+        {/* Marker Chủ Quyền */}
         <SovereigntyMarker />
+
         <LayersControl position="topright">
-          {/* Mặc định Sáng */}
           <LayersControl.BaseLayer checked name="Bản đồ Sáng (Light)">
             <TileLayer
               attribution="&copy; CARTO"
@@ -221,7 +273,7 @@ const DashboardMap = ({
             </LayerGroup>
           </LayersControl.Overlay>
 
-          {/* REPORT TỪ DÂN (Dùng Icon Mới & Popup Gọn) */}
+          {/* REPORT TỪ DÂN - Icon đồng bộ */}
           <LayersControl.Overlay checked name="Sự cố Đã xác minh">
             <LayerGroup>
               {reports.map((report) => (
@@ -235,8 +287,11 @@ const DashboardMap = ({
                       {report.type === "FLOOD"
                         ? "🌊 Khu vực Ngập lụt"
                         : "⛰️ Khu vực Sạt lở"}
-                      <div className="text-[10px] font-normal text-slate-500 normal-case mt-1">
+                      <div className="text-[10px] font-normal text-slate-500 normal-case mt-1 border-t border-slate-200 pt-1">
                         {report.desc || report.description}
+                      </div>
+                      <div className="text-[9px] text-slate-400 italic mt-1">
+                        Đã xác minh
                       </div>
                     </div>
                   </Popup>
@@ -244,7 +299,7 @@ const DashboardMap = ({
               ))}
             </LayerGroup>
           </LayersControl.Overlay>
-          {/* 👇 3. LAYER MỚI: TÍN HIỆU SOS (LUÔN CHECKED) */}
+
           <LayersControl.Overlay checked name="🆘 Tín hiệu Cầu cứu (SOS)">
             <LayerGroup>
               {sosSignals.map((sos) => (
@@ -252,10 +307,9 @@ const DashboardMap = ({
                   key={sos.id}
                   position={[sos.lat, sos.lon]}
                   icon={createSosIcon()}
-                  zIndexOffset={1000} // Luôn nổi lên trên cùng
+                  zIndexOffset={1000}
                 >
                   <Popup className="custom-popup-sos">
-                    {/* UI Popup Khẩn cấp */}
                     <div className="min-w-[220px] font-sans">
                       <div className="bg-red-600 -mx-4 -mt-3 p-3 flex items-center gap-2 text-white mb-3 rounded-t-lg">
                         <div className="bg-white/20 p-1.5 rounded-full animate-pulse">
@@ -289,7 +343,6 @@ const DashboardMap = ({
                         </div>
                       </div>
 
-                      {/* Nút Xử lý ngay trong Popup */}
                       <button
                         onClick={() => onResolveSos(sos.id)}
                         className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-lg text-xs flex items-center justify-center gap-2 shadow-md transition-all active:scale-95"

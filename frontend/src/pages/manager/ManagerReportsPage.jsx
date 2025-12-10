@@ -17,14 +17,16 @@ import {
   Filter,
   CheckCircle,
   XCircle,
+  ArrowRight,
 } from "lucide-react";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 const ManagerReportsPage = () => {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
-  // Hàm load dữ liệu
   const fetchReports = async () => {
     try {
       const data = await reportService.getAllReports();
@@ -41,16 +43,12 @@ const ManagerReportsPage = () => {
     fetchReports();
   }, []);
 
-  // 👇 1. LOGIC DUYỆT THẬT (Dùng API PUT)
   const handleVerify = async (id) => {
     try {
       await reportService.verifyReport(id);
-
-      // Cập nhật state ngay lập tức để giao diện phản hồi nhanh
       setReports((prevReports) =>
         prevReports.map((r) => (r.id === id ? { ...r, status: "VERIFIED" } : r))
       );
-
       toast.success("Đã xác nhận phản ánh! (Đã hiện lên bản đồ)");
     } catch (error) {
       console.error("Lỗi duyệt:", error);
@@ -58,7 +56,6 @@ const ManagerReportsPage = () => {
     }
   };
 
-  // Logic Xóa (Giữ nguyên như cũ)
   const handleDelete = async (id) => {
     if (!window.confirm("Bạn có chắc muốn xóa vĩnh viễn?")) return;
     try {
@@ -70,9 +67,16 @@ const ManagerReportsPage = () => {
     }
   };
 
+  const handleViewOnMap = (lat, lon) => {
+    navigate("/manager", {
+      state: {
+        focusLocation: [lat, lon],
+      },
+    });
+  };
+
   return (
     <div className="text-slate-100 font-sans pb-10">
-      {/* Header giữ nguyên */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Danh sách Phản ánh từ Cộng đồng</h1>
         <button className="px-4 py-2 bg-slate-800 rounded-lg text-sm font-medium hover:bg-slate-700 flex items-center gap-2">
@@ -87,8 +91,7 @@ const ManagerReportsPage = () => {
               <tr>
                 <th className="px-6 py-4">Thời gian</th>
                 <th className="px-6 py-4">Người báo / SĐT</th>
-                <th className="px-6 py-4">Trạng thái</th>{" "}
-                {/* Thêm cột trạng thái cho rõ */}
+                <th className="px-6 py-4">Trạng thái</th>
                 <th className="px-6 py-4">Nội dung</th>
                 <th className="px-6 py-4">Vị trí</th>
                 <th className="px-6 py-4 text-right">Hành động</th>
@@ -130,8 +133,6 @@ const ManagerReportsPage = () => {
                         <Phone size={12} /> {report.phone || "N/A"}
                       </div>
                     </td>
-
-                    {/* 👇 Cột Trạng thái & Loại */}
                     <td className="px-6 py-4">
                       <div className="flex flex-col gap-1 items-start">
                         <span
@@ -143,7 +144,6 @@ const ManagerReportsPage = () => {
                         >
                           {report.type === "FLOOD" ? "NGẬP LỤT" : "SẠT LỞ"}
                         </span>
-                        {/* Hiển thị trạng thái VERIFIED/PENDING */}
                         {report.status === "VERIFIED" && (
                           <span className="text-emerald-500 text-[10px] font-bold flex items-center gap-1">
                             <CheckCircle size={10} /> Đã duyệt
@@ -151,23 +151,36 @@ const ManagerReportsPage = () => {
                         )}
                       </div>
                     </td>
-
                     <td
                       className="px-6 py-4 max-w-xs truncate text-slate-300"
                       title={report.desc}
                     >
                       {report.desc || report.description}
                     </td>
-                    <td className="px-6 py-4 text-slate-400 text-xs font-mono">
-                      <div className="flex items-center gap-1 bg-slate-900/50 w-fit px-2 py-1 rounded">
-                        <MapPin size={12} />
-                        {Number(report.lat).toFixed(4)},{" "}
-                        {Number(report.lon).toFixed(4)}
-                      </div>
+
+                    <td className="px-6 py-4">
+                      <button
+                        onClick={() => handleViewOnMap(report.lat, report.lon)}
+                        className="group flex items-center gap-2 bg-slate-900/50 hover:bg-primary/20 border border-slate-700 hover:border-primary/50 px-3 py-1.5 rounded-lg transition-all"
+                        title="Xem trên bản đồ điều hành"
+                      >
+                        <MapPin
+                          size={14}
+                          className="text-slate-400 group-hover:text-primary transition-colors"
+                        />
+                        <span className="text-xs font-mono text-slate-300 group-hover:text-white">
+                          {Number(report.lat).toFixed(4)},{" "}
+                          {Number(report.lon).toFixed(4)}
+                        </span>
+                        <ArrowRight
+                          size={12}
+                          className="text-slate-500 group-hover:text-primary group-hover:translate-x-0.5 transition-all opacity-0 group-hover:opacity-100"
+                        />
+                      </button>
                     </td>
+
                     <td className="px-6 py-4 text-right">
                       <div className="flex justify-end gap-2">
-                        {/* 👇 Chỉ hiện nút Duyệt nếu chưa duyệt */}
                         {report.status !== "VERIFIED" && (
                           <button
                             onClick={() => handleVerify(report.id)}
@@ -177,7 +190,6 @@ const ManagerReportsPage = () => {
                             <CheckCircle size={18} />
                           </button>
                         )}
-
                         <button
                           onClick={() => handleDelete(report.id)}
                           className="p-2 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-all shadow-sm"

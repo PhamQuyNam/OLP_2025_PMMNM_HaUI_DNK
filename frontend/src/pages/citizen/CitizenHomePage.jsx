@@ -462,7 +462,7 @@ const CitizenHomePage = () => {
           </div>
           <div className="flex flex-col relative">
             <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
-              Khu vực giám sát
+              Lựa chọn khu vực
             </span>
             <div className="flex items-center gap-2">
               <span className="text-sm font-bold text-slate-800 w-[140px] truncate">

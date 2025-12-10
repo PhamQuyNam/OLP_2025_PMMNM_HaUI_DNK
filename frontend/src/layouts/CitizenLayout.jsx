@@ -94,7 +94,7 @@ const CitizenLayout = () => {
           <DesktopNavLink
             to="/citizen/report"
             icon={FileText}
-            label="Gửi phản ánh"
+            label="Phản ánh"
             hasBadge={true}
           />
 
