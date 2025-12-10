@@ -15,6 +15,7 @@ import {
   MapPin,
   Filter,
   Search,
+  Trash2,
 } from "lucide-react";
 import { toast } from "react-toastify";
 import safetyService from "../../services/safetyService";
@@ -25,10 +26,28 @@ const ManagerSosPage = () => {
   const [filter, setFilter] = useState("ALL"); // Các trạng thái: ALL, ACTIVE, RESCUED
   const navigate = useNavigate();
 
+  const handleDelete = async (id) => {
+    if (
+      !window.confirm(
+        "CẢNH BÁO: Hành động này sẽ xóa vĩnh viễn tín hiệu SOS này khỏi hệ thống. Bạn có chắc chắn không?"
+      )
+    )
+      return;
+
+    try {
+      await safetyService.deleteSOS(id);
+
+      // Cập nhật giao diện: Xóa dòng đó khỏi danh sách ngay lập tức
+      setSosList((prev) => prev.filter((item) => item.id !== id));
+
+      toast.success("Đã xóa dữ liệu thành công.");
+    } catch (error) {
+      console.error(error);
+      toast.error("Lỗi khi xóa dữ liệu.");
+    }
+  };
   // Thêm hàm xử lý khi bấm vào vị trí
   const handleLocateOnMap = (sos) => {
-    // Chuyển hướng về trang Dashboard (/manager)
-    // Và gửi kèm "state" chứa thông tin cần focus
     navigate("/manager", {
       state: {
         focusLocation: [sos.lat, sos.lon],
@@ -39,7 +58,6 @@ const ManagerSosPage = () => {
   // Hàm tải dữ liệu lịch sử
   const fetchHistory = async () => {
     try {
-      // 👇 GỌI API MỚI: Lấy tất cả (Cả Active và Rescued)
       const data = await safetyService.getAllSOS();
 
       if (Array.isArray(data)) {
@@ -257,19 +275,28 @@ const ManagerSosPage = () => {
 
                     {/* Cột 5: Hành động */}
                     <td className="px-6 py-4 text-right">
-                      {sos.status === "ACTIVE" ? (
+                      <div className="flex items-center justify-end gap-2">
+                        {/* Nếu chưa xử lý -> Hiện nút "Xác nhận cứu" */}
+                        {sos.status === "ACTIVE" && (
+                          <button
+                            onClick={() => handleResolve(sos.id)}
+                            className="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3 py-2 rounded-lg shadow-lg shadow-emerald-900/50 transition-all active:scale-95 flex items-center gap-2"
+                            title="Xác nhận đã cứu hộ xong"
+                          >
+                            <CheckCircle size={16} />
+                            <span className="hidden xl:inline">Cứu hộ</span>
+                          </button>
+                        )}
+
+                        {/* Nút Xóa (Luôn hiện để quản lý có thể xóa tin rác hoặc tin cũ) */}
                         <button
-                          onClick={() => handleResolve(sos.id)}
-                          className="bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white text-xs font-bold px-4 py-2 rounded-lg shadow-lg shadow-emerald-900/50 transition-all active:scale-95 flex items-center gap-2 ml-auto"
+                          onClick={() => handleDelete(sos.id)}
+                          className="p-2 bg-red-500/10 text-red-500 hover:bg-red-600 hover:text-white rounded-lg border border-red-500/20 transition-all active:scale-95"
+                          title="Xóa vĩnh viễn (Tin rác/Đã xong)"
                         >
-                          <CheckCircle size={16} />
-                          Xác nhận cứu
+                          <Trash2 size={16} />
                         </button>
-                      ) : (
-                        <span className="text-slate-600 text-xs italic pr-2">
-                          Đã lưu hồ sơ
-                        </span>
-                      )}
+                      </div>
                     </td>
                   </tr>
                 ))

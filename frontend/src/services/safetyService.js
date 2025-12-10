@@ -34,6 +34,9 @@ const safetyService = {
       message: "Đã xác nhận cứu hộ thành công!",
     });
   },
+  deleteSOS(id) {
+    return axiosClient.delete(`/safety/sos/${id}`);
+  },
 };
 
 export default safetyService;

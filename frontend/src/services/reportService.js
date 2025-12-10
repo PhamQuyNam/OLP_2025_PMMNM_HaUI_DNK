@@ -25,8 +25,11 @@ const reportService = {
   },
   // 4. Duyệt báo cáo (PUT)
   verifyReport(id) {
-    // Gửi body JSON { status: "VERIFIED" } lên server
     return axiosClient.put(`/reports/${id}`, { status: "VERIFIED" });
+  },
+  // 5. Lấy danh sách báo cáo công khai (GET)
+  getPublicReports() {
+    return axiosClient.get("/reports/public");
   },
 };
 

@@ -7,7 +7,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
-import { Outlet, NavLink, Link, useNavigate } from "react-router-dom"; // Thêm useNavigate
+import { Outlet, NavLink, Link, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   Map as MapIcon,
@@ -20,17 +20,42 @@ import {
   Home,
   Megaphone,
 } from "lucide-react";
-import { useAuth } from "../context/AuthContext"; // 1. Import AuthContext
-
+import { useAuth } from "../context/AuthContext";
+import { useState, useEffect } from "react";
+import { useSocket } from "../context/SocketContext";
+import alertService from "../services/alertService";
 const ManagerLayout = () => {
-  const { logout } = useAuth(); // 2. Lấy hàm logout
+  const { logout } = useAuth();
   const navigate = useNavigate();
 
   // Hàm xử lý đăng xuất
   const handleLogout = () => {
     logout();
-    navigate("/"); // Về Landing Page sau khi thoát
+    navigate("/");
   };
+  const [hasPendingAlert, setHasPendingAlert] = useState(false);
+  const socket = useSocket();
+  useEffect(() => {
+    const checkInitial = async () => {
+      try {
+        const data = await alertService.getPendingAlerts();
+        if (Array.isArray(data) && data.length > 0) {
+          setHasPendingAlert(true);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    checkInitial();
+
+    if (socket) {
+      socket.on("alert:new_pending", () => {
+        setHasPendingAlert(true);
+      });
+    }
+
+    return () => socket && socket.off("alert:new_pending");
+  }, [socket]);
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 flex font-sans">
@@ -64,19 +89,23 @@ const ManagerLayout = () => {
             end
           />
           <ManagerNavItem
-            to="/manager/reports" // Đổi đường dẫn
-            icon={FileText} // Đổi icon cho hợp
-            label="Danh sách Phản ánh" // Đổi tên
+            to="/manager/reports"
+            icon={FileText}
+            label="Danh sách Phản ánh"
+            hasBadge={true}
           />
           <ManagerNavItem
             to="/manager/sos"
             icon={BellRing}
             label="Quản lý Cứu hộ"
+            hasBadge={true}
           />
           <ManagerNavItem
             to="/manager/alerts"
             icon={Megaphone}
             label="Phê duyệt Cảnh báo"
+            hasBadge={hasPendingAlert}
+            onClick={() => setHasPendingAlert(false)}
           />
 
           <p className="px-3 text-xs font-bold text-slate-500 uppercase tracking-wider mt-6 mb-2">
@@ -152,12 +181,13 @@ const ManagerLayout = () => {
 };
 
 // Component Link Sidebar
-const ManagerNavItem = ({ to, icon: Icon, label, end }) => (
+const ManagerNavItem = ({ to, icon: Icon, label, end, hasBadge, onClick }) => (
   <NavLink
     to={to}
     end={end}
+    onClick={onClick}
     className={({ isActive }) => `
-      flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all
+      relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all
       ${
         isActive
           ? "bg-primary text-white shadow-lg shadow-primary/20"
@@ -167,6 +197,10 @@ const ManagerNavItem = ({ to, icon: Icon, label, end }) => (
   >
     <Icon size={18} />
     {label}
+
+    {hasBadge && (
+      <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 border-2 border-slate-900 rounded-full animate-pulse-fast"></span>
+    )}
   </NavLink>
 );
 

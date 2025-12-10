@@ -32,6 +32,9 @@ import {
   ChevronDown,
   Navigation,
   LocateFixed,
+  Info,
+  Waves,
+  Mountain,
 } from "lucide-react";
 import { toast } from "react-toastify";
 
@@ -41,7 +44,7 @@ import reportService from "../../services/reportService";
 import alertService from "../../services/alertService";
 import { STATIC_STATIONS } from "../../constants/stations";
 import { useSocket } from "../../context/SocketContext";
-import SovereigntyMarker from "../../components/common/SovereigntyMarker"; // Import
+import SovereigntyMarker from "../../components/common/SovereigntyMarker";
 
 // Fix icon marker
 import icon from "leaflet/dist/images/marker-icon.png";
@@ -78,6 +81,84 @@ const CITIES = [
     center: [21.5942, 105.8481],
   },
 ];
+
+// --- COMPONENT CHÚ GIẢI (LEGEND BAR) - ĐÃ CẬP NHẬT ICON ---
+const AlertLegend = () => {
+  const [isExpanded, setIsExpanded] = useState(true);
+
+  return (
+    <div className="absolute bottom-8 left-4 z-[1000] flex flex-col items-start gap-2">
+      {/* Nút bật tắt */}
+      <button
+        onClick={() => setIsExpanded(!isExpanded)}
+        className="bg-white/90 backdrop-blur-md p-2 rounded-lg shadow-md border border-slate-200 text-slate-600 hover:text-primary transition-colors"
+        title="Chú giải cảnh báo"
+      >
+        <Info size={20} />
+      </button>
+
+      {/* Bảng chú giải */}
+      <div
+        className={`bg-white/95 backdrop-blur-md rounded-xl shadow-xl border border-slate-200 overflow-hidden transition-all duration-300 origin-bottom-left ${
+          isExpanded ? "opacity-100 scale-100" : "opacity-0 scale-95 h-0"
+        }`}
+      >
+        <div className="p-3 w-48">
+          {" "}
+          {/* Thêm w-48 để bảng rộng hơn chút cho đẹp */}
+          {/* PHẦN 1: MỨC ĐỘ */}
+          <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 border-b border-slate-100 pb-1">
+            Mức độ Cảnh báo
+          </h4>
+          <div className="space-y-2 mb-3">
+            <div className="flex items-center gap-3">
+              <span className="relative flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-red-600"></span>
+              </span>
+              <span className="text-xs font-bold text-slate-700">
+                Khẩn cấp (Cấp 3)
+              </span>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="w-3 h-3 rounded-full bg-orange-500 shadow-sm"></span>
+              <span className="text-xs font-medium text-slate-600">
+                Nguy hiểm (Cấp 2)
+              </span>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="w-3 h-3 rounded-full bg-yellow-500 shadow-sm"></span>
+              <span className="text-xs font-medium text-slate-600">
+                Cảnh báo (Cấp 1)
+              </span>
+            </div>
+          </div>
+          {/* PHẦN 2: LOẠI SỰ CỐ (MỚI THÊM) */}
+          <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 border-b border-slate-100 pb-1">
+            Loại sự cố
+          </h4>
+          <div className="space-y-2">
+            {/* Ngập lụt */}
+            <div className="flex items-center gap-3">
+              <div className="flex items-center justify-center w-5 h-5 rounded bg-blue-100 text-blue-600">
+                <Waves size={12} />
+              </div>
+              <span className="text-xs text-slate-600">Ngập lụt / Lũ quét</span>
+            </div>
+
+            {/* Sạt lở */}
+            <div className="flex items-center gap-3">
+              <div className="flex items-center justify-center w-5 h-5 rounded bg-amber-100 text-amber-600">
+                <Mountain size={12} />
+              </div>
+              <span className="text-xs text-slate-600">Sạt lở đất</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 // --- COMPONENT ĐIỀU KHIỂN ---
 const UserLocationController = ({ userLocation, activeCityId }) => {
@@ -130,26 +211,33 @@ const BoundaryController = ({ geoJsonData, shouldZoom, onZoomComplete }) => {
   return null;
 };
 
-const RoutingController = ({ userLocation, destination }) => {
+const RoutingController = ({ userLocation, destination, isSafeZone }) => {
   const map = useMap();
+
+  // 1. Luôn luôn bay đến đích (cho cả 2 trường hợp)
   useEffect(() => {
-    if (userLocation && destination) {
-      const bounds = L.latLngBounds([userLocation, destination]);
-      map.fitBounds(bounds, { padding: [50, 50] });
+    if (destination) {
+      map.flyTo(destination, 16, { duration: 2, easeLinearity: 0.25 });
     }
-  }, [userLocation, destination, map]);
-  if (!userLocation || !destination) return null;
-  return (
-    <Polyline
-      positions={[userLocation, destination]}
-      pathOptions={{
-        color: "#0ea5e9",
-        weight: 4,
-        dashArray: "10, 10",
-        opacity: 0.8,
-      }}
-    />
-  );
+  }, [destination, map]);
+
+  // 2. Chỉ vẽ đường Polyline nếu là Điểm an toàn (SOS)
+  if (isSafeZone && userLocation && destination) {
+    return (
+      <Polyline
+        positions={[userLocation, destination]}
+        pathOptions={{
+          color: "#0ea5e9", // Màu xanh
+          weight: 4,
+          dashArray: "10, 10",
+          opacity: 0.8,
+        }}
+      />
+    );
+  }
+
+  // Nếu là xem cảnh báo bình thường -> Không vẽ gì cả
+  return null;
 };
 
 // --- HELPERS ---
@@ -227,6 +315,7 @@ const CitizenHomePage = () => {
   const [destination, setDestination] = useState(null);
   const socket = useSocket();
   const alertsRef = useRef(activeAlerts);
+  const [isSafeZone, setIsSafeZone] = useState(false);
 
   useEffect(() => {
     alertsRef.current = activeAlerts;
@@ -266,6 +355,15 @@ const CitizenHomePage = () => {
   useEffect(() => {
     if (location.state?.destination) {
       setDestination(location.state.destination);
+
+      // Kiểm tra type có phải SAFE_ZONE không (SOSModal có gửi cái này)
+      if (location.state?.type === "SAFE_ZONE") {
+        setIsSafeZone(true);
+      } else {
+        setIsSafeZone(false);
+      }
+
+      // Xóa state lịch sử để F5 không bị lỗi (Optional)
       window.history.replaceState({}, document.title);
     }
   }, [location]);
@@ -363,7 +461,7 @@ const CitizenHomePage = () => {
 
   return (
     <div className="h-[calc(100vh-56px)] w-full relative">
-      {/* UI DROPDOWN */}
+      {/* UI DROPDOWN (GÓC TRÊN TRÁI) - GIỮ NGUYÊN */}
       <div className="absolute top-4 left-4 z-[1000] group">
         <div className="relative flex items-center bg-white/90 backdrop-blur-md border border-slate-200 shadow-xl rounded-2xl p-1.5 pr-4 transition-all duration-300 hover:scale-[1.02] hover:border-primary/50 hover:shadow-primary/10">
           <div
@@ -381,7 +479,7 @@ const CitizenHomePage = () => {
           </div>
           <div className="flex flex-col relative">
             <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
-              Khu vực giám sát
+              Lựa chọn khu vực
             </span>
             <div className="flex items-center gap-2">
               <span className="text-sm font-bold text-slate-800 w-[140px] truncate">
@@ -413,6 +511,9 @@ const CitizenHomePage = () => {
         </div>
       </div>
 
+      {/* 👇 THANH CHÚ GIẢI (LEGEND BAR) - MỚI THÊM Ở GÓC DƯỚI TRÁI */}
+      <AlertLegend />
+
       <MapContainer
         center={[18.3436, 105.9002]}
         zoom={10}
@@ -427,6 +528,7 @@ const CitizenHomePage = () => {
         <RoutingController
           userLocation={userLocation}
           destination={destination}
+          isSafeZone={isSafeZone}
         />
         <BoundaryController
           geoJsonData={geoJsonData}
@@ -434,12 +536,11 @@ const CitizenHomePage = () => {
           onZoomComplete={() => setShouldZoomCity(false)}
         />
 
-        {/* 👇 1. ĐẶT SOVEREIGNTY MARKER Ở ĐÂY (NGOÀI LayersControl) */}
+        {/* Marker Chủ Quyền */}
         <SovereigntyMarker />
 
         <LayersControl position="topright">
           <LayersControl.BaseLayer checked name="Bản đồ Tiêu chuẩn">
-            {/* 👇 2. CHỈ ĐỂ TILELAYER Ở ĐÂY */}
             <TileLayer
               attribution="&copy; CARTO"
               url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"

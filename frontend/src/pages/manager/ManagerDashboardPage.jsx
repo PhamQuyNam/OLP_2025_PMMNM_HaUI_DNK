@@ -38,6 +38,7 @@ import { toast } from "react-toastify";
 import DashboardMap from "../../components/manager/DashboardMap";
 import weatherService from "../../services/weatherService";
 import reportService from "../../services/reportService";
+import alertService from "../../services/alertService";
 import safetyService from "../../services/safetyService";
 
 // --- CẤU HÌNH THÀNH PHỐ (Giống bên dân) ---
@@ -70,6 +71,7 @@ const ManagerDashboardPage = () => {
   const [allWeatherStations, setAllWeatherStations] = useState([]);
   const [allReports, setAllReports] = useState([]);
   const [allSosSignals, setAllSosSignals] = useState([]);
+  const [activeAlerts, setActiveAlerts] = useState([]);
 
   // State dữ liệu hiển thị (Đã lọc theo thành phố)
   const [filteredData, setFilteredData] = useState({
@@ -114,11 +116,13 @@ const ManagerDashboardPage = () => {
         weatherService.getRealtimeStations(),
         reportService.getAllReports(),
         safetyService.getActiveSOS(),
+        alertService.getCitizenAlerts(),
       ]);
 
       if (Array.isArray(weatherRes)) setAllWeatherStations(weatherRes);
       if (Array.isArray(reportRes)) setAllReports(reportRes);
       if (Array.isArray(sosRes)) setAllSosSignals(sosRes);
+      if (Array.isArray(alertRes)) setActiveAlerts(alertRes);
     } catch (error) {
       console.error("Lỗi tải dữ liệu tổng hợp:", error);
     }
@@ -186,7 +190,7 @@ const ManagerDashboardPage = () => {
     );
 
     // 4.3 Tạo dữ liệu biểu đồ giả lập (Mock) cho sinh động
-    // Mỗi thành phố sẽ có một "kiểu mưa" khác nhau dựa trên ID của nó
+
     const baseRain =
       activeCity.id === "hcm" ? 50 : activeCity.id === "hatinh" ? 20 : 10;
     const mockHistory = [
@@ -227,6 +231,10 @@ const ManagerDashboardPage = () => {
     } catch (error) {
       toast.error("Lỗi cập nhật.");
     }
+  };
+  const handleFlyToStation = (lat, lon) => {
+    setFlyToCoords([lat, lon]);
+    toast.info("Đang di chuyển đến trạm...");
   };
 
   return (
@@ -302,7 +310,6 @@ const ManagerDashboardPage = () => {
         </div>
       </div>
 
-      {/* === 1. THẺ CHỈ SỐ (Dùng filteredData) === */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           title="Lượng mưa TB"
@@ -368,9 +375,7 @@ const ManagerDashboardPage = () => {
         />
       </div>
 
-      {/* === 2. BẢN ĐỒ + BIỂU ĐỒ === */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[500px]">
-        {/* Bản đồ (8 phần) */}
         <div className="lg:col-span-8 h-full min-h-0">
           <DashboardMap
             stations={filteredData.stations} // Truyền trạm đã lọc
@@ -379,22 +384,20 @@ const ManagerDashboardPage = () => {
             geoJsonData={geoJsonData} // Ranh giới mới
             onResolveSos={handleResolveSos}
             flyToLocation={flyToCoords}
+            activeAlerts={activeAlerts}
           />
         </div>
 
-        {/* Biểu đồ (4 phần) */}
-        {/* Cột phải (Chiếm 4 phần) */}
         <div className="lg:col-span-4 flex flex-col gap-4 h-full min-h-0">
           {/* --- BIỂU ĐỒ 1: DIỄN BIẾN MƯA --- */}
           <div className="h-1/2 bg-slate-800/50 border border-slate-700 p-4 rounded-2xl flex flex-col min-h-0">
             <h3 className="font-bold text-sm mb-2 text-slate-300">
               Diễn biến Mưa ({activeCity.name})
             </h3>
-            {/* 👇 SỬA Ở ĐÂY: Thêm w-full h-full và min-h */}
+
             <div className="flex-1 w-full h-full min-h-[150px]">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={filteredData.historyRain}>
-                  {/* ... (Giữ nguyên nội dung bên trong AreaChart) ... */}
                   <defs>
                     <linearGradient id="colorRain" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
@@ -439,7 +442,6 @@ const ManagerDashboardPage = () => {
               Mưa hiện tại (mm)
             </h3>
             <div className="flex-1 w-full overflow-y-auto custom-scrollbar pr-2">
-              {/* 👇 SỬA Ở ĐÂY: Đảm bảo chiều cao luôn > 0 */}
               <div
                 style={{
                   height:
@@ -455,7 +457,6 @@ const ManagerDashboardPage = () => {
                       margin={{ left: 0, right: 10, top: 0, bottom: 0 }}
                       barCategoryGap={8}
                     >
-                      {/* ... (Giữ nguyên nội dung bên trong BarChart) ... */}
                       <XAxis type="number" hide />
                       <YAxis
                         dataKey="name"
@@ -545,8 +546,22 @@ const ManagerDashboardPage = () => {
                       <td className="px-6 py-4 text-blue-400 font-bold">
                         {station.rain} mm
                       </td>
-                      <td className="px-6 py-4 text-slate-400 text-xs font-mono">
-                        {station.lat.toFixed(3)}, {station.lon.toFixed(3)}
+                      <td className="px-6 py-4">
+                        <button
+                          onClick={() =>
+                            handleFlyToStation(station.lat, station.lon)
+                          }
+                          className="flex items-center gap-2 bg-slate-900/50 hover:bg-primary/20 border border-slate-700 hover:border-primary/50 px-2 py-1.5 rounded transition-all group"
+                          title="Xem trạm này trên bản đồ"
+                        >
+                          <MapPin
+                            size={12}
+                            className="text-slate-500 group-hover:text-primary transition-colors"
+                          />
+                          <span className="text-xs font-mono text-slate-400 group-hover:text-white transition-colors">
+                            {station.lat.toFixed(3)}, {station.lon.toFixed(3)}
+                          </span>
+                        </button>
                       </td>
                       <td className="px-6 py-4">
                         <span

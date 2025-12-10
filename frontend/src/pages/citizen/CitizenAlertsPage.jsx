@@ -6,7 +6,9 @@
  *
  * Distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND.
  */
+
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Megaphone,
   Clock,
@@ -16,26 +18,60 @@ import {
   Info,
   Droplets,
   Mountain,
+  ArrowRight, // Thêm icon mũi tên
 } from "lucide-react";
+import { toast } from "react-toastify";
 import alertService from "../../services/alertService";
+import { STATIC_STATIONS } from "../../constants/stations";
 
 const CitizenAlertsPage = () => {
   const [alerts, setAlerts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate(); //
 
-  // ... trong useEffect
+  const handleLocate = (alert) => {
+    let targetLat = alert.lat;
+    let targetLon = alert.lon;
+
+    // Lớp 1: Nếu API cảnh báo không trả về tọa độ
+    if (!targetLat || !targetLon) {
+      // Lớp 2: Tìm trong file cứng theo Station ID
+      let station = STATIC_STATIONS.find((s) => s.id === alert.station_id);
+
+      // Lớp 3: Nếu không thấy ID, tìm theo Tên trạm (tương đối)
+      if (!station) {
+        station = STATIC_STATIONS.find((s) => s.name === alert.station_name);
+      }
+
+      // Nếu tìm thấy trong file cứng -> Gán tọa độ
+      if (station) {
+        targetLat = station.lat;
+        targetLon = station.lon;
+      }
+    }
+
+    // Kiểm tra kết quả cuối cùng
+    if (targetLat && targetLon) {
+      // Bay sang bản đồ và truyền tọa độ đích
+      navigate("/citizen", {
+        state: { destination: [targetLat, targetLon] },
+      });
+    } else {
+      toast.warning("Chưa có thông tin vị trí cụ thể cho cảnh báo này.");
+    }
+  };
+
   useEffect(() => {
     const fetchAlerts = async () => {
       try {
         const data = await alertService.getCitizenAlerts();
 
         if (Array.isArray(data)) {
-          // 👇 LOGIC LỌC TRÙNG: Chỉ lấy cảnh báo mới nhất của mỗi trạm
+          // Logic lọc trùng: Chỉ lấy cảnh báo mới nhất của mỗi trạm
           const uniqueAlertsMap = new Map();
 
           data.forEach((alert) => {
             const existing = uniqueAlertsMap.get(alert.station_name);
-            // Nếu chưa có, hoặc cảnh báo này mới hơn cái đang lưu -> Ghi đè
             if (
               !existing ||
               new Date(alert.created_at) > new Date(existing.created_at)
@@ -44,12 +80,10 @@ const CitizenAlertsPage = () => {
             }
           });
 
-          // Chuyển Map ngược lại thành Array để hiển thị
           const uniqueList = Array.from(uniqueAlertsMap.values());
 
-          // Sắp xếp: Cấp độ cao (CRITICAL) lên đầu, sau đó đến thời gian
+          // Sắp xếp: Cấp độ cao lên đầu
           const sortedList = uniqueList.sort((a, b) => {
-            // Logic sort: Cấp 3 > Cấp 2 > Cấp 1
             const getScore = (lvl) => {
               if (lvl.includes("CRITICAL") || lvl == "3") return 3;
               if (lvl.includes("VERY") || lvl == "2") return 2;
@@ -69,7 +103,6 @@ const CitizenAlertsPage = () => {
     fetchAlerts();
   }, []);
 
-  // Helper hiển thị màu sắc
   const getLevelStyle = (level) => {
     const l = String(level).toUpperCase();
     if (l.includes("CRITICAL") || l == "3")
@@ -151,7 +184,7 @@ const CitizenAlertsPage = () => {
                         {alert.description || alert.message}
                       </p>
 
-                      <div className="flex items-center gap-4 text-xs font-medium text-slate-500 bg-slate-50 p-2 rounded-lg">
+                      <div className="flex items-center gap-4 text-xs font-medium text-slate-500 bg-slate-50 p-2 rounded-lg mb-2">
                         <span className="flex items-center gap-1">
                           {alert.risk_type === "FLOOD" ? (
                             <Droplets size={14} className="text-blue-500" />
@@ -168,6 +201,14 @@ const CitizenAlertsPage = () => {
                           </span>
                         </span>
                       </div>
+
+                      <button
+                        onClick={() => handleLocate(alert)}
+                        className="w-full mt-2 py-2 flex items-center justify-center gap-2 text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors border border-blue-200"
+                      >
+                        <MapPin size={14} /> Xem vị trí nguy hiểm{" "}
+                        <ArrowRight size={14} />
+                      </button>
                     </div>
                   </div>
                 </div>
