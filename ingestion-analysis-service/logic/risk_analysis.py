@@ -28,7 +28,7 @@ def load_thresholds():
         return None
 
 
-# --- HÀM 1. HÀM CHẤM ĐIỂM (Sử dụng cấu trúc thresholds.json mới) ---
+# --- HÀM 1. HÀM CHẤM ĐIỂM (Sử dụng cấu trúc thresholds.json mới) set ---
 def get_risk_score(value, criterion):
     """
     Chấm điểm rủi ro (0, 1, 2) cho một tiêu chí dựa trên ngưỡng.
