@@ -62,7 +62,7 @@ const InputField = ({
   );
 };
 
-// --- COMPONENT CHÍNH ---
+// --- COMPONENT CHÍNH (main)---
 const LoginPage = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
