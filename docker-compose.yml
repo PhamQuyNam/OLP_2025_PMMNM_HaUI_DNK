@@ -197,17 +197,7 @@ services:
       - main-network
     depends_on:
       - gateway
-  # cloudflared:
-  #   image: cloudflare/cloudflared:latest
-  #   container_name: cloudflared
-  #   command: tunnel --no-autoupdate run --token eyJhIjoiOGI5NWQxODc5OTYyZWVmOTdlMmYwMjMxMzM1OGQxMTIiLCJ0IjoiMzIwMzgzYTEtYjM0ZC00YzE4LWIwYTQtMmZkODQxYjU5YTFkIiwicyI6IlpHWXdZV1U1TnpBdE1USmlZUzAwTVRkaUxUZzVPR1l0TnpJek5XUmhNbUV6T1RVNSJ9
 
-  #   restart: unless-stopped
-  #   networks:
-  #     - main-network
-  #   depends_on:
-  #     - gateway
-  #     - frontend
 networks:
   main-network:
     driver: bridge
