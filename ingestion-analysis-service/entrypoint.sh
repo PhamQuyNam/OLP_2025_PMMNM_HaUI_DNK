@@ -1,5 +1,4 @@
 #!/bin/sh
-
 # === TÍCH HỢP LOGIC PYTHONPATH CŨ VÀO ENTRYPOINT ===
 # Đảm bảo Python có thể tìm thấy các module ngang cấp (config, etl, services)
 export PYTHONPATH=$PYTHONPATH:/app 
@@ -46,7 +45,7 @@ echo "========================================================="
 # python -m etl.etl_import_shelters # <-- Dùng -m
 
 # echo "➡️ B4: Chạy ETL: Profiling (Tính toán Slope, TWI, ISR...)"
-# python -m etl.etl_station_profiling # <-- Dùng -m
+# python -m etl.etl_station_profiling # <-- Dùng -m 
 
 
 

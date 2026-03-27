@@ -1,12 +1,3 @@
-/**
- * Copyright 2025 HaUI.DNK
- *
- * Licensed under the Apache License, Version 2.0
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND.
- */
-
 import { Link } from "react-router-dom";
 import { ShieldCheck, ArrowLeft } from "lucide-react";
 
@@ -55,8 +46,7 @@ const AuthLayout = ({ children, title, subtitle }) => {
           </h2>
 
           <p className="text-slate-400 text-lg leading-relaxed font-medium">
-            Hệ thống cảnh báo thiên tai thông minh &<br /> Nền tảng dữ liệu mở
-            quốc gia.
+            Ứng dụng cảnh báo thiên tai thông minh &<br /> Nền tảng dữ liệu mở
           </p>
 
           <div className="mt-12 inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-slate-800/50 border border-white/10 backdrop-blur-md shadow-lg">
@@ -65,7 +55,7 @@ const AuthLayout = ({ children, title, subtitle }) => {
               <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
             </span>
             <span className="text-xs font-bold text-slate-300 tracking-widest uppercase">
-              Sản phẩm dự thi OLP 2025
+              Giải Pháp Công Nghệ 2026
             </span>
           </div>
         </div>

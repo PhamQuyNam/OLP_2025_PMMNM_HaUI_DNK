@@ -1,12 +1,3 @@
-/**
- * Copyright 2025 HaUI.DNK
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * http://www.apache.org/licenses/LICENSE-2.0
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- */
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -48,7 +39,7 @@ const LandingPage = () => {
                 <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
               </span>
               <span className="text-xs font-bold text-slate-600 tracking-wider uppercase">
-                Giải pháp OLP 2025 • Running
+                Giải pháp công nghệ 2026
               </span>
             </div>
 
@@ -67,7 +58,7 @@ const LandingPage = () => {
 
             {/* Subheadline */}
             <p className="text-xl text-slate-600 max-w-3xl mx-auto mb-10 font-medium">
-              Hệ thống giám sát thời gian thực dựa trên{" "}
+              Ứng dụng giám sát thời gian thực dựa trên{" "}
               <span className="font-bold text-slate-800 bg-white/50 px-2 py-0.5 rounded border border-slate-200">
                 Dữ liệu mở Liên kết
               </span>
@@ -336,9 +327,7 @@ const LandingPage = () => {
                   <span className="text-xs font-bold text-slate-400 uppercase">
                     Phát triển bởi
                   </span>
-                  <span className="font-bold text-slate-800">
-                    Team Haui-DNK
-                  </span>
+                  <span className="font-bold text-slate-800">YM_Tech</span>
                 </div>
               </div>
             </div>
@@ -368,7 +357,7 @@ const LandingPage = () => {
                   Cảnh báo Đa kênh
                 </h3>
                 <p className="text-slate-600">
-                  Hệ thống tự động kích hoạt SOS và gửi chỉ dẫn sơ tán đến App
+                  Ứng dụng tự động kích hoạt SOS và gửi chỉ dẫn sơ tán đến App
                   người dân khi chỉ số vượt ngưỡng.
                 </p>
               </div>
@@ -415,12 +404,15 @@ const LandingPage = () => {
             </span>
           </div>
           <p className="mb-8 text-lg">
-            Giải pháp Công nghệ cho Thành phố Thông minh & An toàn
+            Giải pháp Công nghệ cho Cảnh báo sớm và Ứng phó Khẩn cấp Thiên tai
           </p>
           <div className="border-t border-slate-800 pt-8 text-sm flex flex-col md:flex-row justify-center gap-6 font-medium">
-            <span>&copy; 2025 Team Haui-DNK</span>
+            <span>&copy; 2026 YM_Tech</span>
             <span className="hidden md:inline text-slate-700">•</span>
-            <span>OLP Tin học Sinh viên Việt Nam</span>
+            <span>
+              Cuộc thi Sáng tạo Thanh, Thiếu niên và Nhi đồng xã Yên Mô lần thứ
+              I năm 2026
+            </span>
           </div>
         </div>
       </footer>

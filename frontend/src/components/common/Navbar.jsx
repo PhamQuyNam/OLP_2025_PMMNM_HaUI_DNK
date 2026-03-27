@@ -1,12 +1,3 @@
-/**
- * Copyright 2025 HaUI.DNK
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * http://www.apache.org/licenses/LICENSE-2.0
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- */
 import { Link } from "react-router-dom";
 import { ShieldAlert, Menu, LogOut, UserCircle } from "lucide-react";
 import { useState, useEffect } from "react";
@@ -44,7 +35,7 @@ const Navbar = () => {
               Viet<span className="text-primary">Resilience</span>Hub
             </span>
             <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
-              Hệ thống Cảnh báo Thiên tai
+              Ứng Dụng Cảnh báo Thiên tai
             </span>
           </div>
         </Link>

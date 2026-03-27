@@ -1,4 +1,3 @@
-
 #   BẢN QUYỀN GỐC:
 #   Copyright (c) 2025 Haui.HIT - H2K
 #   Mã nguồn này được sử dụng theo các điều khoản của Giấy phép Apache 2.0.
