@@ -4,8 +4,6 @@
 
 **Trường:** Trường THCS Yên Mô
 
-<!-- [![Documentation](https://img.shields.io/badge/Documentation-View_Site-blue?style=for-the-badge)](https://github.com/PhamQuyNam/OLP_2025_PMMNM_HaUI_DNK.git) -->
-
 [![License](https://img.shields.io/badge/License-Apache_2.0-yellow.svg?style=for-the-badge)](./LICENSE)
 
 Bài dự thi Phát triển ứng dụng thành phố thông minh dựa trên nền tảng dữ liệu mở.
@@ -122,12 +120,6 @@ Nền tảng này sử dụng và tích hợp các PMMN sau:
 
 Hệ thống yêu cầu đã cài đặt Docker và Docker Compose.
 
-**Clone kho mã nguồn:**
-
-```bash
-git clone https://github.com/PhamQuyNam/OLP_2025_PMMNM_HaUI_DNK.git
-```
-
 **Cấu hình môi trường**
 
 Trước khi chạy dự án, bạn cần thiết lập các file môi trường (`.env`) cho từng service:
@@ -193,24 +185,6 @@ docker-compose stop
 ```bash
 docker-compose down
 ```
-
-## 🤝 Đóng góp cho Dự án
-
-- **Báo lỗi ⚠️:** [Tạo một Bug Report](https://github.com/PhamQuyNam/OLP_2025_PMMNM_HaUI_DNK/issues/new?assignees=&labels=bug&template=bug_report.md&title=[BUG])
-- **Yêu cầu tính năng 👩‍💻:** [Đề xuất một tính năng mới](https://github.com/PhamQuyNam/OLP_2025_PMMNM_HaUI_DNK/issues/new?assignees=&labels=enhancement&template=feature_request.md&title=[FEAT])
-
-Nếu bạn muốn đóng góp cho dự án, hãy đọc `CONTRIBUTING.md` để biết thêm chi tiết.
-Mọi đóng góp của các bạn đều được trân trọng, đừng ngần ngại gửi pull request cho dự án.
-
----
-
-## 📞 Liên hệ
-
-- **Phạm Quý Nam:** phamquynam2004@gmail.com
-- **Trịnh Gia Luật:** luattrinh2k4@gmail.com
-- **Ngô Văn Tấn:** ngovantannvt04@gmail.com
-
----
 
 ## ⚖️ Giấy phép
 
