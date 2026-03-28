@@ -55,7 +55,9 @@ const getReports = async (req, res) => {
     try {
         // Lấy các báo cáo mới nhất từ Orion
         const orionUrl = `${process.env.ORION_HOST}/ngsi-ld/v1/entities?type=CitizenReport&options=keyValues&limit=50`;
-        const response = await axios.get(orionUrl);
+        const response = await axios.get(orionUrl, {
+            headers: { 'Accept': 'application/ld+json' }
+        });
 
         // Format lại dữ liệu cho đẹp
         const formattedData = response.data.map(item => ({
@@ -71,6 +73,13 @@ const getReports = async (req, res) => {
 
         res.json(formattedData);
     } catch (error) {
+        // In log ra để dễ gỡ lỗi
+        console.error("Lỗi lấy danh sách báo cáo:", error.message);
+        
+        // Nếu Orion báo 404 (chưa có dữ liệu) HOẶC 406, trả về mảng rỗng [] thay vì báo lỗi 500
+        if (error.response && (error.response.status === 404 || error.response.status === 406)) {
+            return res.json([]); 
+        }
         res.status(500).json({ message: "Lỗi lấy danh sách báo cáo" });
     }
 };
@@ -132,7 +141,9 @@ const updateReportStatus = async (req, res) => {
         // 3. Lấy lại dữ liệu chi tiết để trả về (cho đúng format yêu cầu)
         // Gọi lại Orion lấy entity đó ra
         const getUrl = `${process.env.ORION_HOST}/ngsi-ld/v1/entities/${id}?options=keyValues`;
-        const response = await axios.get(getUrl);
+        const response = await axios.get(getUrl, {
+            headers: { 'Accept': 'application/ld+json' }
+        });
         const item = response.data;
 
         // Format dữ liệu trả về
@@ -165,7 +176,9 @@ const getPublicReports = async (req, res) => {
         // Thêm tham số q=status=="VERIFIED" để lọc ngay từ Orion
         const orionUrl = `${process.env.ORION_HOST}/ngsi-ld/v1/entities?type=CitizenReport&q=status=="VERIFIED"&options=keyValues&limit=100`;
 
-        const response = await axios.get(orionUrl);
+        const response = await axios.get(orionUrl, {
+            headers: { 'Accept': 'application/ld+json' }
+        });
 
         const formattedData = response.data.map(item => ({
             id: item.id,

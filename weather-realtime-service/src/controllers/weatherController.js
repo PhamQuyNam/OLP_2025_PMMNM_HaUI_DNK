@@ -7,7 +7,10 @@ const getRealtimeWeather = async (req, res) => {
         // &options=keyValues giúp Orion trả về JSON gọn gàng (bỏ bớt type: Property)
         const orionUrl = `${process.env.ORION_HOST}/ngsi-ld/v1/entities?type=RainObserved&options=keyValues&limit=100`;
 
-        const response = await axios.get(orionUrl);
+        // Orion-LD cần header Accept: application/json, nếu không sẽ trả 406
+        const response = await axios.get(orionUrl, {
+            headers: { 'Accept': 'application/json' }
+        });
 
         // Dữ liệu trả về sẽ là một mảng các trạm đo
         // Ví dụ: [{id: '...', rainVolume: 35.5, location: {...}}, ...]
@@ -22,7 +25,8 @@ const getRealtimeWeather = async (req, res) => {
 // Hàm phụ trợ: Làm đẹp dữ liệu
 const resultFormatter = (data) => {
     return data.map(station => {
-        const rain = station.rainVolume || 0;
+        // Ingestion service lưu vào Orion với field rainVolume1h
+        const rain = station.rainVolume1h || station.rainVolume || 0;
 
         // Logic đánh giá sơ bộ trạng thái (để Frontend tô màu)
         let status = "SAFE";
