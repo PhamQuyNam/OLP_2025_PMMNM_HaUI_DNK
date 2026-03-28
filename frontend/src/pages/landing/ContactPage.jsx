@@ -33,7 +33,7 @@ const ContactPage = () => {
                 </div>
                 <div>
                   <h4 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-1">Email</h4>
-                  <p className="text-lg font-semibold text-slate-800">example@gmail.com</p>
+                  <p className="text-lg font-semibold text-slate-800">c2khanhthinhyenmo.ninhbinh@moet.edu.vn</p>
                   <p className="text-sm text-slate-500 mt-1">Phản hồi trong vòng 24h</p>
                 </div>
               </div>
@@ -44,7 +44,7 @@ const ContactPage = () => {
                 </div>
                 <div>
                   <h4 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-1">Điện thoại</h4>
-                  <p className="text-lg font-semibold text-slate-800">0123.456.789</p>
+                  <p className="text-lg font-semibold text-slate-800">091 583 4298</p>
                   <p className="text-sm text-slate-500 mt-1">Hỗ trợ giờ hành chính</p>
                 </div>
               </div>
