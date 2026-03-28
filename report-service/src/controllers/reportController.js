@@ -36,7 +36,10 @@ const createReport = async (req, res) => {
         // 3. Gửi sang Orion Context Broker
         const orionUrl = `${process.env.ORION_HOST}/ngsi-ld/v1/entities`;
         await axios.post(orionUrl, entity, {
-            headers: { 'Content-Type': 'application/ld+json' }
+            headers: {
+                'Content-Type': 'application/ld+json',
+                'Accept': 'application/json'
+            }
         });
 
         res.status(201).json({
@@ -55,8 +58,9 @@ const getReports = async (req, res) => {
     try {
         // Lấy các báo cáo mới nhất từ Orion
         const orionUrl = `${process.env.ORION_HOST}/ngsi-ld/v1/entities?type=CitizenReport&options=keyValues&limit=50`;
+        // keyValues + Accept: application/json → Orion trả plain JSON
         const response = await axios.get(orionUrl, {
-            headers: { 'Accept': 'application/ld+json' }
+            headers: { 'Accept': 'application/json' }
         });
 
         // Format lại dữ liệu cho đẹp
@@ -142,7 +146,7 @@ const updateReportStatus = async (req, res) => {
         // Gọi lại Orion lấy entity đó ra
         const getUrl = `${process.env.ORION_HOST}/ngsi-ld/v1/entities/${id}?options=keyValues`;
         const response = await axios.get(getUrl, {
-            headers: { 'Accept': 'application/ld+json' }
+            headers: { 'Accept': 'application/json' }
         });
         const item = response.data;
 
@@ -177,7 +181,7 @@ const getPublicReports = async (req, res) => {
         const orionUrl = `${process.env.ORION_HOST}/ngsi-ld/v1/entities?type=CitizenReport&q=status=="VERIFIED"&options=keyValues&limit=100`;
 
         const response = await axios.get(orionUrl, {
-            headers: { 'Accept': 'application/ld+json' }
+            headers: { 'Accept': 'application/json' }
         });
 
         const formattedData = response.data.map(item => ({

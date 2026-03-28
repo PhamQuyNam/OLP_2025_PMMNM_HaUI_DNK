@@ -38,7 +38,10 @@ const pushToOrion = async (alertData) => {
 
   try {
     await axios.post(orionUrl, entity, {
-      headers: { "Content-Type": "application/ld+json" },
+      headers: {
+        "Content-Type": "application/ld+json",
+        "Accept": "application/json"
+      },
     });
     console.log("✅ Đã phát broadcast lên Orion");
   } catch (e) {
@@ -49,7 +52,10 @@ const pushToOrion = async (alertData) => {
       try {
         await axios.delete(`${orionUrl}/${entityId}`);
         await axios.post(orionUrl, entity, {
-          headers: { "Content-Type": "application/ld+json" },
+          headers: {
+            "Content-Type": "application/ld+json",
+            "Accept": "application/json"
+          },
         });
         console.log("♻️ Đã cập nhật broadcast trên Orion");
       } catch (delErr) {
