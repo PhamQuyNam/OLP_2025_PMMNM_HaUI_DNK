@@ -102,7 +102,7 @@ const ManagerDashboardPage = () => {
   // --- 2. GỌI API (Lấy tất cả dữ liệu) ---
   const fetchAllData = async () => {
     try {
-      const [weatherRes, reportRes, sosRes] = await Promise.all([
+      const [weatherRes, reportRes, sosRes, alertRes] = await Promise.all([
         weatherService.getRealtimeStations(),
         reportService.getAllReports(),
         safetyService.getActiveSOS(),
