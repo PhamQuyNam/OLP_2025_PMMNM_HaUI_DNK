@@ -2,6 +2,9 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import LandingPage from "./pages/landing/LandingPage";
 import LoginPage from "./pages/auth/LoginPage";
 import RegisterPage from "./pages/auth/RegisterPage";
+import FeaturesPage from "./pages/landing/FeaturesPage";
+import AboutPage from "./pages/landing/AboutPage";
+import ContactPage from "./pages/landing/ContactPage";
 import CitizenReportPage from "./pages/citizen/CitizenReportPage";
 // Citizen Imports
 import CitizenLayout from "./layouts/CitizenLayout";
@@ -31,6 +34,9 @@ function App() {
       <Routes>
         {/* === PUBLIC ROUTES === */}
         <Route path="/" element={<LandingPage />} />
+        <Route path="/features" element={<FeaturesPage />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/contact" element={<ContactPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/unauthorized" element={<UnauthorizedPage />} />

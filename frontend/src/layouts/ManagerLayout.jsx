@@ -142,7 +142,7 @@ const ManagerLayout = () => {
         */}
         <header className="h-16 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 sticky top-0 z-[500] flex items-center justify-between px-8">
           <h2 className="text-lg font-semibold text-slate-200">
-            Trung tâm Điều hành Thông minh
+            Trung tâm Điều hành
           </h2>
 
           <div className="flex items-center gap-4">

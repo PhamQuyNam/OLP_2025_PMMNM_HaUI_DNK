@@ -77,7 +77,7 @@ const AlertLegend = () => {
   const [isExpanded, setIsExpanded] = useState(true);
 
   return (
-    <div className="absolute bottom-8 left-4 z-[1000] flex flex-col items-start gap-2">
+    <div className="absolute bottom-24 md:bottom-8 left-4 z-[1000] flex flex-col items-start gap-2">
       {/* Nút bật tắt */}
       <button
         onClick={() => setIsExpanded(!isExpanded)}
