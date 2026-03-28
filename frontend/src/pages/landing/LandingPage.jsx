@@ -39,7 +39,7 @@ const LandingPage = () => {
                 <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
               </span>
               <span className="text-xs font-bold text-slate-600 tracking-wider uppercase">
-                Giải pháp OLP 2025 • Running
+                Giải pháp công nghệ 2026
               </span>
             </div>
 
@@ -58,7 +58,7 @@ const LandingPage = () => {
 
             {/* Subheadline */}
             <p className="text-xl text-slate-600 max-w-3xl mx-auto mb-10 font-medium">
-              Hệ thống giám sát thời gian thực dựa trên{" "}
+              Ứng dụng giám sát thời gian thực dựa trên{" "}
               <span className="font-bold text-slate-800 bg-white/50 px-2 py-0.5 rounded border border-slate-200">
                 Dữ liệu mở Liên kết
               </span>
@@ -328,7 +328,7 @@ const LandingPage = () => {
                     Phát triển bởi
                   </span>
                   <span className="font-bold text-slate-800">
-                    Team Haui-DNK
+                    YM_Tech
                   </span>
                 </div>
               </div>
@@ -342,11 +342,11 @@ const LandingPage = () => {
                   <Map size={28} />
                 </div>
                 <h3 className="text-xl font-bold text-slate-800 mb-3">
-                  Bản đồ Rủi ro Động
+                  Bản đồ Nguy cơ Số
                 </h3>
                 <p className="text-slate-600">
-                  Tích hợp lớp dữ liệu địa hình (PostGIS) và lượng mưa thời gian
-                  thực để khoanh vùng nguy hiểm.
+                  Trực quan hóa các "điểm nóng" có nguy cơ lũ quét và sạt lở cao
+                  trên nền tảng bản đồ PostGIS, giúp khoanh vùng nguy hiểm trực quan.
                 </p>
               </div>
 
@@ -356,11 +356,11 @@ const LandingPage = () => {
                   <BellRing size={28} />
                 </div>
                 <h3 className="text-xl font-bold text-slate-800 mb-3">
-                  Cảnh báo Đa kênh
+                  Cảnh báo Đa phương thức
                 </h3>
                 <p className="text-slate-600">
-                  Hệ thống tự động kích hoạt SOS và gửi chỉ dẫn sơ tán đến App
-                  người dân khi chỉ số vượt ngưỡng.
+                  Tự động kích hoạt thông báo khẩn cấp và lộ trình sơ tán an toàn
+                  tới người dân ngay khi phát hiện chỉ số quan trắc vượt ngưỡng.
                 </p>
               </div>
 
@@ -370,11 +370,11 @@ const LandingPage = () => {
                   <Database size={28} />
                 </div>
                 <h3 className="text-xl font-bold text-slate-800 mb-3">
-                  Dữ liệu Mở Liên kết
+                  Hệ sinh thái Dữ liệu Mở
                 </h3>
                 <p className="text-slate-600">
-                  Chuẩn hóa dữ liệu từ OpenWeather, IoT và cộng đồng thành đồ
-                  thị tri thức (Knowledge Graph).
+                  Chuẩn hóa và tích hợp nguồn tin từ trạm quan trắc IoT, dữ liệu thời tiết vệ tinh
+                  và cộng đồng theo tiêu chuẩn FIWARE (NGSI-LD).
                 </p>
               </div>
 
@@ -384,11 +384,11 @@ const LandingPage = () => {
                   <Activity size={28} />
                 </div>
                 <h3 className="text-xl font-bold text-slate-800 mb-3">
-                  Phân tích & Dự báo
+                  Phân tích Đa tham số
                 </h3>
                 <p className="text-slate-600">
-                  Sử dụng thuật toán học máy (Machine Learning) để dự đoán xu
-                  hướng ngập lụt cục bộ.
+                  Đánh giá rủi ro dựa trên sự kết hợp dữ liệu mưa thời gian thực, độ dốc địa hình
+                  và các chỉ số thủy văn (TWI, Slope) để đưa ra cảnh báo chính xác.
                 </p>
               </div>
             </div>
@@ -406,12 +406,13 @@ const LandingPage = () => {
             </span>
           </div>
           <p className="mb-8 text-lg">
-            Giải pháp Công nghệ cho Thành phố Thông minh & An toàn
+            Giải pháp Công nghệ cho Cảnh báo sớm và Ứng phó Khẩn cấp Thiên tai
           </p>
           <div className="border-t border-slate-800 pt-8 text-sm flex flex-col md:flex-row justify-center gap-6 font-medium">
-            <span>&copy; 2025 Team Haui-DNK</span>
+            <span>&copy; 2026 YM_Tech</span>
             <span className="hidden md:inline text-slate-700">•</span>
-            <span>OLP Tin học Sinh viên Việt Nam</span>
+            <span>Cuộc thi Sáng tạo Thanh, Thiếu niên và Nhi đồng xã Yên Mô lần thứ
+              I năm 2026</span>
           </div>
         </div>
       </footer>

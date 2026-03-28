@@ -35,7 +35,7 @@ const Navbar = () => {
               Viet<span className="text-primary">Resilience</span>Hub
             </span>
             <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
-              Hệ thống Cảnh báo Thiên tai
+              Ứng dụng Cảnh báo Thiên tai
             </span>
           </div>
         </Link>
