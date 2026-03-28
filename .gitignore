@@ -71,5 +71,5 @@ Desktop.ini
 # =============================
 # Optional: ignore local environment files
 # =============================
-.env
-**/.env
+# .env
+# **/.env
